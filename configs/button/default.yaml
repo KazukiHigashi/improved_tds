@@ -1,0 +1,20 @@
+seed: 0
+environment:
+  id: TDS-Button-v0
+  tool_family: button
+  task: repeated_press_release
+  parameters:
+    travel: 0.01
+    stiffness: 30.0
+    damping: 0.2
+    actuation_threshold: 0.007
+    radius: 0.012
+    body_friction: 0.5
+    neighboring_buttons: 0
+    body_mass: 0.02
+    force_limit: 5.0
+domain_randomization:
+  stiffness_scale: [0.8, 1.2]
+  friction_scale: [0.8, 1.2]
+  action_latency_steps: [0, 2]
+

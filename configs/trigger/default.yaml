@@ -1,0 +1,20 @@
+seed: 0
+environment:
+  id: TDS-Trigger-v0
+  tool_family: trigger
+  task: repeated_squeeze_release
+  parameters:
+    travel: 0.35
+    spring_stiffness: 1.0
+    damping: 0.05
+    preload: 0.0
+    friction: 0.01
+    lever_arm: 0.04
+    actuation_threshold: 0.25
+    body_mass: 0.05
+    force_limit: 2.0
+domain_randomization:
+  stiffness_scale: [0.8, 1.2]
+  friction_scale: [0.8, 1.2]
+  sensor_noise_std: 0.001
+

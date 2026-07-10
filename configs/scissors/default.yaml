@@ -1,0 +1,24 @@
+seed: 0
+environment:
+  id: ExpScissor1-v0
+  tool_family: scissors
+  tool_instance_id: scissors-1
+  parameters:
+    hinge_friction: 0.0
+    hinge_damping: 0.1
+    resistance_torque: 0.0
+controller:
+  name: tool_state_feedback
+  kp: 0.5
+  ki: 0.0
+  kd: 0.0
+  derivative_filter_time_constant: 0.02
+  safety:
+    rho_min: -1.0
+    rho_max: 1.0
+    rho_rate_max: 2.0
+    rho_acceleration_max: 10.0
+collection:
+  output: runs/scissors/trajectories.npz
+  successful_only: true
+

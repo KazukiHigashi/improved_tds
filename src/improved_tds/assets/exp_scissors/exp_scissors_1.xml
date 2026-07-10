@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+An order of joints (25 DoFs)
+The name of joints can be seen in a below specification.
+https://www.shadowrobot.com/wp-content/uploads/shadow_dexterous_hand_technical_specification_E_20190221.pdf
+0 : robot0:slide
+1 : robot0:WRJ1
+2 : robot0:WRJ0
+3 : robot0:FFJ3
+4 : robot0:FFJ2
+5 : robot0:FFJ1
+6 : robot0:FFJ0
+7 : robot0:MFJ3
+8 : robot0:MFJ2
+9 : robot0:MFJ1
+10: robot0:MFJ0
+11: robot0:RFJ3
+12: robot0:RFJ2
+13: robot0:RFJ1
+14: robot0:RFJ0
+15: robot0:LFJ4
+16: robot0:LFJ3
+17: robot0:LFJ2
+18: robot0:LFJ1
+19: robot0:LFJ0
+20: robot0:THJ4
+21: robot0:THJ3
+22: robot0:THJ2
+23: robot0:THJ1
+24: robot0:THJ0
+-->
+<mujoco>
+<!--  nconmaxを追加。接触点の計算がデフォルトでは100  -->
+<!--    <size njmax="3000" nconmax="500" />-->
+    <compiler angle="radian" coordinate="local" meshdir="../stls" texturedir="../textures"></compiler>
+    <option timestep="0.002" iterations="20">  <!--  ※学習の時はtimestep=0.002 だが, PID制御の時はtimestep=0.01にする！！！  -->
+        <flag warmstart="enable"></flag>
+    </option>
+
+    <include file="shared_remove_lf.xml"></include>
+
+    <asset>
+        <include file="shared_asset.xml"></include>
+
+        <texture name="texture:object" file="block.png" gridsize="3 4" gridlayout=".U..LFRB.D.."></texture>
+        <texture name="texture:hidden" file="block_hidden.png" gridsize="3 4" gridlayout=".U..LFRB.D.."></texture>
+
+        <material name="material:object" texture="texture:object" specular="1" shininess="0.3" rgba="1 1 1 0.5"
+                  reflectance="0"></material>
+        <material name="material:hidden" texture="texture:hidden" specular="1" shininess="0.3"
+                  reflectance="0"></material>
+        <material name="material:target" texture="texture:object" specular="1" shininess="0.3" reflectance="0"
+                  rgba="1 1 1 0.2"></material>
+    </asset>
+
+    <worldbody>
+<!--        <geom name="floor0" pos="1 1 0" size="20 20 20" type="plane" condim="3" contype="0" conaffinity="0" material="floor_mat"></geom>-->
+<!--        <body name="floor0" pos="1 1 0"></body>-->
+
+        <camera name="side"
+                mode="targetbody"
+                pos="1.0 1.5 0.6"
+                target="scissors_part0"/>
+
+        <include file="robot_for_exp_scissors.xml"></include>
+<!--        <include file="robot_for_exp_scissors.xml"></include>-->
+
+        <geom type="plane" pos="1 0.87 0.175" size="0.5 0.5 2" rgba=".8 .8 .8 0.5"/>
+
+        <body name="object" pos="1.6 0.85 0.2">
+            <geom name="object" type="box" friction="1.5 0.005 0.0001" size="0.02 0.02 0.02"
+                  material="material:object" condim="4" density="100" contype="3" conaffinity="3"></geom>
+<!--            <geom name="object_hidden" type="box" size="0.024 0.024 0.024" material="material:hidden" condim="4"-->
+<!--                  contype="0" conaffinity="0" mass="0.0l"></geom>-->
+            <site name="object:center" pos="0 0 0" rgba="1 0 0 0" size="0.01 0.01 0.01"></site>
+            <site name="box:center" pos="0 0 0" rgba="1 0 0 0" size="0.01 0.01 0.01"></site>
+            <joint name="box:joint" type="free" damping="0.01"></joint>
+        </body>
+
+
+
+
+        <!--  ShadowHandLite用  刃が上下に来るように回転。はさみの形変更, 刃の重なりを無くす-->
+        <!-- 上下反転させたはさみのモデル -->
+        <body name="scissors_part0" pos="1.07 0.892 0.4">
+            <geom name="scissors" type="sphere" size="0.01 0.01 0.01" condim="4" group="2"
+                  contype="0" conaffinity="0" rgba="0.9 0.9 0.1 1"></geom>
+            <site name="scissors:center" pos="0 0 0" rgba="1 0 0 0" size="0.01 0.01 0.01"></site>
+            <joint name="scissors:joint" type="free" damping="0.01"></joint>
+            <body name="scissors_part1_mirror" pos="0 0 0" euler="1.57 0 0">
+                <joint name="scissors_hinge_1:joint" type="hinge" pos="0 0 0" axis="0 0 1" limited="true" range="-0.52358 0.52358" damping="0.1" armature="0.01"></joint>
+                <geom name="scissors_part1_mirror" type="box" friction="1.5 0.005 0.0001" size="0.1 0.008 0.004"></geom>
+<!--     hinge:jointでもう片方のはさみを連結-->
+                <body name="scissors_part1" pos="0 0 0.008">
+                    <site name="scissors2:center" pos="0 0 0" rgba="1 0 0 0" size="0.001 0.001 0.001"></site>
+                    <geom name="scissors_part1" type="box" friction="1.5 0.005 0.0001" size="0.1 0.008 0.004"></geom>
+                    <joint name="scissors_hinge_2:joint" type="hinge" pos="0 0 0" axis="0 0 1" limited="true" range="0 1.02358" damping="0.1" armature="0.01"></joint>
+                    <body name="scissors_part2" pos="0 -0.024 0">
+                        <geom name="scissors_part2" type="box" friction="1.5 0.005 0.0001" size="0.02 0.008 0.004" euler="0 0 1.57075"></geom>
+                        <body name="scissors_part3" pos="-0.045 -0.027 0">
+                            <geom name="scissors_part3" type="box" friction="1.5 0.005 0.0001" size="0.053 0.008 0.004" euler="0 0 0"></geom>
+                            <body name="scissors_part4" pos="-0.058 0.025 0">
+                                <geom name="scissors_part4" type="box" friction="1.5 0.005 0.0001" size="0.034 0.008 0.004" euler="0 0 1.57075"></geom>
+                                <body name="scissors_part5" pos="0.045 0.015 0">
+                                    <geom name="scissors_part5" type="box" friction="1.5 0.005 0.0001" size="0.05 0.008 0.004" euler="0 0 0"></geom>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+                <body name="scissors_part2_mirror" pos="0 0.024 0">
+                    <geom name="scissors_part2_mirror" type="box" friction="1.5 0.005 0.0001" size="0.02 0.008 0.004" euler="0 0 -1.57075"></geom>
+                    <body name="scissors_part3_mirror" pos="-0.045 0.027 0">
+                        <geom name="scissors_part3_mirror" type="box" friction="1.5 0.005 0.0001" size="0.053 0.008 0.004" euler="0 0 0"></geom>
+                        <body name="scissors_part4_mirror" pos="-0.058 -0.025 0">
+                            <geom name="scissors_part4_mirror" type="box" friction="1.5 0.005 0.0001" size="0.034 0.008 0.004" euler="0 0 -1.57075"></geom>
+                            <body name="scissors_part5_mirror" pos="0.045 -0.018 0">
+                                <geom name="scissors_part5_mirror" type="box" friction="1.5 0.005 0.0001" size="0.05 0.008 0.004" euler="0 0 0"></geom>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+
+        <light directional="true" ambient="0.2 0.2 0.2" diffuse="0.8 0.8 0.8" specular="0.3 0.3 0.3" castshadow="false"
+               pos="0 1 4" dir="0 0 -1" name="light0"></light>
+    </worldbody>
+
+    <sensor>
+        <touch name="robot0:ST_Tch_ffmdl" site="robot0:Tch_ffmdl"></touch>
+        <touch name="robot0:ST_Tch_ffprx" site="robot0:Tch_ffprx"></touch>
+
+        <touch name="robot0:ST_Tch_mfmdl" site="robot0:Tch_mfmdl"></touch>
+        <touch name="robot0:ST_Tch_mfprx" site="robot0:Tch_mfprx"></touch>
+
+        <touch name="robot0:ST_Tch_rfmdl" site="robot0:Tch_rfmdl"></touch>
+        <touch name="robot0:ST_Tch_rfprx" site="robot0:Tch_rfprx"></touch>
+
+<!--        <touch name="robot0:ST_Tch_lfmdl" site="robot0:Tch_lfmdl"></touch>-->
+<!--        <touch name="robot0:ST_Tch_lfprx" site="robot0:Tch_lfprx"></touch>-->
+
+        <touch name="robot0:ST_Tch_thmdl" site="robot0:Tch_thmdl"></touch>
+        <touch name="robot0:ST_Tch_thprx" site="robot0:Tch_thprx"></touch>
+
+        <touch name="robot0:ST_Tch_palm" site="robot0:Tch_palm"></touch>
+<!--        <touch name="robot0:ST_Tch_lfknl" site="robot0:Tch_lfknl"></touch>-->
+    </sensor>
+
+    <actuator>
+<!--        <position name="robot0:A_zslider" joint="robot0:zslider" ctrlrange="0.2 0.8" ctrllimited="true" kp="1" forcerange="-4.785 4.785"/>-->
+<!--        <position name="robot0:A_xslider" joint="robot0:xslider" ctrlrange="-0.15 0.15" ctrllimited="true" kp="1" forcerange="-4.785 4.785"/>-->
+<!--        <position name="robot0:A_yslider" joint="robot0:yslider" ctrlrange="-0.15 0.15" ctrllimited="true" kp="1" forcerange="-4.785 4.785"/>-->
+
+<!--        <position name="robot0:A_rollhinge" joint="robot0:rollhinge" ctrlrange="0 3.14" ctrllimited="true" kp="1" forcerange="-4.785 4.785"/>-->
+    </actuator>
+</mujoco>

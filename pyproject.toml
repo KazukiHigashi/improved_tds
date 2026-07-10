@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "improved-tds"
+version = "0.1.0"
+description = "Closed-loop tool-DoF synergy estimation, control, and MuJoCo evaluation."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "scikit-learn>=1.3",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+simulation = [
+    "gymnasium>=0.29.1,<1.3.0",
+    "mujoco>=3.1,<4",
+]
+training = [
+    "improved-tds[simulation]",
+    "stable-baselines3>=2.3,<3",
+]
+dev = [
+    "improved-tds[simulation]",
+    "pytest>=8",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+improved-tds = "improved_tds.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["improved_tds*"]
+
+[tool.setuptools.package-data]
+improved_tds = ["assets/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "simulation: tests requiring Gymnasium and MuJoCo",
+    "training: tests requiring Stable-Baselines3",
+    "slow: long-running experiment tests",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+

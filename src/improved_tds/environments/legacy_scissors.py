@@ -103,6 +103,7 @@ class ExpScissorEnv(gym.Env):
         target_angle_range: tuple[float, float] = (0.0, 1.0),
         initial_object_qpos: tuple[float, ...] = (1.07, 0.892, 0.4, 1.0, 0.0, 0.0, 0.0),
         hold_initial_steps: int = 30,
+        success_hold_steps: int = 5,
         grasp_threshold: float | None = None,
         grasp_radius: float | None = None,
         show_goal_marker: bool = True,
@@ -115,6 +116,10 @@ class ExpScissorEnv(gym.Env):
         valid_reward_types = {"standard", "sparse", "dense", "synergy", "synergy2"}
         if reward_type not in valid_reward_types:
             raise ValueError(f"reward_type must be one of {sorted(valid_reward_types)}")
+        if hold_initial_steps < 0:
+            raise ValueError("hold_initial_steps must be non-negative")
+        if success_hold_steps < 1:
+            raise ValueError("success_hold_steps must be positive")
 
         self.variant = variant
         self.render_mode = render_mode
@@ -125,6 +130,7 @@ class ExpScissorEnv(gym.Env):
         self.target_angle_range = np.asarray(target_angle_range, dtype=np.float64)
         self.init_object_qpos = np.asarray(initial_object_qpos, dtype=np.float64)
         self.hold_initial_steps = int(hold_initial_steps)
+        self.success_hold_steps = int(success_hold_steps)
         self.grasp_threshold = float(
             SCISSOR_VARIANTS[variant].grasp_threshold
             if grasp_threshold is None
@@ -136,6 +142,7 @@ class ExpScissorEnv(gym.Env):
         self.show_goal_marker = bool(show_goal_marker)
         self.show_grasp_marker = bool(show_grasp_marker)
         self.step_n = 0
+        self.success_streak = 0
         self.goal = np.zeros(1, dtype=np.float32)
         self.initial_qpos: np.ndarray | None = None
         self._fixed_grasp_center = self.init_object_qpos[:3].copy()
@@ -176,11 +183,17 @@ class ExpScissorEnv(gym.Env):
 
     def reset(self, *, seed: int | None = None, options: dict[str, Any] | None = None):
         super().reset(seed=seed)
-        del options
+        options = options or {}
         self._reset_sim()
-        self._hold_initial_pose()
+        self._settle_initial_pose()
         self._capture_fixed_grasp_center()
-        self.goal = self._sample_goal().astype(np.float32)
+        if "target" in options:
+            target = float(options["target"])
+            if not self.target_angle_range[0] <= target <= self.target_angle_range[1]:
+                raise ValueError("target is outside target_angle_range")
+            self.goal = np.asarray([target], dtype=np.float32)
+        else:
+            self.goal = self._sample_goal().astype(np.float32)
         obs = self._get_obs()
         info = self._get_info(obs)
         if self.render_mode == "human":
@@ -197,13 +210,21 @@ class ExpScissorEnv(gym.Env):
         self._step_callback()
         obs = self._get_obs()
         info = self._get_info(obs)
+        if bool(info["is_success"]):
+            self.success_streak += 1
+        else:
+            self.success_streak = 0
+        stable_success = self.success_streak >= self.success_hold_steps
+        info.update(
+            {
+                "success_streak": self.success_streak,
+                "is_stable_success": float(stable_success),
+                "termination_reason": "running",
+            }
+        )
         reward = self.compute_reward(obs["achieved_goal"], obs["desired_goal"], info)
         terminated = False
         truncated = False
-
-        if self.step_n < self.hold_initial_steps:
-            self._hold_initial_pose()
-            self._capture_fixed_grasp_center()
 
         if self.render_mode == "human":
             self.render()
@@ -354,6 +375,7 @@ class ExpScissorEnv(gym.Env):
         mujoco.mj_forward(self.model, self.data)
 
     def _reset_sim(self) -> None:
+        mujoco.mj_resetData(self.model, self.data)
         self.data.qpos[:] = self._initial_data_qpos
         self.data.qvel[:] = self._initial_data_qvel
         self.data.ctrl[:] = 0.0
@@ -361,11 +383,16 @@ class ExpScissorEnv(gym.Env):
         self._set_object_qpos(self.init_object_qpos)
         self._set_hinge_angles(0.0)
         self.step_n = 0
+        self.success_streak = 0
+        mujoco.mj_forward(self.model, self.data)
 
-        for _ in range(10):
-            self._set_action(np.zeros(self.action_space.shape, dtype=np.float32))
+    def _settle_initial_pose(self) -> None:
+        self._hold_initial_pose()
+        for _ in range(self.hold_initial_steps):
             for _ in range(self.n_substeps):
                 mujoco.mj_step(self.model, self.data)
+        self.data.qvel[:] = 0.0
+        self.data.qacc_warmstart[:] = 0.0
         mujoco.mj_forward(self.model, self.data)
 
     def _sample_goal(self) -> np.ndarray:
@@ -449,6 +476,10 @@ class ExpScissorEnv(gym.Env):
             self._set_object_qpos(self.initial_qpos)
         self._set_hinge_angles(0.0)
         self._set_hand_initial_angles()
+        self.data.qvel[:] = 0.0
+        for index, actuator_name in enumerate(self._actuator_names):
+            joint_name = actuator_name.replace(":A_", ":")
+            self.data.ctrl[index] = get_joint_qpos(self.model, self.data, joint_name)[0]
         mujoco.mj_forward(self.model, self.data)
 
     def _capture_fixed_grasp_center(self) -> None:

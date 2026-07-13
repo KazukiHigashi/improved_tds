@@ -1,17 +1,11 @@
-# Controllers and safety
+# コントローラと安全機構
 
-All controllers accept `ControlObservation` and return a joint command, TDS coordinate,
-mode, saturation flag and diagnostics. `SafetyLimiter` applies rho range, rate,
-acceleration and joint limits. Torque, current, force or external emergency-stop
-violations return the estimator mean posture as an emergency-release command.
+すべてのコントローラは`ControlObservation`を受け取り、関節指令、TDS座標、動作モード、飽和フラグ、診断情報を返す。`SafetyLimiter`は、rhoの範囲、速度、加速度、および関節制限を適用する。トルク、電流、力、または外部非常停止の制限に違反した場合は、推定器の平均姿勢を非常解放指令として返す。
 
-- `FeedforwardTDSController`: inverse calibration and TDS decode baseline.
-- `ToolStateFeedbackController`: filtered PID; invalid tool sensor degrades to feedforward.
-- `AdmittanceTDSController`: semi-implicit compliant motion; absent force estimate
-  degrades to tool-state feedback.
-- `StabilizationSynergy`: a separately limited `b_g phi` component that weakens when
-  tool-state deviation grows and releases at the force limit.
+- `FeedforwardTDSController`: 逆校正とTDS復号を行う基準コントローラ。
+- `ToolStateFeedbackController`: フィルタ付きPID制御。ツール状態センサが無効な場合はフィードフォワード制御へ縮退する。
+- `AdmittanceTDSController`: 半陰的積分によるコンプライアント動作。力推定を取得できない場合はツール状態フィードバックへ縮退する。
+- `StabilizationSynergy`: 独立に制限された`b_g phi`成分。ツール状態の偏差が大きくなると効果を弱め、力制限に達すると解放する。
 
-Safety values in example YAML are simulation defaults, not validated real-hardware
-limits. Real limits must be provided by the platform owner before commands are enabled.
+YAML例に記載した安全値はシミュレーション用の既定値であり、検証済みの実機制限ではない。実機への指令を有効にする前に、プラットフォーム管理者が実際の制限値を提示し、検証する必要がある。
 

@@ -18,9 +18,18 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--method", choices=("linear", "piecewise_linear", "isotonic", "pchip"), default="isotonic")
     parser.add_argument("--shots", type=int, default=0, help="0 uses all synchronized samples")
     parser.add_argument("--output", required=True)
+    parser.add_argument("--success-steps-only", action="store_true")
+    parser.add_argument("--stable-success-only", action="store_true")
     args = parser.parse_args(argv)
     estimator = load_estimator(args.model)
-    q, state = load_samples(args.dataset)
+    q, state = load_samples(
+        args.dataset,
+        success_steps_only=args.success_steps_only,
+        stable_success_only=args.stable_success_only,
+        expected_dataset_role=(
+            "formal_balanced_calibration" if args.stable_success_only else None
+        ),
+    )
     rho = estimator.encode(q)[:, 0]
     if args.shots > 0:
         count = min(args.shots, q.shape[0])
@@ -44,4 +53,3 @@ def main(argv: list[str] | None = None) -> None:
 
 if __name__ == "__main__":
     main()
-

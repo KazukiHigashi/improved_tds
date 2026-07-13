@@ -2,18 +2,21 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
 import json
+import os
 from pathlib import Path
 from typing import Any, Iterable
 
 import numpy as np
 
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
+SUPPORTED_SCHEMA_VERSIONS = {"1.0", SCHEMA_VERSION}
 _VECTOR_FIELDS = (
     "q",
     "qd",
     "action",
     "tool_state",
+    "desired_tool_state",
     "tool_state_rate",
     "joint_torque",
     "motor_current",
@@ -21,6 +24,7 @@ _VECTOR_FIELDS = (
     "contact_forces",
 )
 _OPTIONAL_FIELDS = {
+    "desired_tool_state",
     "tool_state_rate",
     "joint_torque",
     "motor_current",
@@ -54,6 +58,7 @@ class TrajectoryStep:
     qd: np.ndarray
     action: np.ndarray
     tool_state: np.ndarray
+    desired_tool_state: np.ndarray | None = None
     tool_state_rate: np.ndarray | None = None
     joint_torque: np.ndarray | None = None
     motor_current: np.ndarray | None = None
@@ -63,12 +68,20 @@ class TrajectoryStep:
     reward: float = 0.0
     terminated: bool = False
     truncated: bool = False
+    step_index: int = 0
+    is_success: bool = False
+    is_stable_success: bool = False
+    success_streak: int = 0
 
     def __post_init__(self) -> None:
         self.timestamp = float(self.timestamp)
         self.reward = float(self.reward)
+        self.step_index = int(self.step_index)
+        self.success_streak = int(self.success_streak)
         if not np.isfinite(self.timestamp) or not np.isfinite(self.reward):
             raise ValueError("timestamp and reward must be finite")
+        if self.step_index < 0 or self.success_streak < 0:
+            raise ValueError("step_index and success_streak must be non-negative")
         self.q = _vector(self.q, "q")
         self.qd = _vector(self.qd, "qd")
         self.action = _vector(self.action, "action")
@@ -87,11 +100,16 @@ class TrajectoryMetadata:
     tool_instance_id: str
     task_name: str
     success: bool
-    seed: int
+    seed: int | None
     simulator_parameters: dict[str, Any] = field(default_factory=dict)
     controller_name: str = "unknown"
     policy_checkpoint: str | None = None
     tool_state_unit: str = "rad"
+    episode_id: int = 0
+    stable_success_steps: int = 1
+    termination_reason: str = "unknown"
+    dataset_role: str = "training_candidate"
+    initial_desired_tool_state: list[float] | None = None
 
     def to_json_dict(self) -> dict[str, Any]:
         payload = asdict(self)
@@ -143,9 +161,10 @@ class TrajectoryDataset:
         return True
 
     def validate(self) -> None:
-        if self.schema_version != SCHEMA_VERSION:
+        if self.schema_version not in SUPPORTED_SCHEMA_VERSIONS:
             raise ValueError(
-                f"unsupported trajectory schema {self.schema_version!r}; expected {SCHEMA_VERSION!r}"
+                f"unsupported trajectory schema {self.schema_version!r}; "
+                f"supported versions are {sorted(SUPPORTED_SCHEMA_VERSIONS)}"
             )
         if not self.trajectories:
             raise ValueError("dataset contains no trajectories")
@@ -168,20 +187,70 @@ class TrajectoryDataset:
     def successful(self) -> list[Trajectory]:
         return [trajectory for trajectory in self.trajectories if trajectory.metadata.success]
 
-    def samples(self) -> tuple[np.ndarray, np.ndarray]:
+    def samples(self, *, success_steps_only: bool = False) -> tuple[np.ndarray, np.ndarray]:
         """Return synchronized `(q, tool_state)` arrays from successful trajectories."""
 
         selected = self.successful
         if not selected:
             raise ValueError("dataset contains no successful trajectories")
-        q = np.vstack([step.q for trajectory in selected for step in trajectory.steps])
-        tool_state = np.vstack(
-            [step.tool_state for trajectory in selected for step in trajectory.steps]
-        )
+        steps = [step for trajectory in selected for step in trajectory.steps]
+        if success_steps_only:
+            steps = [step for step in steps if step.is_success]
+            if not steps:
+                raise ValueError("dataset contains no instantaneous-success steps")
+        q = np.vstack([step.q for step in steps])
+        tool_state = np.vstack([step.tool_state for step in steps])
         return q.astype(np.float64), tool_state.astype(np.float64)
+
+    def stable_success_samples(self) -> tuple[np.ndarray, np.ndarray]:
+        """各成功episodeから最初に成立した安定成功窓だけを返す。"""
+
+        windows: list[TrajectoryStep] = []
+        for trajectory in self.successful:
+            stable_index = next(
+                (index for index, step in enumerate(trajectory.steps) if step.is_stable_success),
+                None,
+            )
+            if stable_index is None:
+                continue
+            width = trajectory.metadata.stable_success_steps
+            start = stable_index - width + 1
+            if start < 0:
+                raise ValueError("stable-success marker precedes its required window")
+            window = trajectory.steps[start : stable_index + 1]
+            if not all(step.is_success for step in window):
+                raise ValueError("stable-success window contains an unsuccessful step")
+            indices = [step.step_index for step in window]
+            if indices != list(range(indices[0], indices[0] + width)):
+                raise ValueError("stable-success window has non-contiguous step indices")
+            if window[-1].success_streak < width:
+                raise ValueError("stable-success marker disagrees with success streak")
+            windows.extend(window)
+        if not windows:
+            raise ValueError("dataset contains no stable-success windows")
+        return (
+            np.vstack([step.q for step in windows]).astype(np.float64),
+            np.vstack([step.tool_state for step in windows]).astype(np.float64),
+        )
+
+    def goal_conditioned_samples(
+        self, *, success_steps_only: bool = False
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        q, tool_state = self.samples(success_steps_only=success_steps_only)
+        steps = [
+            step
+            for trajectory in self.successful
+            for step in trajectory.steps
+            if not success_steps_only or step.is_success
+        ]
+        if any(step.desired_tool_state is None for step in steps):
+            raise ValueError("dataset contains samples without desired_tool_state")
+        desired = np.vstack([step.desired_tool_state for step in steps])
+        return q, tool_state, desired.astype(np.float64)
 
     def save(self, path: str | Path) -> None:
         self.validate()
+        self.schema_version = SCHEMA_VERSION
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         lengths = np.asarray([len(item.steps) for item in self.trajectories], dtype=np.int64)
@@ -198,10 +267,22 @@ class TrajectoryDataset:
             "reward": np.asarray([step.reward for step in steps], dtype=np.float64),
             "terminated": np.asarray([step.terminated for step in steps], dtype=np.bool_),
             "truncated": np.asarray([step.truncated for step in steps], dtype=np.bool_),
+            "step_index": np.asarray([step.step_index for step in steps], dtype=np.int64),
+            "is_success": np.asarray([step.is_success for step in steps], dtype=np.bool_),
+            "is_stable_success": np.asarray(
+                [step.is_stable_success for step in steps], dtype=np.bool_
+            ),
+            "success_streak": np.asarray(
+                [step.success_streak for step in steps], dtype=np.int64
+            ),
         }
         for name in _VECTOR_FIELDS:
             arrays[name] = self._stack_field(steps, name)
-        np.savez_compressed(path, **arrays)
+        if path.suffix != ".npz":
+            path = path.with_suffix(".npz")
+        temporary = path.with_name(f".{path.stem}.tmp.npz")
+        np.savez_compressed(temporary, **arrays)
+        os.replace(temporary, path)
 
     @staticmethod
     def _stack_field(steps: list[TrajectoryStep], name: str) -> np.ndarray:
@@ -221,43 +302,64 @@ class TrajectoryDataset:
     def load(cls, path: str | Path) -> "TrajectoryDataset":
         with np.load(Path(path), allow_pickle=False) as data:
             version = str(np.asarray(data["schema_version"]).item())
-            if version != SCHEMA_VERSION:
+            if version not in SUPPORTED_SCHEMA_VERSIONS:
                 raise ValueError(f"unsupported trajectory schema {version!r}")
             offsets = np.asarray(data["episode_offsets"], dtype=np.int64)
             if offsets.ndim != 1 or offsets.size < 2 or offsets[0] != 0:
                 raise ValueError("invalid episode_offsets")
+            if np.any(np.diff(offsets) <= 0):
+                raise ValueError("episode_offsets must be strictly increasing")
             n_steps = int(offsets[-1])
+            vector_fields = (
+                _VECTOR_FIELDS
+                if version == SCHEMA_VERSION
+                else tuple(name for name in _VECTOR_FIELDS if name != "desired_tool_state")
+            )
             required = {
                 "timestamp",
                 "phase",
                 "reward",
                 "terminated",
                 "truncated",
-                *_VECTOR_FIELDS,
+                *vector_fields,
             }
+            if version == SCHEMA_VERSION:
+                required.update(
+                    {"step_index", "is_success", "is_stable_success", "success_streak"}
+                )
             missing = sorted(required.difference(data.files))
             if missing:
                 raise ValueError(f"dataset is missing fields: {missing}")
+            arrays = {
+                name: np.asarray(data[name])
+                for name in required.union({"metadata_json"})
+            }
             for name in required:
-                if np.asarray(data[name]).shape[0] != n_steps:
+                if arrays[name].shape[0] != n_steps:
                     raise ValueError(f"field {name} length does not match episode_offsets")
-            metadata_raw = np.asarray(data["metadata_json"])
+            metadata_raw = arrays["metadata_json"]
             if metadata_raw.shape != (offsets.size - 1,):
                 raise ValueError("metadata count does not match trajectory count")
             trajectories: list[Trajectory] = []
             for episode, (start, stop) in enumerate(zip(offsets[:-1], offsets[1:])):
                 metadata = TrajectoryMetadata(**json.loads(str(metadata_raw[episode])))
-                steps = [cls._step_from_arrays(data, index) for index in range(int(start), int(stop))]
+                steps = [
+                    cls._step_from_arrays(arrays, index, version)
+                    for index in range(int(start), int(stop))
+                ]
                 trajectories.append(Trajectory(metadata=metadata, steps=steps))
         dataset = cls(trajectories=trajectories, schema_version=version)
         dataset.validate()
         return dataset
 
     @staticmethod
-    def _step_from_arrays(data: Any, index: int) -> TrajectoryStep:
+    def _step_from_arrays(data: Any, index: int, version: str) -> TrajectoryStep:
         values: dict[str, Any] = {}
         for name in _VECTOR_FIELDS:
-            array = np.asarray(data[name])
+            if name not in data:
+                values[name] = None
+                continue
+            array = data[name]
             row = array[index]
             if name in _OPTIONAL_FIELDS and (row.size == 0 or np.any(~np.isfinite(row))):
                 values[name] = None
@@ -269,6 +371,16 @@ class TrajectoryDataset:
             reward=float(data["reward"][index]),
             terminated=bool(data["terminated"][index]),
             truncated=bool(data["truncated"][index]),
+            step_index=int(data["step_index"][index]) if version == SCHEMA_VERSION else index,
+            is_success=bool(data["is_success"][index]) if version == SCHEMA_VERSION else False,
+            is_stable_success=(
+                bool(data["is_stable_success"][index])
+                if version == SCHEMA_VERSION
+                else False
+            ),
+            success_streak=(
+                int(data["success_streak"][index]) if version == SCHEMA_VERSION else 0
+            ),
             **values,
         )
 
@@ -277,4 +389,3 @@ class TrajectoryDataset:
         dataset = cls(list(trajectories))
         dataset.validate()
         return dataset
-

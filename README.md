@@ -1,15 +1,10 @@
 # Improved TDS
 
-`improved-tds` is a standalone research project for low-dimensional, closed-loop
-actuation of a known or initialized grasp on an articulated 1-DoF tool. It evolves the
-`tool-dof-synergy` PCA/feedforward baseline without modifying that reference project.
+`improved-tds`は、既知または初期化済みの把持で1-DoF関節ツールを低次元閉ループ制御する独立研究projectである。参照元`tool-dof-synergy`を変更せず、PCA/feedforward baselineを発展させる。
 
-Implemented features include versioned successful-trajectory datasets, PCA and
-supervised/family TDS estimators, monotone few-shot calibration, feedforward/PID/
-admittance controllers, independent stabilization synergy, force/hardware interfaces,
-and Gymnasium/MuJoCo environments for scissors, triggers and buttons.
+version付き成功軌道dataset、PCA・教師あり・family TDS推定器、単調few-shot較正、feedforward/PID/admittance controller、独立安定化synergy、力・hardware interface、および固定されたGymnasium/MuJoCo評価環境を実装している。
 
-## Setup
+## セットアップ
 
 ```bash
 python3 -m venv .venv
@@ -18,15 +13,15 @@ python -m pip install -e '.[dev]'
 pytest -q
 ```
 
-The numerical core is CPU-only and does not require Gymnasium, MuJoCo, SB3 or a GPU.
-Install `.[simulation]` for environments or `.[training]` for the optional SB3 DDPG+HER
-baseline. No Isaac Sim or other heavyweight simulator is used.
+数値coreはCPUだけで動作し、Gymnasium、MuJoCo、SB3、GPUに依存しない。環境には`.[simulation]`、任意のSB3 SAC/TD3/DDPG+HER data生成baselineには`.[training]`を導入する。Isaac Simなどの重量級simulatorは使用しない。
 
-## Compatibility and environments
+## 互換性と環境
 
-The copied MIT-licensed scissors assets are self-contained. Existing IDs
-`ExpScissor1-v0` through `ExpScissor5-v0` keep the HER Dict observation and normalized
-14-actuator action contract. New IDs are `TDS-Trigger-v0` and `TDS-Button-v0`.
+コピーしたMIT licenseのハサミassetはproject内で完結する。`ExpScissor1-v0`から`ExpScissor5-v0`は、HER用Dict観測と正規化14-actuator actionの契約を維持する。追加環境IDは`TDS-Trigger-v0`と`TDS-Button-v0`である。
+
+### Gymnasium環境のスコープ
+
+このリポジトリでは、既存Gymnasium環境をTDS研究の固定評価基盤として扱い、後方互換性の維持、bug修正、再現性に必要な最小限の変更だけを行う。新task、報酬設計、観測・action契約、asset、物理モデルなどの環境機能の拡充は、このリポジトリでは扱わない。環境自体の拡充は専用の環境リポジトリで実施し、安定版を依存関係または明示的なversionとして取り込む。
 
 ```python
 import gymnasium as gym
@@ -37,19 +32,10 @@ observation, info = env.reset(seed=0)
 observation, reward, terminated, truncated, info = env.step(env.action_space.sample())
 ```
 
-The end-to-end data/fitting commands are documented in
-[`docs/experiments.md`](docs/experiments.md). Architecture survey and compatibility
-decisions are in
-[`docs/implementation_plan_closed_loop_tds.md`](docs/implementation_plan_closed_loop_tds.md).
+end-to-endのdata収集・fit commandは[`docs/experiments.md`](docs/experiments.md)、architecture調査と互換性判断は[`docs/implementation_plan_closed_loop_tds.md`](docs/implementation_plan_closed_loop_tds.md)に記載する。
 
-## Safety boundary
+## 安全境界
 
-Simulation defaults are not real-hardware limits. Motor constants, sensor calibration,
-command transport and safety limits are deliberately not guessed. Real integration
-must implement `HardwareAdapter`, supply validated configuration and retain emergency
-release/watchdog behavior described in
-[`docs/real_robot_integration.md`](docs/real_robot_integration.md).
+simulation既定値は実機の安全制限ではない。motor定数、sensor較正、command transport、安全制限は推測で補わない。実機統合では`HardwareAdapter`を実装し、検証済み設定と[`docs/real_robot_integration.md`](docs/real_robot_integration.md)の緊急解放・watchdog動作を維持する。
 
-Scissors assets retain their upstream notice in
-[`src/improved_tds/assets/LICENSE.md`](src/improved_tds/assets/LICENSE.md).
-
+ハサミassetのupstream noticeは[`src/improved_tds/assets/LICENSE.md`](src/improved_tds/assets/LICENSE.md)に保持する。

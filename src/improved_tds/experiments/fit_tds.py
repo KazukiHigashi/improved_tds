@@ -19,8 +19,17 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--output", required=True)
     parser.add_argument("--metrics", default=None)
+    parser.add_argument("--success-steps-only", action="store_true")
+    parser.add_argument("--stable-success-only", action="store_true")
     args = parser.parse_args(argv)
-    q, state = load_samples(args.dataset)
+    q, state = load_samples(
+        args.dataset,
+        success_steps_only=args.success_steps_only,
+        stable_success_only=args.stable_success_only,
+        expected_dataset_role=(
+            "formal_balanced_fit" if args.stable_success_only else None
+        ),
+    )
     estimator = (PCATDS() if args.method == "pca" else RandomTDS(args.seed) if args.method == "random" else SupervisedLinearTDS(method=args.method))
     estimator.fit(q, state)
     estimator.save(args.output)
@@ -40,4 +49,3 @@ def main(argv: list[str] | None = None) -> None:
 
 if __name__ == "__main__":
     main()
-

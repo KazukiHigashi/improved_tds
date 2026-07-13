@@ -1,50 +1,54 @@
-# TDS mathematics and assumptions
+<!-- math: mathjax -->
 
-Let joint posture be `q` in radians, mean posture be `q_bar`, unit actuation direction
-be `s_a`, and one-dimensional coordinate be `rho`:
+# TDSの数式と仮定
 
-`q = q_bar + s_a rho`.
+関節姿勢をrad単位の\(q\)、平均姿勢を\(\bar q\)、単位作動方向を\(s_a\)、1次元座標を\(\rho\)とする。
 
-## Estimators
+$$
+q = \bar q + s_a\rho.
+$$
 
-PCA-TDS uses the first right singular vector of centered successful samples. Its
-explained variance ratio is retained as a baseline metric. Supervised TDS standardizes
-joint samples, then uses either one-component PLS or joint/tool-state covariance. The
-learned vector is converted back to physical joint space and normalized. When tool state
-is available, its sign is chosen so `corr(rho, c) >= 0`.
+## 推定器
 
-For instance directions `s_j`, family TDS uses the principal eigenvector of
-`sum_j w_j s_j s_j^T` after sign alignment. Each held-out instance keeps a separate
-mean posture and calibration.
+PCA-TDSは、中心化した成功サンプルの第1右特異ベクトルを使用する。説明分散比はbaseline指標として保持する。教師ありTDSは関節サンプルを標準化し、1成分PLSまたは関節・ツール状態間の共分散を使用する。学習したベクトルを物理関節空間へ戻して正規化する。ツール状態を使用できる場合は、\(\operatorname{corr}(\rho,c)\ge0\)となるよう符号を選択する。
 
-## Tool-state calibration
+インスタンスごとの方向\(s_j\)に対し、ファミリーTDSは符号を整列した後の
 
-`c=f(rho)` is represented by a monotone linear, piecewise-linear, isotonic or PCHIP
-curve. Duplicate coordinates are averaged, non-invertible flat intervals are removed,
-and inverse extrapolation is disabled by default. Open and close phases may have
-separate curves; their mean overlap difference is the reported hysteresis.
+$$
+\sum_j w_j s_j s_j^\top
+$$
 
-## Feedback and generalized force
+の第1固有ベクトルを使用する。除外した各インスタンスでは、平均姿勢と校正を個別に保持する。
 
-Tool-state feedback is
+## ツール状態の校正
 
-`rho_cmd = f^-1(c_d) + Kp e + Ki integral(e) + Kd filtered(d e/dt)`.
+\(c=f(\rho)\)は、単調なlinear、piecewise-linear、isotonic、PCHIP curveとして表現する。重複する座標は平均し、可逆でない平坦区間を除去する。逆変換時の外挿は既定で無効とする。open phaseとclose phaseには別々のcurveを使用でき、重複範囲における平均差をヒステリシスとして報告する。
 
-Integral action defaults to zero and uses conditional anti-windup. The generalized
-TDS reaction estimate is `eta_rho = s_a^T tau`. Admittance is discretized with
-semi-implicit Euler:
+## フィードバックと一般化力
 
-`M rho_ddot + D rho_dot = Kc(c_d-c) + Keta(eta_d-eta_rho)`.
+ツール状態フィードバックは、次式で表す。
 
-Low-pass filtering, position/rate/acceleration saturation and force dropout fallback
-are mandatory. With one actuation DoF, position and reaction force cannot be controlled
-independently; `eta_d` is a compliance/safety preference, not a guaranteed force target.
+$$
+\rho_{\mathrm{cmd}}
+= f^{-1}(c_d)+K_pe+K_i\int e\,dt
++K_d\,\operatorname{filtered}\!\left(\frac{de}{dt}\right).
+$$
 
-## Stabilization
+積分動作は既定で無効とし、条件付きanti-windupを使用する。TDS方向の一般化反力推定値は\(\eta_\rho=s_a^\top\tau\)である。アドミタンスは半陰的Euler法で離散化する。
 
-The command is `q_cmd = q_bar + s_a rho + b_g phi`. A PCA nullspace is not assumed to
-be an internal-force subspace. Manual/PCA directions require an interference metric;
-the experimental estimator projects a force-sensitive direction away from measured
-tool-state and actuation gradients. `phi`, force, tool deviation and joint commands are
-bounded, with emergency release on configured violations.
+$$
+M\ddot\rho+D\dot\rho
+=K_c(c_d-c)+K_\eta(\eta_d-\eta_\rho).
+$$
 
+low-pass filter、位置・速度・加速度の飽和、力推定欠測時のfallbackを必須とする。1つの作動DoFでは、位置と反力を独立に厳密制御できない。そのため、`eta_d`は保証された力目標ではなく、コンプライアンスまたは安全上の選好として扱う。
+
+## 安定化
+
+指令は
+
+$$
+q_{\mathrm{cmd}}=\bar q+s_a\rho+b_g\phi
+$$
+
+とする。PCAのnull spaceをinternal force subspaceと同一とは仮定しない。手動またはPCA由来の方向には干渉指標が必要である。実験的推定器は、力に敏感な方向から、測定したツール状態gradientと作動gradientの成分を除去する。\(\phi\)、力、ツール状態偏差、関節指令を制限し、設定した制限への違反時には非常解放を行う。

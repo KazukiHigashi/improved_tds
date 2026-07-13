@@ -24,6 +24,10 @@ training = [
     "improved-tds[simulation]",
     "stable-baselines3>=2.3,<3",
 ]
+reporting = [
+    "improved-tds[training]",
+    "matplotlib>=3.8,<4",
+]
 dev = [
     "improved-tds[simulation]",
     "pytest>=8",
@@ -51,4 +55,3 @@ markers = [
 [tool.ruff]
 line-length = 100
 target-version = "py310"
-

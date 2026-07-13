@@ -15,8 +15,17 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--model", required=True)
     parser.add_argument("--calibration", required=True)
     parser.add_argument("--dt", type=float, default=0.04)
+    parser.add_argument("--success-steps-only", action="store_true")
+    parser.add_argument("--stable-success-only", action="store_true")
     args = parser.parse_args(argv)
-    q, state = load_samples(args.dataset)
+    q, state = load_samples(
+        args.dataset,
+        success_steps_only=args.success_steps_only,
+        stable_success_only=args.stable_success_only,
+        expected_dataset_role=(
+            "formal_balanced_test" if args.stable_success_only else None
+        ),
+    )
     estimator = load_estimator(args.model)
     calibrator = ToolStateCalibrator.load(args.calibration)
     target_in_domain, predicted, coverage = calibrated_subset(calibrator, estimator.encode(q)[:, 0], state)
@@ -26,4 +35,3 @@ def main(argv: list[str] | None = None) -> None:
 
 if __name__ == "__main__":
     main()
-

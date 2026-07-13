@@ -26,6 +26,8 @@ class SuccessfulTrajectoryCollector(gym.Wrapper):
         policy_checkpoint: str | None = None,
         simulator_parameters: dict[str, Any] | None = None,
         save_failures: bool = False,
+        dataset_role: str = "training_candidate",
+        save_every_trajectories: int = 100,
     ):
         super().__init__(env)
         self.output_path = None if output_path is None else Path(output_path)
@@ -33,16 +35,33 @@ class SuccessfulTrajectoryCollector(gym.Wrapper):
         self.policy_checkpoint = policy_checkpoint
         self.simulator_parameters = dict(simulator_parameters or {})
         self.save_failures = bool(save_failures)
+        self.dataset_role = str(dataset_role)
+        if save_every_trajectories < 1:
+            raise ValueError("save_every_trajectories must be positive")
+        self.save_every_trajectories = int(save_every_trajectories)
         self.dataset = TrajectoryDataset()
         self._steps: list[TrajectoryStep] = []
-        self._seed = 0
+        self._seed: int | None = None
         self._success = False
+        self._episode_id = -1
+        self._episode_start_time = 0.0
+        self._initial_desired_tool_state: list[float] | None = None
 
     def reset(self, *, seed: int | None = None, options: dict[str, Any] | None = None):
         self._steps = []
-        self._seed = 0 if seed is None else int(seed)
+        self._episode_id += 1
+        self._seed = None if seed is None else int(seed)
         self._success = False
-        return self.env.reset(seed=seed, options=options)
+        obs, info = self.env.reset(seed=seed, options=options)
+        data = getattr(self.env.unwrapped, "data", None)
+        self._episode_start_time = float(getattr(data, "time", 0.0))
+        desired = obs.get("desired_goal") if isinstance(obs, dict) else None
+        self._initial_desired_tool_state = (
+            None
+            if desired is None
+            else np.asarray(desired, dtype=np.float64).reshape(-1).tolist()
+        )
+        return obs, info
 
     def step(self, action: np.ndarray):
         obs, reward, terminated, truncated, info = self.env.step(action)
@@ -52,14 +71,32 @@ class SuccessfulTrajectoryCollector(gym.Wrapper):
             raise TypeError("environment does not implement ArticulatedToolEnv data accessors")
         q, qd = unwrapped.get_joint_state()
         force = unwrapped.get_force_observation()
-        self._success |= bool(float(np.asarray(info.get("is_success", 0.0)).reshape(-1)[0]))
+        instantaneous_success = bool(
+            float(np.asarray(info.get("is_success", 0.0)).reshape(-1)[0])
+        )
+        if "is_stable_success" in info:
+            stable_success = bool(
+                float(np.asarray(info["is_stable_success"]).reshape(-1)[0])
+            )
+        else:
+            stable_success = instantaneous_success and bool(terminated)
+        self._success |= stable_success
+        desired = obs.get("desired_goal") if isinstance(obs, dict) else None
+        data = getattr(unwrapped, "data", None)
         self._steps.append(
             TrajectoryStep(
-                timestamp=float(getattr(getattr(unwrapped, "data", None), "time", len(self._steps))),
+                timestamp=float(getattr(data, "time", len(self._steps)))
+                - self._episode_start_time,
+                step_index=len(self._steps),
                 q=q,
                 qd=qd,
                 action=np.asarray(action, dtype=np.float64).reshape(-1),
                 tool_state=unwrapped.get_tool_state(),
+                desired_tool_state=(
+                    None
+                    if desired is None
+                    else np.asarray(desired, dtype=np.float64).reshape(-1)
+                ),
                 tool_state_rate=unwrapped.get_tool_state_rate(),
                 joint_torque=force.get("joint_torque"),
                 motor_current=force.get("motor_current"),
@@ -69,6 +106,9 @@ class SuccessfulTrajectoryCollector(gym.Wrapper):
                 reward=float(reward),
                 terminated=bool(terminated),
                 truncated=bool(truncated),
+                is_success=instantaneous_success,
+                is_stable_success=stable_success,
+                success_streak=int(info.get("success_streak", int(instantaneous_success))),
             )
         )
         if terminated or truncated:
@@ -87,15 +127,33 @@ class SuccessfulTrajectoryCollector(gym.Wrapper):
             controller_name=self.controller_name,
             policy_checkpoint=self.policy_checkpoint,
             tool_state_unit="rad" if getattr(unwrapped, "joint_type", "hinge") == "hinge" else "m",
+            episode_id=self._episode_id,
+            stable_success_steps=int(getattr(unwrapped, "success_hold_steps", 1)),
+            termination_reason=(
+                "time_limit"
+                if self._steps[-1].truncated
+                else "terminated"
+                if self._steps[-1].terminated
+                else "unknown"
+            ),
+            dataset_role=self.dataset_role,
+            initial_desired_tool_state=self._initial_desired_tool_state,
         )
         trajectory = Trajectory(metadata, list(self._steps))
         self.dataset.append(trajectory, successful_only=not self.save_failures)
-        if self.output_path is not None and self.dataset.trajectories:
+        if (
+            self.output_path is not None
+            and self.dataset.trajectories
+            and len(self.dataset.trajectories) % self.save_every_trajectories == 0
+        ):
             self.dataset.save(self.output_path)
         self._steps = []
+
+    @property
+    def successful_trajectory_count(self) -> int:
+        return len(self.dataset.successful)
 
     def close(self) -> None:
         if self.output_path is not None and self.dataset.trajectories:
             self.dataset.save(self.output_path)
         super().close()
-

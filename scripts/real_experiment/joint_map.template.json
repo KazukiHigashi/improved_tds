@@ -1,0 +1,19 @@
+{
+  "configuration": "pca_1d",
+  "expected_start_rad": [null, null, null, null, null, null, null, null, null, null, null, null, null],
+  "joints": [
+    {"name": "rh_THJ5", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_THJ4", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_THJ2", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_THJ1", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_FFJ4", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_FFJ3", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_FFJ2", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_MFJ4", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_MFJ3", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_MFJ2", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_RFJ4", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_RFJ3", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false},
+    {"name": "rh_RFJ2", "sign": null, "offset_rad": null, "sim_min_rad": null, "sim_max_rad": null, "min_rad": null, "max_rad": null, "max_velocity_rad_s": null, "verified": false}
+  ]
+}

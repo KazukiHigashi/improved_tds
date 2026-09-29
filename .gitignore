@@ -15,3 +15,12 @@ outputs/
 !tests/fixtures/*.npz
 MUJOCO_LOG.TXT
 
+# Reproducible experiment outputs are retained locally, but are too large for Git.
+# Their provenance and selected-result hashes are recorded in the paper bundle manifest.
+analysis/
+
+# Ephemeral local test and plotting workspaces.
+.codex_tmp/
+_pytest_*/
+.pytest_tmp*/
+

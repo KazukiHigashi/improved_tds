@@ -29,7 +29,7 @@ run_task() {
         export OPENBLAS_NUM_THREADS=3
         /usr/bin/time -v -o "$task_dir/resource_usage.txt" \
             "$PYTHON" -m improved_tds.experiments.train_sb3 \
-            --env-id "ExpScissor${task}-v0" \
+            --env-id "ScissorsVariant${task}-v0" \
             --algorithm sac \
             --total-timesteps "$TOTAL_TIMESTEPS" \
             --seed "$seed" \
@@ -50,7 +50,7 @@ s = json.loads((d / "model_training_summary.json").read_text())
 assert s["total_timesteps"] == 1_000_000
 assert s["env_id"] == sys.argv[2]
 assert (d / "model.zip").is_file()
-' "$task_dir" "ExpScissor${task}-v0"; then
+' "$task_dir" "ScissorsVariant${task}-v0"; then
         printf 'completed\n' > "$task_dir/status.txt"
         return 0
     fi

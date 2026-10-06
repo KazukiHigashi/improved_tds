@@ -1,9 +1,11 @@
 # docs 索引
 
-最終更新: 2026-09-29
+最終更新: 2026-10-06
 
-現在の15タスク論文実験の実装・採用結果・Git境界は
-[project_snapshot_20260929.md](project_snapshot_20260929.md) を参照してください。
+論文の主実験に採用するPCA／PLSの1自由度TDS条件と数値は
+[paper_one_dof_baseline_20261006.md](paper_one_dof_baseline_20261006.md) を参照してください。
+15タスク実験基盤の実装・採用結果・従来のGit境界は
+[project_snapshot_20260929.md](project_snapshot_20260929.md) に保存しています。
 
 ## いま動いている検討
 

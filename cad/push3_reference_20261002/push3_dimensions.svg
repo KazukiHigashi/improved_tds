@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 550" width="760" height="550">
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 Z" fill="#334155"/></marker></defs>
+<rect width="760" height="550" fill="#f8fafc"/>
+<style>text{font:16px sans-serif;fill:#172033} .small{font-size:12px;fill:#475569} .dim{stroke:#334155;stroke-width:1.5;marker-start:url(#arrow);marker-end:url(#arrow)} .guide{stroke:#94a3b8;stroke-width:1}</style>
+<text x="35" y="35" font-size="23">Push 3 — MuJoCo外形寸法（mm）</text>
+<rect x="165" y="175" width="130" height="300" fill="#dbeafe" stroke="#334155" stroke-width="2"/>
+<rect x="212.5" y="130" width="35" height="45" fill="#94a3b8" stroke="#334155" stroke-width="2"/>
+<rect x="195" y="105" width="70" height="25" fill="#4169a7" stroke="#334155" stroke-width="2"/>
+<line x1="105" y1="175" x2="157" y2="175" class="guide"/><line x1="105" y1="475" x2="157" y2="475" class="guide"/>
+<line x1="105" y1="175" x2="105" y2="475" class="dim"/><text x="40" y="325">本体 120</text>
+<line x1="165" y1="500" x2="295" y2="500" class="dim"/><text x="192" y="527">Ø52</text>
+<line x1="195" y1="91" x2="265" y2="91" class="dim"/><text x="212" y="85" class="small">Ø28</text>
+<line x1="212.5" y1="152.5" x2="247.5" y2="152.5" class="dim"/><text x="275" y="157.5" class="small">Ø14</text>
+<text x="315" y="122.5">ボタン 厚さ 10</text>
+<text x="315" y="157.5">可動軸 高さ 18</text>
+<text x="385" y="215">押し込み量 12 ↓</text>
+<text x="385" y="245">休止時全高 148</text>
+<text x="385" y="275">最大押し込み時全高 136</text>
+<text x="385" y="325" class="small">元XMLは本体・可動部の衝突を除外。</text>
+<text x="385" y="347" class="small">内部ガイド穴やばね座は未定義。</text>
+<text x="35" y="537" class="small">出典: shadow_hand_push3.xml / 外形参照のみ・製作図ではありません</text>
+</svg>

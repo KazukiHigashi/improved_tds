@@ -1,0 +1,60 @@
+{
+  "protocol": "push3_cad_reference_v1",
+  "source_xml": "C:\\Users\\smasa\\Documents\\mujoco\\projects\\tool-manip-gym\\gym-push\\gym_push\\assets\\shadow_hand\\shadow_hand_push3.xml",
+  "source_sha256": "7c90d46de779c5a5292c0421d92f069de7fee593c44bb7eee9fe7e5369365697",
+  "source_environment": "ShadowHandLitePush3-v0",
+  "cad_unit": "mm",
+  "mujoco_unit": "m",
+  "body": {
+    "radius_mm": 26.0,
+    "diameter_mm": 52.0,
+    "half_height_mm": 60.0,
+    "height_mm": 120.0,
+    "center_z_mm": 0.0
+  },
+  "neck": {
+    "radius_mm": 7.0,
+    "diameter_mm": 14.0,
+    "half_height_mm": 9.0,
+    "height_mm": 18.0,
+    "center_z_mm": 9.0
+  },
+  "cap": {
+    "radius_mm": 14.0,
+    "diameter_mm": 28.0,
+    "half_height_mm": 5.0,
+    "height_mm": 10.0,
+    "center_z_mm": 23.0
+  },
+  "body_initial_center_world_mm": [
+    227.0,
+    82.0,
+    60.0
+  ],
+  "plunger_origin_relative_to_body_center_mm": [
+    0.0,
+    0.0,
+    60.0
+  ],
+  "body_bottom_from_body_center_mm": -60.0,
+  "neck_bottom_from_body_base_mm": 120.0,
+  "neck_top_from_body_base_mm": 138.0,
+  "cap_bottom_from_body_base_mm": 138.0,
+  "cap_top_from_body_base_mm": 148.0,
+  "body_height_mm": 120.0,
+  "plunger_height_mm": 28.0,
+  "rest_total_height_mm": 148.0,
+  "full_press_total_height_mm": 136.0,
+  "stroke_mm": 12.0,
+  "stroke_axis": [
+    0.0,
+    0.0,
+    -1.0
+  ],
+  "simulation_body_mass_g": 200.0,
+  "simulation_plunger_mass_g": 8.0,
+  "simulation_slide_stiffness_n_per_m": 55.0,
+  "simulation_slide_damping_n_s_per_m": 1.0,
+  "simulation_slide_frictionloss_n": 0.02,
+  "simulation_slide_springref_mm": -1.427
+}

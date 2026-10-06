@@ -18,7 +18,6 @@ class AxisFeedbackConfig:
     probe_offset: float = 0.1
     deadband_fraction: float = 0.005
     noise_fraction: float = 0.001
-    contact_debounce_seconds: float = 0.1
 
     def __post_init__(self):
         values = vars(self)
@@ -31,49 +30,80 @@ class AxisFeedbackConfig:
 def estimate_sensitivity(probes, offset, tool_span, noise_fraction=0.001):
     """Paired minus/zero/plus probes, one triplet per CALIBRATION pose.
 
-    Use two one-sided slopes, not only the central difference (which hides
-    turning points). Require consistent signs across every usable pose and
-    both sides, and at least two usable poses. Within-hold SD is deliberately
-    not divided by sqrt(n), since simulation samples are serially correlated.
+    Estimate each side separately. An invalid probe removes only that side;
+    contact-link changes are logged by the experiment but do not invalidate
+    tool response. A side needs at least two usable poses with a consistent
+    sign and response above the measured within-hold noise. Poses with the
+    minority response sign are excluded from that side and counted. Opposite-sided
+    slopes with opposite signs describe a turning point: use only the side
+    with more support, then the stronger response as a deterministic tie-break.
     """
     if not np.isfinite(offset) or offset <= 0 or tool_span <= 0:
         raise ValueError('positive probe offset and tool span required')
-    slopes, noises, reasons, loads = [], [], [], []
-    for triplet in probes:
+    sides = {'minus': [], 'plus': []}
+    exclusions = []
+    for pose, triplet in enumerate(probes):
         if len(triplet) != 3:
             raise ValueError('each probe must contain minus, zero, plus')
-        if not all(p['valid'] and p.get('complete', False)
-                   and not p.get('clipped', False) for p in triplet):
-            reasons.append('invalid_or_clipped_probe')
+        zero = triplet[1]
+        for label, index in (('minus', 0), ('plus', 2)):
+            other = triplet[index]
+            samples = (zero, other)
+            if not all(p['valid'] and p.get('complete', False)
+                       and not p.get('clipped', False) for p in samples):
+                exclusions.append({'pose': pose, 'side': label, 'reason': 'invalid_or_clipped_probe'})
+                continue
+            if not all(np.isfinite(p['terminal_mean']) and np.isfinite(p['terminal_std'])
+                       for p in samples):
+                exclusions.append({'pose': pose, 'side': label, 'reason': 'nonfinite_probe'})
+                continue
+            noise = max(tool_span * noise_fraction,
+                        3 * max(float(p['terminal_std']) for p in samples))
+            slope = ((float(zero['terminal_mean']) - float(other['terminal_mean'])) / offset
+                     if label == 'minus' else
+                     (float(other['terminal_mean']) - float(zero['terminal_mean'])) / offset)
+            if abs(slope) * offset <= noise:
+                exclusions.append({'pose': pose, 'side': label, 'reason': 'response_below_noise'})
+                continue
+            sides[label].append({'pose': pose, 'slope': slope, 'noise': noise})
+    usable = {}
+    for label, samples in sides.items():
+        positive = [s for s in samples if s['slope'] > 0]
+        negative = [s for s in samples if s['slope'] < 0]
+        if positive and negative and len(positive) == len(negative):
+            exclusions.append({'side': label, 'reason': 'response_sign_tie'})
             continue
-        signatures = [p.get('terminal_contact_signature') for p in triplet]
-        if any(s != signatures[1] for s in signatures):
-            reasons.append('probe_contact_mode_changed')
+        selected_sign = max((positive, negative), key=lambda group:
+                            (len(group), sum(abs(s['slope']) for s in group)))
+        if len(selected_sign) < 2:
             continue
-        y = np.array([p['terminal_mean'] for p in triplet], dtype=float)
-        noise = max(tool_span * noise_fraction,
-                    3 * max(float(p['terminal_std']) for p in triplet))
-        if not np.isfinite(y).all() or not np.isfinite(noise):
-            reasons.append('nonfinite_probe')
-            continue
-        slopes.extend((np.diff(y) / offset).tolist())
-        noises.append(noise)
-        loads.extend(float(p.get('peak_normal_load_n', 0.)) for p in triplet)
-    base = dict(usable_poses=len(noises), total_poses=len(probes),
-                excluded_reasons=reasons, slopes=slopes, noise=max(noises, default=tool_span*noise_fraction),
-                offset_low=-offset, offset_high=offset, enabled=False, slope=None,
-                load_limit_n=1.5*max(loads, default=0.) if max(loads,default=0.)>0 else None)
-    # Do not label a range safe because only its easiest poses survived.
-    if reasons:
-        return dict(base, reason='unsafe_or_incomplete_calibration')
-    if len(noises) < 2:
-        return dict(base, reason='fewer_than_two_usable_calibration_poses')
-    slopes = np.asarray(slopes)
-    if not (np.all(slopes > 0) or np.all(slopes < 0)):
-        return dict(base, reason='nonmonotonic_or_inconsistent_sign')
-    if np.min(np.abs(slopes)) * offset <= base['noise']:
-        return dict(base, reason='response_below_noise')
-    return dict(base, enabled=True, slope=float(np.median(slopes)), reason='calibrated')
+        for removed in samples:
+            if removed not in selected_sign:
+                exclusions.append({'pose': removed['pose'], 'side': label,
+                                   'reason': 'opposite_response_sign'})
+        usable[label] = selected_sign
+    if len(usable) == 2:
+        a, b = (np.median([s['slope'] for s in usable[label]])
+                for label in ('minus', 'plus'))
+        if a * b < 0:
+            rejected = min(usable, key=lambda name:
+                (len(usable[name]), np.median([abs(s['slope']) for s in usable[name]])))
+            exclusions.append({'side': rejected, 'reason': 'turning_point_restrict_to_one_side'})
+            del usable[rejected]
+    selected = [s for samples in usable.values() for s in samples]
+    base = dict(usable_poses=len({s['pose'] for s in selected}), total_poses=len(probes),
+                excluded_reasons=exclusions,
+                usable_sides={k: len(v) for k, v in usable.items()},
+                noise=float(np.median([s['noise'] for s in selected])) if selected
+                else tool_span * noise_fraction,
+                offset_low=-offset if 'minus' in usable else 0.,
+                offset_high=offset if 'plus' in usable else 0.,
+                enabled=False, slope=None)
+    if not selected:
+        return dict(base, reason='no_consistent_measurable_side')
+    return dict(base, enabled=True,
+                slope=float(np.median([s['slope'] for s in selected])),
+                reason='calibrated_both_sides' if len(usable) == 2 else 'calibrated_one_side')
 
 
 class AxisFeedback:

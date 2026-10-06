@@ -54,7 +54,12 @@ def dump(path, value):
         if isinstance(v, np.generic):
             return v.item()
         return v
-    path.write_text(json.dumps(clean(value), ensure_ascii=False, indent=2, allow_nan=False),
+    # Trial traces dominate the full experiment. Compact JSON preserves every
+    # value while avoiding many gigabytes of whitespace-only output.
+    compact = path.name in ('report.json', 'partial_report.json')
+    path.write_text(json.dumps(clean(value), ensure_ascii=False,
+                               separators=(',', ':') if compact else None,
+                               indent=None if compact else 2, allow_nan=False),
                     encoding='utf-8')
 
 
@@ -79,6 +84,21 @@ def common_targets(configs, count):
         raise ValueError('no common inverse domain')
     # Interior points: do not evaluate only the calibration endpoints.
     return np.linspace(low, high, count+2)[1:-1].tolist(), [low, high]
+
+
+def additional_clipping(command, reference, low, high, neutral, half, tolerance=1e-8):
+    """Whether a correction worsens either FF joint-limit or action saturation.
+
+    A baseline FF joint may already be clipped. Motion into the feasible range
+    is still allowed; only an increased saturation magnitude is rejected.
+    """
+    command, reference = np.asarray(command), np.asarray(reference)
+    command_q, reference_q = np.clip(command, low, high), np.clip(reference, low, high)
+    joint_excess = abs(command-command_q) - abs(reference-reference_q)
+    command_action, reference_action = (command_q-neutral)/half, (reference_q-neutral)/half
+    action_excess = (abs(command_action-np.clip(command_action,-1.,1.)) -
+                     abs(reference_action-np.clip(reference_action,-1.,1.)))
+    return bool(np.any(joint_excess>tolerance) or np.any(action_excess>tolerance))
 
 
 class ContactAudit:
@@ -143,10 +163,10 @@ def run_trial(env, key, pose, seed, target, mean_q, axes, rho_ff, condition,
     axis = axes[0 if condition == 'axis1_fb' else 1]
     trace, held, contacts = [], [], []
     offset = 0.0
-    ever_clipped = bool(np.any(abs(ff_raw-ff_goal) > 1e-8))
+    ff_clipped = bool(np.any(abs(ff_raw-ff_goal) > 1e-8) or
+                      np.any(abs((ff_goal-neutral)/half)>1.+1e-8))
+    ever_clipped = False
     stopped, numerical = False, False
-    reference_signature = None
-    contact_changed_seconds = 0.0
     # Non-overlapping response windows make sign checking less sensitive to a
     # single noisy sample. This check may STOP, never retune, evaluation control.
     block = max(1, steps(.1, dt))
@@ -157,20 +177,11 @@ def run_trial(env, key, pose, seed, target, mean_q, axes, rho_ff, condition,
         candidate = offset
         if i < ramp_steps:
             q = initial + (i+1)/ramp_steps*(ff_goal-initial)
-            clipped = ever_clipped
+            clipped = False
         else:
             current = state(info, support_criterion=support)
-            signature, current_load = audit.read()
-            if reference_signature is None:
-                reference_signature = signature
-            contact_changed_seconds = (contact_changed_seconds+dt
-                                       if signature != reference_signature else 0.)
             if not current['held'] or current['failed']:
                 controller.stop('support_lost')
-            if contact_changed_seconds >= settings['feedback'].contact_debounce_seconds:
-                controller.stop('contact_state_changed')
-            if sensitivity.get('load_limit_n') is not None and current_load > sensitivity['load_limit_n']:
-                controller.stop('calibration_load_envelope_exceeded')
             if probe_offset is not None:
                 # Diagnostic probes are fixed open-loop offsets, not feedback.
                 limit = min(settings['feedback'].max_increment,
@@ -179,7 +190,7 @@ def run_trial(env, key, pose, seed, target, mean_q, axes, rho_ff, condition,
             elif condition != 'ff':
                 candidate = controller.propose(target, float(obs['achieved_goal'][0]), dt)
             candidate_raw = ff_raw + candidate*axis
-            clipped = bool(np.any(abs(candidate_raw-np.clip(candidate_raw, low, high)) > 1e-8))
+            clipped = additional_clipping(candidate_raw,ff_raw,low,high,neutral,half)
             if clipped and probe_offset is None and condition != 'ff':
                 controller.stop('joint_limit')
                 candidate = offset
@@ -188,7 +199,7 @@ def run_trial(env, key, pose, seed, target, mean_q, axes, rho_ff, condition,
             controller.accept(offset)
             requested_q = ff_raw+offset*axis
             q = np.clip(requested_q, low, high)
-            clipped = bool(np.any(abs(requested_q-q)>1e-8))
+            clipped = additional_clipping(requested_q,ff_raw,low,high,neutral,half)
             ever_clipped |= clipped
         warnings_before = numerical_warnings(env)
         obs, _, terminated, truncated, info = env.step(
@@ -218,7 +229,7 @@ def run_trial(env, key, pose, seed, target, mean_q, axes, rho_ff, condition,
             contacts.append(signature)
             drift = baseline_curve[min(i-ramp_steps,len(baseline_curve)-1)] if baseline_curve else 0.
             history.append((offset, y-drift))
-            if probe_offset is None and condition != 'ff' and len(history) >= 2*block:
+            if probe_offset is None and condition != 'ff' and baseline_curve and len(history) >= 2*block:
                 first, second = np.mean(history[-2*block:-block], axis=0), np.mean(history[-block:], axis=0)
                 du, dy = second-first
                 b = sensitivity.get('slope')
@@ -241,6 +252,11 @@ def run_trial(env, key, pose, seed, target, mean_q, axes, rho_ff, condition,
                 convergence = j*dt
                 break
     terminal_signature = Counter(contacts[-steps(.5, dt):]).most_common(1)[0][0] if contacts else ()
+    # Preserve per-step metrics above, then keep a sparse trajectory for the
+    # visual report. Full terminal hold response is retained for drift removal.
+    saved_trace = trace[::10]
+    if trace and saved_trace[-1] is not trace[-1]:
+        saved_trace.append(trace[-1])
     return dict(pose=int(pose), seed=seed, target=target, condition=condition, rho_ff=rho_ff,
                 valid=valid, complete=complete, numerical_failure=numerical,
                 achieved=y if finite and complete else None,
@@ -250,16 +266,18 @@ def run_trial(env, key, pose, seed, target, mean_q, axes, rho_ff, condition,
                 terminal_mean=float(np.mean([s['tool'] for s in tail])) if tail and finite else None,
                 terminal_std=float(np.std([s['tool'] for s in tail])) if tail and finite else None,
                 clipped=ever_clipped, stop_reason=controller.stop_reason if condition!='ff' else None,
-                ff_clipped=bool(np.any(abs(ff_raw-ff_goal)>1e-8)),
+                ff_clipped=ff_clipped,
                 rejected_clip_commands=rejected_clips, sensitivity_enabled=bool(sensitivity['enabled']),
                 terminal_contact_signature=terminal_signature,
                 saturated_steps=sum(s['score_saturated'] for s in trace),
                 dropped=any(s['dropped'] for s in trace), tipped=any(s['tipped'] for s in trace),
                 elapsed_seconds=len(trace)*dt, dt=dt, convergence_after_ff_seconds=convergence,
+                recorded_trace_stride_steps=10, executed_steps=len(trace),
+                hold_tool_curve=[s['tool'] for s in trace[ramp_steps:]],
                 score_total_variation=float(np.sum(abs(np.diff([0.]+[s['offset'] for s in trace])))),
                 tool_total_variation=float(np.sum(abs(np.diff([s['tool'] for s in trace[ramp_steps:]])))),
                 peak_normal_load_n=max(s['normal_load_n'] for s in trace),
-                trace=trace)
+                trace=saved_trace)
 
 
 def summarize_trials(trials, target_range):
@@ -422,11 +440,11 @@ def run_task(bundle, output, task, ncal, ntest, ntargets):
                             probe_offset=delta) for delta in (-feedback.probe_offset,0.,feedback.probe_offset)]
                         probes.append(triplet)
                     sensitivity = estimate_sensitivity(probes,feedback.probe_offset,hi-lo,feedback.noise_fraction)
-                    zeros=[p[1] for p in probes]
-                    if all(p['complete'] for p in zeros):
-                        from improved_tds.experiments.simple_synergy import steps
+                    zeros=[p[1] for p in probes if p[1]['complete'] and p[1]['valid']]
+                    sensitivity['zero_probe_curve_poses'] = len(zeros)
+                    if len(zeros)>=2:
                         sensitivity['zero_probe_curve'] = np.mean([
-                            [s['tool'] for s in p['trace'][steps(5.,p['dt']):]] for p in zeros],axis=0).tolist()
+                            p['hold_tool_curve'] for p in zeros],axis=0).tolist()
                     sensitivities[condition] = sensitivity
                     method_result['calibration'].append(dict(target=target,condition=condition,
                         sensitivity=sensitivity,probes=probes))

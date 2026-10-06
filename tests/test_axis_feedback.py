@@ -2,7 +2,8 @@ import numpy as np
 import pytest
 
 from improved_tds.control.axis_feedback import AxisFeedback, AxisFeedbackConfig, estimate_sensitivity
-from improved_tds.experiments.second_axis_feedback import common_targets, inverse_score, summarize_trials, paired_comparisons
+from improved_tds.experiments.second_axis_feedback import (
+    additional_clipping, common_targets, inverse_score, summarize_trials, paired_comparisons)
 
 
 def point(y, **kwargs):
@@ -32,10 +33,10 @@ def test_controller_does_not_extrapolate_beyond_local_calibration():
     assert controller.offset==pytest.approx(.1)
 
 
-def test_turning_point_is_rejected_even_if_central_slope_nonzero():
+def test_turning_point_uses_only_a_consistent_side():
     s=estimate_sensitivity([[point(.6),point(.3),point(.7)]]*2,.1,1.)
-    assert not s['enabled']
-    assert s['reason']=='nonmonotonic_or_inconsistent_sign'
+    assert s['enabled'] and s['reason']=='calibrated_one_side'
+    assert s['offset_low']==0. and s['offset_high']==.1
 
 
 def test_noise_and_pose_sign_disagreement_disable_control():
@@ -44,25 +45,64 @@ def test_noise_and_pose_sign_disagreement_disable_control():
                                      [point(.6),point(.5),point(.4)]],.1,1.)['enabled']
 
 
-def test_invalid_calibration_is_counted_not_silently_replaced():
+def test_invalid_calibration_pose_is_excluded_with_provenance():
     bad=point(.4)
     bad['valid']=False
     s=estimate_sensitivity([[bad,point(.5),point(.6)],[point(.4),point(.5),point(.6)]],.1,1.)
-    assert s['total_poses']==2 and s['usable_poses']==1 and not s['enabled']
+    assert s['total_poses']==2 and s['usable_poses']==2 and s['enabled']
+    assert s['offset_low']==0. and s['offset_high']==.1
+    assert s['excluded_reasons'][0]['reason']=='invalid_or_clipped_probe'
 
 
-def test_failed_poses_cannot_be_hidden_by_two_good_calibration_poses():
+def test_two_good_calibration_poses_remain_visible_among_bad_ones():
     good=[point(.4),point(.5),point(.6)]
-    bad=[dict(point(.4),valid=False),point(.5),point(.6)]
+    bad=[point(.4),dict(point(.5),valid=False),point(.6)]
     s=estimate_sensitivity([good]*2+[bad]*6,.1,1.)
-    assert not s['enabled'] and s['usable_poses']==2
+    assert s['enabled'] and s['usable_poses']==2 and s['total_poses']==8
+    assert len(s['excluded_reasons'])==12
 
 
-def test_contact_mode_change_rejects_sensitivity():
+def test_minority_sign_is_excluded_and_reported():
+    positive=[point(.4),point(.5),point(.6)]
+    negative=[point(.6),point(.5),point(.4)]
+    s=estimate_sensitivity([positive]*3+[negative],.1,1.)
+    assert s['enabled'] and s['usable_poses']==3
+    assert sum(r['reason']=='opposite_response_sign' for r in s['excluded_reasons'])==2
+
+
+def test_equal_positive_negative_votes_do_not_enable_a_side():
+    positive=[point(.4),point(.5),point(.6)]
+    negative=[point(.6),point(.5),point(.4)]
+    s=estimate_sensitivity([positive]*4+[negative]*4,.1,1.)
+    assert not s['enabled']
+    assert any(r['reason']=='response_sign_tie' for r in s['excluded_reasons'])
+
+
+def test_only_additional_joint_or_actuator_saturation_blocks_feedback():
+    lo,hi=np.array([-1.,-1.]),np.array([1.,1.])
+    neutral=np.array([.4,0.]); half=np.array([.5,1.])
+    reference=np.array([1.2,.2])
+    assert not additional_clipping(reference,reference,lo,hi,neutral,half)
+    assert not additional_clipping(np.array([.9,.2]),reference,lo,hi,neutral,half)
+    assert additional_clipping(np.array([1.3,.2]),reference,lo,hi,neutral,half)
+    assert additional_clipping(np.array([1.2,1.1]),reference,lo,hi,neutral,half)
+    assert additional_clipping(np.array([1.2,.95]),reference,lo,hi,neutral,np.array([.5,.5]))
+
+
+def test_contact_mode_change_is_logged_but_does_not_reject_tool_response():
     probes=[dict(point(.4),terminal_contact_signature=((1,3),)),
             dict(point(.5),terminal_contact_signature=((1,3),)),
             dict(point(.6),terminal_contact_signature=((2,3),))]
-    assert not estimate_sensitivity([probes]*2,.1,1.)['enabled']
+    assert estimate_sensitivity([probes]*2,.1,1.)['enabled']
+
+
+def test_clipped_positive_probe_leaves_negative_feedback_range():
+    positive=dict(point(.6),clipped=True)
+    s=estimate_sensitivity([[point(.4),point(.5),positive]]*2,.1,1.)
+    assert s['enabled'] and s['offset_low']==-.1 and s['offset_high']==0.
+    c=AxisFeedback(s,1.)
+    assert c.propose(.8,.2,.04)==0.
+    assert c.saturated
 
 
 def test_paired_failure_penalty_prevents_missing_trial_advantage():

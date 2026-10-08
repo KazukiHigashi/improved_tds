@@ -93,6 +93,9 @@ def load_data() -> dict:
     zero = read(ZERO / "summary.json")
     if set(zero["categories"]) != set(CATEGORIES):
         raise ValueError("Zero-shot category set differs")
+    # The original run records a machine-local absolute path. Preserve its
+    # source fingerprint separately, but do not publish a personal home path.
+    zero["source"] = str(BASE.relative_to(ROOT)).replace("\\", "/")
 
     few = []
     for task in TASKS:
@@ -122,9 +125,9 @@ def load_data() -> dict:
             "probes": record["probes_attempted"],
             "selected": record["selected_candidate"],
             "common_probe_coverage": (100 * common_response["coverage_fraction"]
-                                      if common_response is not None else 0.),
+                                      if common_response is not None else None),
             "selected_probe_coverage": (100 * selected_response["coverage_fraction"]
-                                        if selected_response is not None else 0.),
+                                        if selected_response is not None else None),
             "guard": record["common_coverage_stop"],
             "stopped_after_common": record["stopped_after_common"],
         })
@@ -181,7 +184,9 @@ def svg_plot(labels: list[str], series: list[dict], ylabel: str, maximum: float)
 
 def figure(fig_id: str, labels: list[str], values: list[tuple[str, list[float]]],
            ylabel: str, caption: str, maximum: float | None = None) -> tuple[str, dict]:
-    upper = maximum or max(10., max(v for _, vs in values for v in vs) * 1.12)
+    finite_values = [v for _, vs in values for v in vs
+                     if v is not None and math.isfinite(v)]
+    upper = maximum or max(10., max(finite_values, default=0.) * 1.12)
     series = [{"name": name, "values": vals, "color": COLORS[i], "symbol": SYMBOLS[i]}
               for i, (name, vals) in enumerate(values)]
     legend = "".join(f"<span class='legend-item'><span class='swatch' style='--series:{item['color']}'></span>{esc(item['name'])}</span>" for item in series)
@@ -206,30 +211,34 @@ def build_html(data: dict) -> str:
         data[k] for k in ("ff", "ff_category", "training", "fb", "zero", "few"))
     sections.append("""<header><p class='kicker'>研究論文用・再集計ドラフト / 2026-10-08</p><h1>成功姿勢から得るツール操作シナジーの<br>PCA・PLS比較と汎化評価</h1><p class='subtitle'>1自由度フィードフォワード制御を主実験とし、閉ループ補正および未知ツールへの適応を探索的拡張として区別する。</p><div class='badge'>保存済み実験結果の再集計。新しい学習・シミュレーションは実施していない。</div></header>""")
     sections.append("""<nav><a href='#abstract'>要旨</a><a href='#terms'>用語と読み方</a><a href='#methods'>手法</a><a href='#conditions'>評価条件</a><a href='#pose-indices'>姿勢ID</a><a href='#training'>学習条件</a><a href='#ff'>FF結果</a><a href='#fb'>FB結果</a><a href='#generalization'>汎化</a><a href='#discussion'>考察</a><a href='#audit'>整合性・倫理監査</a></nav>""")
-    sections.append("""<section id='abstract'><h2>要旨</h2><p>Scissors、Push、Spray各5変種の成功最終姿勢200件から操作シナジーを抽出し、単一のスカラー指令でツール自由度を操作する。PCAは姿勢分散、PLSは姿勢とツール角度の共分散を基準とする。15タスクの主実験は5秒の開ループ軌道と2秒の保持で評価した。追加の閉ループ比較は4タスクに限られ、未知ツール実験は「初期姿勢のみ」と「3〜15回の実測プローブによる適応」を別の実験相として扱う。指標はすべてツールのRL目標幅で正規化するが、主実験のMAEは方式別の逆写像可能域・採用試行内の条件付き指標であり、全目標域の性能を直接意味しない。</p></section>""")
+    sections.append("""<section id='abstract'><h2>要旨</h2><p>Scissors、Push、Spray各5変種の成功最終姿勢を各200件、計3,000件集め、関節を一つの得点で動かすツール操作シナジーを抽出した。PCAは姿勢のばらつき、PLSは姿勢とツール状態の共変動から操作方向を求める。主実験は5秒の開ループ移動と2秒の保持で評価し、4タスクの閉ループ補正と15ツールの転用を探索的な追加実験として分けた。旧実験のMAEは評価目標の置き方が異なるため、図をまたいだ直接の優劣比較には用いない。共通9目標の新規再評価は別の報告に記す。</p></section>""")
     sections.append("""<section id='terms'><h2>最初に読む：用語と数値の意味</h2><p>この報告で「ツール」とは、はさみ・プッシュ機構・スプレー機構の各変種を指す。「初期姿勢」は操作前にハンドと対象物を配置するリセット状態、「成功姿勢」は強化学習で目標を達成した後に保存するハンドの最終姿勢である。両者は別のデータであり、成功姿勢200件は初期姿勢200件を意味しない。</p>""" + table(["用語", "この報告での意味", "数字を見るときの注意"], [
-        ["TDS／操作シナジー", "多関節の姿勢を一つの得点で変える方向。得点を動かしてツール角度を変える。", "PCAは姿勢変動、PLSは角度との共変動から軸を求める。"],
-        ["FF（フィードフォワード）", "目標角度から計算した姿勢へ5秒で移動し、その後2秒保持する。", "移動中の角度誤差では指令を直さない。"],
-        ["FB（フィードバック）", "FF移動後の2秒間、実測した角度誤差で指令を補正する。", "第1軸FBと第2軸FBは補正に使う方向が違う。"],
-        ["較正／逆写像", "得点を試し、そのときのツール角度から『欲しい角度→必要な得点』を決める。", "較正用の試行と誤差評価用の試行を区別する。"],
-        ["プローブ", "未知ツールで得点を一つ試し、実際の角度を測る1回の試行。", "3回で済む場合と、候補5軸を試して15回かかる場合がある。"],
+        ["TDS／操作シナジー", "Tool-DoF Synergyの略。多数のハンド関節を一つの得点で動かす方向。", "Scissors・Sprayは角度[rad]、Pushは押し込み変位[m]を操作する。"],
+        ["RL・SAC・HER", "RLは強化学習、SACは今回の学習アルゴリズム、HERは使用していない目標再利用手法。", "RLの検証成功率はTDSの保持率ではない。"],
+        ["DB・NN・PC1/PC2", "DBはデータベース、NNは最近傍法、PC1/PC2はPCAの第1/第2主成分。", "PLS残差のPC1をPLS第2潜在成分と呼ばない。"],
+        ["FF（フィードフォワード）", "目標状態から計算した姿勢へ5秒で移動し、その後2秒保持する。", "移動中の状態誤差では指令を直さない。"],
+        ["FB（フィードバック）", "FF移動後の2秒間、実測したツール状態の誤差で指令を補正する。", "第1軸FBと第2軸FBは補正に使う方向が違う。"],
+        ["較正／逆写像", "得点を試して実際のツール状態を測り、『欲しい状態→必要な得点』を決める。", "較正用の試行と誤差評価用の試行を区別する。"],
+        ["逆写像可能域", "較正で単調な応答を確認し、逆写像の使用を認めた目標状態の範囲。", "範囲外の誤差を含まない旧FFの条件付きMAEとは別に全域評価が必要。"],
+        ["独立スイープ", "一つの得点ごとに初期姿勢へ戻して操作し、到達する状態を測る手続き。", "連続して往復するスイープとは異なる。"],
+        ["プローブ", "未知ツールで得点を一つ試し、実際のツール状態を測る1回の試行。", "3回で済む場合と、候補5軸を試して15回かかる場合がある。"],
         ["ゼロショット／Few-shot", "前者は未知ツールの操作結果を測らずに制御、後者は少数のプローブ後に制御する。", "Few-shotの誤差をゼロショットと比較するときは実測の追加コストも示す。"],
-        ["保持MAE", "試行末尾で保持条件を満たしたものだけの平均絶対角度誤差。", "保持失敗を除いた条件付き誤差であり、保持率と必ず対で読む。"],
-        ["全有限終端MAE", "終端角度が数値として得られた試行すべての平均絶対角度誤差。", "保持・支持に失敗した試行も含む。数値的に計測不能な試行は別途件数を示す。"],
-        ["Coverage", "到達した最大角度と最小角度の差を、RL目標角度幅で割った値。", "大きくても目標追従誤差が小さいとは限らない。較正幅と独立スイープ幅も別。"],
-        ["LOTO／タスク別PLS参照", "5変種から1つを未知とし、残り4変種で共通軸を作る。参照用PLSは未知変種のDBで作る。", "タスク別PLS参照はゼロショットでは使えない情報を持つ。"],
-    ], name="初出用語の平易な定義") + "<p>例えば『MAE 20%』は角度が20%だけ動いたという意味ではない。目標角度との差の平均が、そのタスクのRL目標角度幅の20%に相当するという意味である。対象物を保持できた割合と、角度をどれだけ動かせたかは別に確認する。</p></section>")
+        ["保持MAE", "所定の保持条件を満たした試行だけの平均絶対誤差。", "ScissorsはPalm球内、Push/Sprayは落下・転倒なし。保持率と対で読む。"],
+        ["全有限終端MAE", "終端のツール状態が数値として得られた試行の平均絶対誤差。", "保持に失敗した有限試行も含む。未観測件数は別に示す。"],
+        ["Coverage／到達幅", "RL目標範囲内に入った実測最大値と最小値の差を、目標幅で割る。", "100%が上限。較正幅と独立スイープ幅は別の測定量。"],
+        ["LOTO／自ツールDB参照", "5変種から1つを未知とし、残り4変種で共通軸を作る。参照用PLSは未知変種のDBで作る。", "参照は性能の上限保証ではなく、ゼロショットでは使えない情報を持つ。"],
+    ], name="初出用語の平易な定義") + "<p>例えば『MAE 20%』はツールが20%だけ動いたという意味ではない。目標との差の平均が、そのタスクのRL目標幅の20%に相当する。目標を無視して中央状態に固定するだけの数式上の誤差は旧5目標で24%、新9目標で27.78%だが、これは把持・操作できる物理対照ではない。</p></section>")
     method = ["<section id='methods'><h2>1. 手法</h2><h3>1.1 強化学習と成功姿勢データ</h3><p>Scissors、Push、Spray各5変種に対し、同一キャンペーンでSACを新規学習した。学習上限は各300万環境ステップであり、各タスクが300万ステップを実際に走ったという意味ではない。10万ステップごとに検証・チェックポイント保存を行い、検証成功率95%以上を2回連続で達成した場合に早期終了した。実行は同時4学習プロセス×各4環境、HERは用いず、目標指令範囲を0〜100%とした。行動変化率制限と行動変化ペナルティを用いる。共通報酬項は進捗・把持・成功ボーナス・失敗ペナルティ・制御変化/大きさであるが、追従項と接触補助項はカテゴリ別で同一係数ではない。従って報酬関数が15タスクで完全同一とは書かない。</p><p>各タスクの保存済みベストポリシーで成功した最終姿勢を目標角度10区間にわたって計200件収集し、対応するツール状態を付与した。PCA/PLSは同じ姿勢集合の全体平均で中心化する。PLSは1成分、<code>scale=False</code>で学習し、ツール状態との共分散が正となるよう軸の符号を反転する。第2成分を使用しない主実験では、独立操作指令は一つだけである。</p>"]
     method.append(equation(r"\widetilde{X}=X-\mathbf{1}\bar{\boldsymbol q}^{\mathsf T},\qquad \widetilde{\boldsymbol y}=\boldsymbol y-\bar y\mathbf{1}.", 1))
     method.append(equation(r"\boldsymbol w_{\mathrm{PCA}}=\underset{\|\boldsymbol w\|=1}{\arg\max}\;\|\widetilde X\boldsymbol w\|_2^2,\qquad \boldsymbol w_{\mathrm{PLS}}=\underset{\|\boldsymbol w\|=1}{\arg\max}\;\operatorname{Cov}(\widetilde X\boldsymbol w,\widetilde{\boldsymbol y})^2.", 2))
     method.append("<p>上式は操作方向の直観的表現である。実装ではPCAにSVD、PLSにscikit-learnの<code>PLSRegression(n_components=1, scale=False)</code>の<code>x_weights_</code>を用いる。姿勢単位の中心化は主実験には適用しない。</p><h3>1.2 1自由度FF制御と較正</h3>")
-    method.append(equation(r"\boldsymbol q_{\mathrm{goal}}(\rho)=\operatorname{clip}_{[\boldsymbol q_{\min},\boldsymbol q_{\max}]}\!\left(\bar{\boldsymbol q}+\rho\boldsymbol w\right),\qquad \boldsymbol q_{\mathrm{cmd}}(t)=\left(1-\frac{t}{5\,\mathrm{s}}\right)\boldsymbol q_0+\frac{t}{5\,\mathrm{s}}\boldsymbol q_{\mathrm{goal}},\;0\leq t\leq5\,\mathrm{s}.", 3))
-    method.append("<p>成功姿勢DB上の主成分得点の最小・最大をそれぞれ1.5倍して17点を取る。較正用の8初期姿勢で各点を独立リセット・軌道制御し、採用できた応答から概ね単調な区間を選ぶ。等張回帰による単調な平均応答とランプ関数を同じ較正データで作成する。報告する主MAEは等張回帰の逆写像で得た指令を、別の8初期姿勢と9目標で評価したものである。初期姿勢IDは異なるが、保存reportの<code>unseen_pose_evaluation=false</code>であり、新しい初期姿勢分布への一般化ではない。ランプ関数は副比較であり、ここで主張する主MAEと混ぜない。5秒移動後に2秒保持し、評価中はRL・オンラインツール角度FBを使わない。</p>")
-    method.append(equation(r"\hat f=\underset{f\,\mathrm{monotone}}{\arg\min}\sum_{j\in\mathcal C}\left(f(\rho_j)-\bar\theta_j\right)^2,\qquad \rho^*(\theta^*)=\hat f^{-1}(\theta^*)\quad(\theta^*\in\mathcal D_{\mathrm{inv}}).", 4))
-    method.append(equation(r"\mathrm{MAE}_{\mathrm{norm}}=\frac{100}{N(\theta_{\max}-\theta_{\min})}\sum_{i=1}^{N}|\theta_i^{\mathrm{end}}-\theta_i^*|\;[\%],\qquad \mathrm{Coverage}=\frac{\theta_{\mathrm{reach,max}}-\theta_{\mathrm{reach,min}}}{\theta_{\max}-\theta_{\min}}\times100\;[\%].", 5))
-    method.append("<p class='caution'>式(5)の独立スイープCoverageと、較正した逆写像可能幅は別指標である。MAEのNは採用された終端試行数であり、各方式で逆写像可能域・目標値が異なりうる。72試行を72の独立した初期姿勢とみなさない。</p><h3>1.3 探索的な閉ループ補正</h3><p>Scissors 3/4、Push 3、Spray 3に限り、共通の逆写像目標域・初期姿勢・乱数条件で、①FF＋保持、②第1軸FB、③第2軸FBを比較する。5秒のFF移動後、2秒間だけツール角度誤差に基づくスカラーFBを加える。第2軸はPCAではPC2、PLSでは<strong>PLS第2潜在成分ではなく</strong>操作軸を除去した姿勢残差のPC1である。較正は各評価目標近傍で別途行い、別初期姿勢へ適用する。従って「未知目標へのFB汎化」は評価していない。</p>")
-    method.append(equation(r"e_k=\theta^*-\theta_k,\qquad g_{k+1}=\operatorname{clip}\!\left(g_k+K\frac{e_k}{\hat b}\Delta t,\;g_{\min}^{\mathrm{cal}},g_{\max}^{\mathrm{cal}}\right),\quad \hat b\approx\frac{\Delta\theta}{\Delta g}.", 6))
-    method.append("<p>感度は較正姿勢での±0.1スコアのプローブから推定する。設計上の絶対上限は±0.5であるが、本実験の補正は実測した±0.1範囲を超えない。無効感度時はFBが無効となる試行も分母に残す。保存reportの<code>unseen_pose_distribution=false</code>に従い、未知姿勢分布への一般化とは表現しない。これは最適化済みの実機用制御器ではなく、シミュレーション上の機序検討である。</p><h3>1.4 未知ツールへの汎化</h3><p>同一カテゴリの5変種で一つを除外して軸を学ぶLeave-one-tool-out（LOTO）を行う。ゼロショットでは未知ツールの初期姿勢を2次元PCA空間に投影し、最近傍の既知ツールから操作軸と逆写像を選ぶ。Few-shotでは共通軸を3回プローブし、計測Coverageが75%未満なら既知4ツール由来の候補も3回ずつ、最大15回試す。採用候補の実測3点から逆写像を作り、<strong>別の初期姿勢3件×5目標</strong>で評価する。未知ツールの成功姿勢DBを使用したタスク別PLSはオラクル的な参照であり、Few-shot手法が使える情報量とは異なる。</p>")
+    method.append(equation(r"\boldsymbol q_{\mathrm{goal}}(\rho)=\operatorname{clip}_{[\boldsymbol q_{\min},\boldsymbol q_{\max}]}\!\left(\bar{\boldsymbol q}+\rho s\boldsymbol w\right),\qquad \boldsymbol q_{\mathrm{cmd}}(t)=\left(1-\frac{t}{5\,\mathrm{s}}\right)\boldsymbol q_0+\frac{t}{5\,\mathrm{s}}\boldsymbol q_{\mathrm{goal}},\;0\leq t\leq5\,\mathrm{s}.", 3))
+    method.append("<p>式(3)のρは無次元の操作得点、sは軸を関節角の移動幅へ換算する尺度係数である。成功姿勢DB上の操作軸得点の最小・最大をそれぞれ1.5倍して17点を取る。較正用の8初期姿勢で各点を独立リセット・軌道制御し、採用できた応答から概ね単調な区間を選ぶ。等張回帰は測定点の順序を保つ単調な近似、ランプ関数は直線部と両端の一定部をもつ近似であり、同じ較正データで両者を作る。報告する旧主MAEは等張回帰の逆写像を、別の8初期姿勢と方式別の較正済み9目標で評価した値である。この8姿勢は較正では使っていないが、学習と同じ32姿勢プールから選んだ。ランプ関数の誤差は副比較として分ける。5秒移動後に2秒保持し、評価中はRL・オンラインのツール状態FBを使わない。</p>")
+    method.append(equation(r"\hat f=\underset{f\,\mathrm{monotone}}{\arg\min}\sum_{j\in\mathcal C}\left(f(\rho_j)-\bar y_j\right)^2,\qquad \rho^*(y^*)=\hat f^{-1}(y^*)\quad(y^*\in\mathcal D_{\mathrm{inv}}).", 4))
+    method.append(equation(r"\mathrm{MAE}_{\mathrm{norm}}=\frac{100}{N(y_{\max}-y_{\min})}\sum_{i=1}^{N}|y_i^{\mathrm{end}}-y_i^*|\;[\%],\qquad \mathrm{Coverage}=\frac{100\max\{0,\min(y_{\max},y_{\mathrm{reach,max}})-\max(y_{\min},y_{\mathrm{reach,min}})\}}{y_{\max}-y_{\min}}\;[\%].", 5))
+    method.append("<p class='caution'>式(5)の到達幅は実装ではRL目標範囲内に切り詰める。独立スイープの到達幅と、較正から認めた逆写像可能幅は別指標である。旧MAEのNは条件を満たして終端が得られた試行数で、PCA/PLSの9目標も互いに異なりうる。72試行は8初期姿勢×9目標であり、72の独立初期姿勢ではない。</p><h3>1.3 探索的な閉ループ補正</h3><p>Scissors 3/4、Push 3、Spray 3に限り、共通の逆写像目標域・初期姿勢・乱数条件で、①FF＋保持、②第1軸FB、③第2軸FBを比較する。5秒のFF移動後、2秒間だけツール状態の誤差に基づく補正を加える。第2軸はPCAではPC2、PLSでは<strong>PLS第2潜在成分ではなく</strong>操作軸を除去した姿勢残差のPC1である。各評価目標そのもので、較正用8姿勢×3得点×2補正軸＝48試行の感度計測を行い、別の8姿勢へ適用する。未知目標へのFB汎化は評価していない。</p>")
+    method.append(equation(r"e_k=y^*-y_k,\qquad g_{k+1}=\operatorname{clip}\!\left(g_k+K\frac{e_k}{\hat b}\Delta t,\;g_{\min}^{\mathrm{cal}},g_{\max}^{\mathrm{cal}}\right),\quad \hat b\approx\frac{\Delta y}{\Delta g}.", 6))
+    method.append("<p>FB感度は、較正姿勢で無次元の補正座標gを±0.1だけ変えた応答から推定する。設計上限は±0.5で、今回の補正は計測した±0.1範囲内に制限した。この制限による飽和と停止は結果の一部であり、無効感度の試行も総数から除かない。評価姿勢は学習時と同じ32件のプールに含まれる。これは最適化済みの実機制御器ではなく、シミュレーション上の探索である。</p><h3>1.4 未知ツールへの汎化</h3><p>同一カテゴリの5変種から1つを未知ツールとして除き、残り4変種で軸を作るLeave-one-tool-out（LOTO）を行う。未知ツールの成功姿勢はゼロショット・Few-shot軸の構築に使わない。ゼロショットでは、評価初期姿勢ごとに2次元PCA空間の最近傍を探し、既知ツールから中心姿勢・操作軸・DB直線回帰の逆写像の組を選ぶ。Few-shotはまず共通軸を3回試し、実測した到達幅が75%未満なら既知4ツール由来の軸も各3回試すため最大15回である。採用軸の実測3点で逆写像を作り、<strong>較正に使っていない初期姿勢3件×5目標</strong>で評価する。未知ツール自身の成功姿勢DBで作ったPLSは情報量の異なる参照であり、性能の上限保証ではない。</p>")
     method.append(equation(r"\mathcal T_{-h}=\{1,\ldots,5\}\setminus\{h\},\qquad c^*=\underset{c\in\{\mathrm{common},\mathcal T_{-h}\}}{\arg\max}\;\widehat{\mathrm{Coverage}}_c,\qquad \hat\rho_h(\theta^*)=\hat f_{c^*,h}^{-1}(\theta^*).", 7))
     method.append("<p>式(7)は候補選択の概要であり、実装の無効サンプル・単調応答・タイブレーク規則はソースに従う。75%の停止閾値は先行相の結果を見て決めており、独立な未知ツール集合による事前登録済み確認ではない。</p><h3>1.5 手続きごとの成功・採用条件</h3>")
     method.append(table(["対象", "学習/成功DB", "FF較正・評価", "FB/Few-shotの扱い"], [
@@ -240,13 +249,23 @@ def build_html(data: dict) -> str:
     method.append("<p class='caution'>RLの成功率、成功姿勢DBへの採用率、TDS較正サンプルの採用率、TDS終端保持率は異なる母集団・定義を持つ。混同して成功率と呼ばない。</p></section>")
     sections.append("".join(method))
 
-    sections.append("""<section id='conditions'><h2>評価条件の対応と、未実施の統一評価</h2><p>15ツールの各初期姿勢プールは<strong>32件</strong>である。1件は13個の駆動関節角とハンドの取付位置・向きからなる。姿勢プールはツールごとに異なる。学習時の各リセットはこの32件から乱数で選び、学習中の検証は<strong>同じ32件</strong>と11目標角度を順に使う。よって学習の検証成功率を『未知初期姿勢での成功率』とは呼べない。強化学習が作った成功最終姿勢200件/ツールも初期姿勢プールとは別物である。LOTOでは、未知とするツールの成功最終姿勢200件は共通軸・候補軸の学習に入れない。既知の4ツールから計800件を用いる。ただしタスク別PLS参照だけは未知ツールの200件を使うため、情報量が異なる。</p>""" + table(["保存済み実験", "較正・選択に使う初期姿勢", "誤差評価に使う初期姿勢", "目標角度の置き方", "試行数/ツール・方式"], [
+    sections.append("""<section id='conditions'><h2>評価条件の対応と、共通9目標再評価</h2><p>15ツールの各初期姿勢プールは<strong>32件</strong>である。1件は13個の駆動関節角とハンドの取付位置・向きからなる。姿勢プールはツールごとに異なる。学習時の各リセットはこの32件から乱数で選び、学習中の検証は<strong>同じ32件</strong>と11目標角度を順に使う。よって学習の検証成功率を『未知初期姿勢での成功率』とは呼べない。強化学習が作った成功最終姿勢200件/ツールも初期姿勢プールとは別物である。LOTOでは、未知とするツールの成功最終姿勢200件は共通軸・候補軸の学習に入れない。既知の4ツールから計800件を用いる。ただしタスク別PLS参照だけは未知ツールの200件を使うため、情報量が異なる。</p>""" + table(["保存済み実験", "較正・選択に使う初期姿勢", "誤差評価に使う初期姿勢", "目標角度の置き方", "試行数/ツール・方式"], [
         ["15タスクPCA/PLS FF", "32件から8件。17得点の応答を測る。", "別の8件。較正姿勢とは重複しない。", "方式ごとの逆写像可能角度域に等間隔で9点。", "8×9＝72"],
         ["4タスクFB", "8件。目標近傍の感度も測る。", "別の8件。FF/第1軸FB/第2軸FBで共有。", "比較条件で共有する逆写像目標域の9点。", "8×9＝72"],
         ["未知ツール・ゼロショット", "未知ツールでの物理較正は0件。既知4ツールのDBを使用。", "32件から乱数で選ぶ3件。", "RL目標角度幅の10、30、50、70、90%の5点。", "3×5＝15"],
         ["未知ツール・Few-shot後続相", "過去相の4件を除く残りから1件。共通軸3回、必要時は他4軸も各3回。", "同じ抽選で選ぶ別の3件。較正姿勢とは重複しない。", "RL目標角度幅の10、30、50、70、90%の5点。", "3×5＝15"],
     ], name="保存済み実験の初期姿勢と目標値の違い") + "<p>後続相で除く『過去相の4件』は、先行Few-shot相の較正1件とゼロショット相で用いた評価3件である。残り28件から後続相の較正1件・評価3件を選ぶ。一方、主実験FFの8＋8件と後続Few-shot相は、互いに重ならないよう設計された別分割ではない。従って、現在のFF図と未知ツール図のMAEは試行条件を揃えた直接比較ではない。</p><p class='caution'><strong>追加実験待ち：9目標の統一評価は未実施。</strong>件数だけを5点から9点に増やしても不十分である。主実験FFの9点は方式別の較正可能域内だが、未知ツールの5点はRL目標域内にある。公平な新評価では、各ツールのRL目標域に共通の9角度（0、12.5、25、37.5、50、62.5、75、87.5、100%）を固定し、同じ8評価初期姿勢・同じリセット種・5秒移動＋2秒保持で全方式を試す。角度が較正範囲外なら指令を端点に制限したことを記録し、その試行も全有限終端MAEに含める。保持MAEと保持率、数値的失敗件数、較正可能域幅も併記する。較正試行を評価に再利用しない。</p><p>この条件に厳密に揃えるには、凍結済みモデルと姿勢DBを再利用して<strong>FF主実験・FB比較・未知ツール評価を再シミュレーション</strong>する必要がある。新たな強化学習は不要である。既存の5点結果や方式別9点結果は履歴として残し、新9点の数値と混ぜない。評価姿勢は各ツール32件から事前に固定したFFの8評価IDを全条件で共有し、Few-shotの3点プローブにはその8件と異なる1件を使う。過去の実験で同じ姿勢群を調べているため、この再評価を『完全に未見のツール・姿勢での確認』とは呼ばない。追加実験はユーザーの指示待ちであり、この報告には新条件のMAEを載せない。</p></section>""")
 
+    # Keep the historical protocol description but link to the completed,
+    # separately reported matched-grid replay instead of calling it pending.
+    sections[-1] = (sections[-1]
+        .replace("評価条件の対応と、未実施の統一評価", "評価条件の対応と、共通9目標再評価")
+        .replace("追加実験待ち：9目標の統一評価は未実施。", "共通9目標の統一再評価は完了した。")
+        .replace("公平な新評価では", "新評価では")
+        .replace("この条件に厳密に揃えるには、", "この条件では、")
+        .replace("する必要がある。新たな強化学習は不要である。", "した。新たな強化学習は行っていない。")
+        .replace("追加実験はユーザーの指示待ちであり、この報告には新条件のMAEを載せない。",
+                 "新条件の数値は<a href='../matched_nine_goals_clipped_20261008/index.html'>共通9目標の報告</a>に分け、旧条件の数値と混ぜない。"))
     pose_rows = []
     for task in TASKS:
         category = task.partition("_lite_")[0]
@@ -324,19 +343,19 @@ def build_html(data: dict) -> str:
          f"{r['summary']['axis2_fb']['enabled_trials']}/72",
          r["summary"]["axis2_fb"]["stopped_feedback"],
          r["summary"]["ff"]["tipped_trials"]] for r in fb], name="FB全条件")
-    sections.append(f"<section id='fb'><h2>3. 第1軸・第2軸FBの探索的比較</h2><p>第1軸FBはこの4タスクの平均MAEを一貫して低減した。第2軸FBはFFより低誤差の条件もあるが、同じ目標・初期姿勢で第1軸FBを上回る一般的な証拠は得られない。軸2の較正成立割合が異なるため、無効試行を除外したサブセットだけで優劣を判断しない。</p>{fb_fig}{fb_table}<p class='caution'>Scissors 3のFFにはPCAで23/72の転倒診断が記録される一方、終端のPalm球基準では72/72が「有効」と集計される。これは安全な把持が72/72保証された意味ではない。現行の有効率と転倒診断を並記する。8評価姿勢×9目標の階層構造と4タスクへの限定により、図3の差を一般的な統計的有意差と解釈しない。</p><p class='source'>出典: <a href='../second_axis_feedback_effect_20261006/manifest.json'>FB実行manifest</a>、各タスクreport.json・保存ソース。各条件72試行、5秒FF＋2秒保持/FB、較正8姿勢・評価8姿勢。</p></section>")
+    sections.append(f"<section id='fb'><h2>3. 第1軸・第2軸FBの探索的比較</h2><p>第1軸FBはこの4タスク・両抽出方式の旧評価で平均MAEを下げた。ただし差の大きさは条件ごとに違い、Scissors 4のPCAは3.37→3.00%である。第2軸FBはFFより低誤差の条件もあるが、第1軸FBを上回る一貫した結果は得られない。感度較正不成立、指令飽和、FB停止を無視した優劣判断はできない。</p>{fb_fig}{fb_table}<p class='caution'>軌道中に一度でも転倒が診断されたFF試行はScissors 3でPCA 23/72・PLS 24/72、Scissors 4でPCA 55/72・PLS 57/72だった。一方、終端のPalm球基準では有効と集計されうる。したがって有効率は軌道全体の安全な把持を保証しない。8評価姿勢×9目標の階層構造と4タスクへの限定により、図3の差を一般的な統計的有意差と解釈しない。</p><p class='source'>出典: <a href='../second_axis_feedback_effect_20261006/manifest.json'>FB実行manifest</a>、各タスクreport.json・保存ソース。各条件72試行、5秒FF＋2秒保持/FB、較正8姿勢・評価8姿勢。</p></section>")
 
     zcats = list(CATEGORIES)
     zkeys = [("共通軸", "common_axis"), ("初期姿勢13D-NN", "raw13_nn_package"),
              ("初期姿勢PCA2-NN", "pca2_nn_package"),
              ("PCA2選択軸のみ", "pca2_selected_axis_only"),
-             ("タスク固有参照", "task_specific_reference")]
+             ("自ツールDB参照", "task_specific_reference")]
     zero_fig, fig = figure("fig-zero", [c.title() for c in zcats], [
         (name, [100 * zero["categories"][c]["by_arm"][key]["mae_fraction"] for c in zcats])
         for name, key in zkeys], "MAE / RL目標幅 [%]",
-        "図4. LOTOのゼロショット物理評価。タスク固有参照は未知ツールのDBを利用する上限参照であり、実運用可能なゼロショット手法ではない。")
+        "図4. 旧条件のLOTO物理評価。自ツールDB参照は未知ツールの成功姿勢を使うため、ゼロショット条件でも性能上限でもない。")
     plots.append(fig)
-    zero_table = table(["カテゴリ", "初期姿勢PCA2説明分散 [%]", "共通軸MAE [%]", "PCA2-NN MAE [%]", "PCA2軸のみMAE [%]", "タスク固有参照MAE [%]"], [
+    zero_table = table(["カテゴリ", "初期姿勢PCA2説明分散 [%]", "共通軸MAE [%]", "PCA2-NN MAE [%]", "PCA2軸のみMAE [%]", "自ツールDB参照MAE [%]"], [
         [c, f2(100 * zero["categories"][c]["offline"]["mean_cumulative_pca2_variance"]),
          f2(100 * zero["categories"][c]["by_arm"]["common_axis"]["mae_fraction"]),
          f2(100 * zero["categories"][c]["by_arm"]["pca2_nn_package"]["mae_fraction"]),
@@ -348,13 +367,13 @@ def build_html(data: dict) -> str:
         ("タスク別PLS（DB）", [r["local"] for r in few]),
         ("タスク別PLS＋3点較正", [r["local_cal"] for r in few])],
         "全15評価試行MAE / RL目標幅 [%]",
-        "図5. 新しい初期姿勢3件×目標5点、全試行でのMAE。Few-shotは未知ツールの実測を3〜15回使う。タスク別PLSは未知ツールDBを用いる参照条件。")
+        "図5. 較正に使っていない同じ32姿勢プール内の3件×目標5点、全試行MAE。Few-shotは未知ツールで3〜15回計測する。自ツールDB参照は情報量が異なる。")
     plots.append(fig)
     few_cov_fig, fig = figure("fig-few-cal-coverage", labels, [
         ("共通軸3点", [r["common_probe_coverage"] for r in few]),
         ("採用候補3点", [r["selected_probe_coverage"] for r in few])],
-        "較正3点の実測角度幅 / RL目標幅 [%]",
-        "図6. 単一較正姿勢で測った3点の応答幅。テスト姿勢での到達保証、独立スイープCoverageとは異なる。", 105)
+        "較正3点の実測ツール状態幅 / RL目標幅 [%]",
+        "図6. 単一較正姿勢で測った3点の応答幅。較正不成立は点を描かず、幅0%と区別する。テスト姿勢での到達保証ではない。", 105)
     plots.append(fig)
     few_cat = table(["カテゴリ", "共通軸FF [%]", "Few-shot [%]", "タスク別PLS [%]", "タスク別PLS＋較正 [%]", "採用較正幅 [%]", "平均プローブ回数"], [
         [c, f2(category_mean(few, c, "baseline")), f2(category_mean(few, c, "fewshot")),
@@ -368,9 +387,9 @@ def build_html(data: dict) -> str:
     worsened = [r["task"] for r in few if r["fewshot"] > r["baseline"]]
     if worsened != ["scissors_lite_1", "push_lite_3", "spray_lite_3"]:
         raise ValueError("Few-shot worsening list changed; update interpretation")
-    sections.append(f"<section id='generalization'><h2>4. 未知ツールへの汎化</h2><h3>4.1 初期姿勢のみのゼロショット選択</h3><p>初期姿勢の2次元PCAはScissorsとSprayの分散を高率で説明するが、その近傍がツール操作軸の類似性を保証しない。PCA2-NNパッケージは3カテゴリすべてで共通軸よりMAEが高い。初期姿勢の分散説明率を汎化性能の代替指標とみなさない。</p>{zero_fig}{zero_table}<h3>4.2 実測プローブによるFew-shot適応</h3><p>共通軸FFに対し、同じ新規評価初期姿勢での平均誤差はScissors 19.62→10.11%、Spray 37.27→19.41%、Push 18.13→11.36%へ低下した。ただし未知ツールの成功姿勢DBを用いて構築したタスク別PLSに<strong>同一の3点較正</strong>を加えた場合は、それぞれ9.36%、15.71%、11.20%であり、Few-shotがこの参照条件を超えたとは言えない。プローブ較正そのものの寄与が大きい。15ツールすべてが改善したわけではなく、Scissors 1、Push 3、Spray 3の3件は悪化した。Scissors 3の大幅な改善がカテゴリ平均に強く寄与する。</p>{few_cat}{few_fig}{few_cov_fig}<details><summary>15ツールの全比較を開く</summary>{few_detail}</details><p class='caution'>Few-shotの75%停止規則は先行相を見た後に決めた。後続相では評価初期姿勢を分離したが、ツール変種は同じ15件であるため、独立した未知形状での確認実験ではない。Scissors 4ではFew-shotの終端保持が12/15であるが、図5のMAEは失敗3試行を除外せず、有限な終端角度の全15試行を含む。異なる実験相のゼロショット図4とFew-shot図5は評価初期姿勢の分割が異なるため、数値を直接引き算しない。</p><p class='source'>出典: <a href='../initial_pca2_nn_20261008/summary.json'>ゼロショット集計</a>、<a href='../few_shot_guarded_20261008/scissors_lite_1.json'>Few-shot原始JSONの例</a>、15件の評価JSONとタスク別PLS対応JSON。</p></section>")
+    sections.append(f"<section id='generalization'><h2>4. 未知ツールへの汎化（旧5目標条件）</h2><h3>4.1 初期姿勢のみのゼロショット選択</h3><p>初期姿勢の2次元PCAはScissorsとSprayの姿勢分散をよく説明するが、姿勢が近いことと操作軸が近いことは同じではない。PCA2-NNはカテゴリ平均で共通軸より高誤差だったが、5変種という小標本で差は確定せず、Sprayでは個別に改善する変種もある。軸だけを移す条件ではScissors・Sprayの平均が共通軸より低く、悪化が逆写像まで一緒に移すことに由来する可能性も残る。NNの参照元は同じ未知ツール内でも評価初期姿勢ごとに変わりうる。</p>{zero_fig}{zero_table}<h3>4.2 実測プローブによるFew-shot適応</h3><p>同じ評価姿勢で共通軸FFからFew-shotへ替えると、旧5目標でのカテゴリ平均誤差はScissors 19.62→10.11%、Spray 37.27→19.41%、Push 18.13→11.36%だった。しかし15ツール中3ツール（Scissors 1、Push 3、Spray 3）では悪化した。Scissorsの改善はScissors 3の大きな変化に強く依存し、これを除く4ツールでは約12.5→11.7%である。3回のプローブで停止したのは4/15ツールで、残り11/15は15回使った。未知ツールの成功姿勢DB200件を使う自ツールPLSに3点較正を加えた参照値は、Scissors 9.36%、Spray 15.71%、Push 11.20%であり、Few-shotと同じ情報量ではない。</p>{few_cat}{few_fig}{few_cov_fig}<details><summary>15ツールの全比較を開く</summary>{few_detail}</details><p class='caution'>較正不成立は図6で欠測として示し、真に測った幅0%と区別する。Spray 1の採用軸は15試行中12試行で逆写像の端点制限があり、MAE改善だけでは全域で操作できたとは言えない。75%停止規則は先行相を見た後に決めたため、後続相の別姿勢評価を独立な未知形状での確認とみなさない。Scissors 4のFew-shot保持は12/15だが、旧図5のMAEには有限な終端状態が得られた保持失敗3試行も含む。ゼロショット図4とFew-shot図5は評価姿勢の分割が異なり、数値を直接引き算しない。</p><p class='source'>出典: <a href='../initial_pca2_nn_20261008/summary.json'>ゼロショット集計</a>、<a href='../few_shot_guarded_20261008/scissors_lite_1.json'>Few-shot原始JSONの例</a>、15件の評価JSONと自ツールPLS対応JSON。</p></section>")
 
-    sections.append("""<section id='discussion'><h2>5. 考察と結論</h2><p>主結果は、多自由度ハンドの成功姿勢集合から抽出した単一軸だけでも、15タスクのツール自由度に対して測定可能な操作幅を作れることである。ただしPCAとPLSの優劣はカテゴリ依存である。PushではPLSの操作幅拡大が目立つ一方、Sprayの誤差ではPCAが有利であり、軸の教師あり推定を無条件に採用すべきではない。</p><p>第1軸FBは4タスクの探索的比較で誤差を下げたが、目標ごとの感度較正を要する。第2軸は一部条件でFFを改善するものの、第1軸を上回る安定した追加役割はまだ確立していない。この結果は第2軸一般の無効性を示すのではなく、ここで定義した残差軸・感度推定・接触条件に限定される。</p><p>未知ツールでは初期姿勢の低次元近傍だけでは操作軸を選べなかった。少数の物理応答を測る適応が共通軸を改善する一方、タスク別PLSにも同じ較正を加えると性能差が縮む。論文の中心的主張は「1自由度TDSの成立」とし、FBおよびFew-shotは条件と限界を明示した拡張として配置するのが適切である。</p><p>確認実験としては、PCA/PLSを<strong>共通目標集合</strong>で対にして再評価し、次に未使用のツール形状と独立な初期姿勢プールでFew-shot停止閾値を固定して検証する。実機では接触力、転倒、行動速度を同時に監視し、シミュレーション上のPalm球終端有効性だけを安全判定に使わない。</p></section>""")
+    sections.append("""<section id='discussion'><h2>5. 考察と結論</h2><p>保存済み成功姿勢から求めた1軸の開ループ操作でも、15タスクのツール状態に測定可能な変化は生じた。ただし到達幅は一様ではなく、Push 4のPCAはRL目標幅の約32%にとどまる。Push 1の旧保持MAEはPCA 26.3%、PLS 24.7%と高く、カテゴリ平均への影響が大きい。これらを伏せて15タスクすべての全域操作が成立したとは結論できない。Sprayの旧PCA/PLS保持MAE差は小さく、方式別の評価目標域も異なるため、PCAが優位とは言えない。</p><p>第1軸FBは選定した4タスクの探索的比較で誤差を下げたが、各目標で多数の感度試行を要し、飽和や停止もある。第2軸は一部条件でFFを改善するものの、第1軸を上回る安定した追加役割はまだ確立していない。これは第2軸一般の無効性ではなく、ここで定義した残差軸と較正手順についての結果である。</p><p>未知ツールでは、初期姿勢だけで移す軸と逆写像の組が共通軸より一貫して優れる証拠はない。少数の物理応答を測る適応は有望だが、最大15回の計測費用、較正不成立、端点制限を含めて評価する必要がある。論文の中心は1自由度TDSの操作可能性と限界とし、FB・Few-shotは条件を明示した探索的拡張として扱う。</p><p>次の独立確認には、未使用のツール形状と新しい初期姿勢プールを用い、Few-shotの75%規則を変更せずに試すことが必要である。実機では接触力、転倒、関節速度を別途監視し、シミュレーション上のPalm球終端判定だけを安全判定に使わない。</p></section>""")
 
     provenance = table(["固定データ", "SHA-256", "監査用途"], [
         [key, value, {"ff_manifest_sha256": "15件の選定レポート、DB・時間条件を検証", "training_manifest_sha256": "15タスクSAC学習キャンペーンを特定", "fb_manifest_sha256": "4タスクFBキャンペーンを特定", "zero_summary_sha256": "ゼロショット集計を特定", "few_validator_sha256": "Few-shot後続相の分割規則を特定。改行をLFに正規化したSHA-256"}[key]]
@@ -383,16 +402,16 @@ def build_html(data: dict) -> str:
         ["確認済み: FBの無効試行と転倒", "FB各report.json → methods.*.summary.axis2_fb.disabled_feedback / ff.tipped_trials", "感度較正不成立例を分母から消さない。転倒診断とPalm終端有効性を区別し、実機安全性を主張しない。"],
         ["確認済み: Few-shotの事後選択", "validate_guarded_few_shot.py 冒頭、COMMON_COVERAGE_STOP=.75", "75%規則は先行相後に設定。後続相は新規姿勢での検証だが、独立未知ツールでの確認ではない。"],
         ["探索的研究の位置付け", "過去の複数キャンペーンと選定済みpaper15_paper_bundle manifest", "条件変更の履歴を隠して事前登録済みの単一実験と表現しない。選定後の主結果と後続の探索実験を分離。"],
-        ["確認済み: オラクル的参照", "*_local_pls.json → reference_type, source_trial_file", "タスク別PLSは未知ツールの成功DBを用いるため、Few-shotと同じ情報量のベースラインではない。較正の有無も分ける。"],
-        ["確認済み: 評価目標の不一致", "reach_tds_direct.py の np.linspace(*inverse_range,9)、simulate_initial_pose_conditioning.py の TARGET_FRACTIONS、各Few-shot JSON", "主FFの9点と未知ツールの5点は件数だけでなく角度域も異なる。共通9角度の結果が得られるまでは条件間MAEの直接優劣を主張しない。"],
+        ["確認済み: 自ツールDB参照", "*_local_pls.json → reference_type, source_trial_file", "未知ツール自身の成功DBを用いるためFew-shotと情報量が異なり、性能上限でもない。較正の有無も分ける。"],
+        ["確認済み: 評価目標の不一致", "reach_tds_direct.py の np.linspace(*inverse_range,9)、simulate_initial_pose_conditioning.py の TARGET_FRACTIONS、各Few-shot JSON", "主FFの9点と未知ツールの5点は件数だけでなく角度域も異なる。共通9目標の再評価は別報告で提示し、旧条件間MAEの直接優劣は主張しない。"],
         ["統計的制約", "FF: 8姿勢×9目標、FB: 8姿勢×9目標、Few-shot: 3姿勢×5目標/ツール", "試行を独立サンプルとみなしたp値を示さない。少数ツール・多重比較・未登録閾値のため効果を探索的に記述。"],
         ["再現性の制約", "analysis/ と runs/ はGit追跡外。manifestハッシュは本報告に固定", "レポートだけでは全シミュレーション再実行不可。モデル、DB、MuJoCo、依存バージョンを別途アーカイブする。"],
         ["外部環境ソースの固定", "学習runとFFバンドルのsource_snapshotにはimproved_tdsを保存。tool-manip-gymの環境コードは同じ場所に見当たらない", "Push/SprayのRL成功条件・物理環境の完全再現には外部gymのGitコミットと依存バージョンも固定する。現ワークツリーの環境コードを過去runと無条件に同一視しない。"],
-        ["未確認", "独立外部監査・実機での安全/追従性", "実機性能、外部ツールによる証明、一般的な統計的有意性を主張しない。"],
+        ["未確認", "独立形状での追試・実機での安全/追従性", "限定ファイルのClaude監査は行ったが、実機性能や一般的な統計的有意性を証明しない。"],
     ], name="監査論点"))
     audit.append("<p>元論文はDDPG+HER、5 Scissors、成功姿勢2000件、12較正点、ランプ写像などを記述する歴史的原案である。今回の15タスク・200件/タスク・PCA/PLS・17点/8姿勢較正・等張回帰の結果を、元論文の2度などの値と混合しない。元論文PDFはユーザー提供資料であり、外部監査先には送信しない。</p>")
     audit.append(provenance)
-    audit.append("<p class='caution'><strong>Claude監査状態:</strong> 外部サービスへの研究コード・実験JSONの送信について環境の自動審査が保留したため、この版にClaudeの見解は含めていない。用語の平易さについても現時点ではCodexの一次改稿であり、Claudeとの共同レビュー済みとは記さない。明示承認が得られた後に、研究倫理・主張と実装の一致・未定義用語を読み取り専用で再点検し、指摘と修正履歴を別版で追記する。元論文PDFは送信しない。</p></section>")
+    audit.append("<p class='caution'><strong>Claude外部監査:</strong> ユーザーの明示承認後、Opus 5.5 / High Effortで指定ファイルのみを読み取り専用で2回確認した。1回目はHTML本文が長い1行だったため全文を読めず、2回目に報告生成コードを点検した。評価目標とMAEの不一致、事後設定の成功基準・75%規則、自ツールDB参照を性能上限と誤称する点、較正不成立を0%と混同する点などを指摘され、この版で表現を修正した。これは不正が存在しないことの証明ではない。監査範囲と対応は <a href='../../docs/claude_external_audit_20261008.md'>監査記録</a>に明記する。元論文PDFは外部送信していない。</p></section>")
     sections.append("".join(audit))
     sections.append("""<section id='style'><h2>図の体裁・再現</h2><p>各図はPlotly.jsの白背景テンプレート（<code>plotly_white</code>相当）を明示し、Times New Roman、図内タイトルなし、黒・青・赤・緑の系列色、内向き主目盛・補助目盛を用いる。Plotlyの余白指定は上下左右2–4pxとし、軸名・目盛の切断だけを自動余白で防ぐ。SVGのベクターフォールバックはオフラインでも表示される。色だけに依存しないよう記号と凡例も併用する。単位とRL目標幅の正規化を軸名に明示した。</p><p>描画仕様の根拠: <a href='https://plotly.com/python/axes/'>Plotly公式・軸と補助目盛</a>、<a href='https://plotly.com/python/templates/'>Plotly公式・plotly_white</a>、<a href='https://plotly.com/python/setting-graph-size/'>Plotly公式・自動余白</a>、<a href='https://plotly.com/javascript/getting-started/'>Plotly公式・版を固定したCDN</a>。選択的報告を避ける基本方針は <a href='https://publicationethics.org/files/International%20standards_authors_for%20website_11_Nov_2011.pdf'>COPE著者向け基準</a>を参照した。</p></section>""")
     sections.append("<footer><p>生成スクリプト: <code>scripts/build_paper_ff_fb_generalization_report.py</code>。数値の機械可読な再集計は同ディレクトリの <a href='summary.json'>summary.json</a> を参照。</p></footer>")

@@ -1,0 +1,2814 @@
+{
+  "protocol": "common_full_rl_nine_goal_v1",
+  "source_hashes": {
+    "scripts\\replay_matched_nine_ff.py": "bf4622058c7b804a20fd83fe9177737fb8fa6cad242b9f824b9e511b2e994b4f",
+    "scripts\\replay_matched_nine_generalization.py": "574c976f460622509252944664fb546f5fe905ef4f4cd8f3fd62d7315acb190c",
+    "src\\improved_tds\\experiments\\second_axis_feedback.py": "cb780e1d5055205b6d1d25ff57f086e9efa4ddb65f073915d063bc3245591826"
+  },
+  "raw_result_hashes": {
+    "ff/scissors_lite_1.json": "2489fd3aae4640f256a6b6d6c5a9a669025ece60bd9f4662a5ec735d1ad4e935",
+    "generalization/scissors_lite_1.json": "3ffe632a2538537c9acfff5dd889023f1b63ebaa60813bcd3ccbe699f876f20b",
+    "ff/scissors_lite_2.json": "475fe3038d93afc54a1f830954816e9972a8d83a71689ac8f1c5ba650c8a90ba",
+    "generalization/scissors_lite_2.json": "c9fcc15a56b15d00d6670dc6fc57a261ee2c5302fab976bcf8a58f9cb5657b05",
+    "ff/scissors_lite_3.json": "53382f6a7ed004288ff251cf89e1a3848ab630754884752e31bfc258ce4f26fb",
+    "generalization/scissors_lite_3.json": "b7c4b80d07855d67aaefbe70105f5996584da1fc4c9c7941e9b688be839254d4",
+    "ff/scissors_lite_4.json": "e6deef5f1b342e2fac0bb26bc0edeebbf31f2f49195cd538ce6ef9ea92506601",
+    "generalization/scissors_lite_4.json": "240f10080b6b14aa61274527a536746765a905f9b8011e5f5a014b08fdbd9543",
+    "ff/scissors_lite_5.json": "906c5c130c752c54196f28d88a29e98256fbf648c2e645dc1ff442aa1007a3ac",
+    "generalization/scissors_lite_5.json": "70380deaf726200f5bf09b1f23e249b1d203d1f6969d5b81bec9c9aa098e902b",
+    "ff/push_lite_1.json": "09aac513f37dc4632e2aacd008fa8ec6a5ba6d418b04ee5b4748fc1dbc72aa38",
+    "generalization/push_lite_1.json": "39916c5f0e1da214f864aa33461c371820af6991c0571162521e586b7f218060",
+    "ff/push_lite_2.json": "99d26330d1696eb928215b7a2a1a4f221611191571491f19dcbffdd1d5b39d28",
+    "generalization/push_lite_2.json": "2051f6a8bd2c7a8f7c9c86d8f93f9b58dde4b6521a79754d282fe29e6a6d27a4",
+    "ff/push_lite_3.json": "9adec8c603b576ff38a120f3d81192c6f99ed9c79770743a0fb7ed739ba6fb75",
+    "generalization/push_lite_3.json": "b0c38d0730f6a4724e7b7145f3de89fe5acacd85d57355125ea0a73400b7de78",
+    "ff/push_lite_4.json": "df191eaed477f5e89c75d6b0e82400fd6db5b08ba7c5ad7ed076e538e890bbed",
+    "generalization/push_lite_4.json": "e922ac02e635011aece1244bc89605fa487da9bac90bc1ad37c350a446639d69",
+    "ff/push_lite_5.json": "dbd4a7e85c765ef87734ba5b87a34bbfdea1092e5e85d2a49b9d33df25991dc6",
+    "generalization/push_lite_5.json": "67efe7e730004b40e5cd7ad9a15f09ff93ec071086ab9d032808c944f9c0f7be",
+    "ff/spray_lite_1.json": "85adc2575865d01951a63d8b1afd7c5d5ff60485306819d4c7263356c1f40e2d",
+    "generalization/spray_lite_1.json": "fa641e4e84fa6b1fc9676a812530e307f8122a7b59f2be5cafcfdba5b12922f6",
+    "ff/spray_lite_2.json": "6fe7c4b4d37035e8d1e90f952b9bcb8c13d8c791899697706d2e272880b680c3",
+    "generalization/spray_lite_2.json": "068c5ec73b5b492b6179ef43c7970ab975b8c6af3486e231b20b5d4eb4e59ed8",
+    "ff/spray_lite_3.json": "2085225374755abc73b4e8a51c9c48f91d67f79af8724337556ee1d701d0caa1",
+    "generalization/spray_lite_3.json": "770dbfed7f1e957212cf4e4b42b6fd9d06aaab014ee0a024e0e28a5772804849",
+    "ff/spray_lite_4.json": "8cd269565bc15d3ea9a928d9e4886419407a72b293ca71823dc5485b77348a80",
+    "generalization/spray_lite_4.json": "829282d11b925526ba3e4ed4a6186ddfd16a1ed2cae4ddace92ae12ffe3b07f7",
+    "ff/spray_lite_5.json": "7f9334c4e08f36cd42db3000700cc1be4f6fcc0fd6e2336bc8b1ba437806d650",
+    "generalization/spray_lite_5.json": "a0a77d90a954f2e0304a710f8b8e3129e1ef23f41f160c109a3644609bef5bd5",
+    "fb/scissors_lite_3/report.json": "48202bf055feb181c6ec685bdacf1b029dc26d7ef71942c14b076d6cc87c73a3",
+    "fb/scissors_lite_4/report.json": "4b9a9e5391a6c166c1b2e00ee03dfef98bb371e648674641cc0fc21f02671db2",
+    "fb/push_lite_3/report.json": "ebecd9ea2c84402835181b393af2eb9507d7011b60ae74e478b9621c83cfa065",
+    "fb/spray_lite_3/report.json": "9f9c1ddca50745e4d420a5aeccb35f4c8ebf840e6cdb4bafc5a2929341374fb2"
+  },
+  "target_ranges": {
+    "scissors_lite_1": [
+      0.0,
+      1.0
+    ],
+    "scissors_lite_2": [
+      0.0,
+      1.0
+    ],
+    "scissors_lite_3": [
+      0.0,
+      1.0
+    ],
+    "scissors_lite_4": [
+      0.0,
+      1.0
+    ],
+    "scissors_lite_5": [
+      0.0,
+      1.0
+    ],
+    "push_lite_1": [
+      0.0,
+      0.008
+    ],
+    "push_lite_2": [
+      0.0,
+      0.01
+    ],
+    "push_lite_3": [
+      0.0,
+      0.012
+    ],
+    "push_lite_4": [
+      0.0,
+      0.007
+    ],
+    "push_lite_5": [
+      0.0,
+      0.011
+    ],
+    "spray_lite_1": [
+      0.0,
+      0.4
+    ],
+    "spray_lite_2": [
+      0.0,
+      0.4
+    ],
+    "spray_lite_3": [
+      0.0,
+      0.4
+    ],
+    "spray_lite_4": [
+      0.0,
+      0.4
+    ],
+    "spray_lite_5": [
+      0.0,
+      0.4
+    ]
+  },
+  "ff": {
+    "scissors_lite_1": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 11.44580382565942,
+        "held_mae_percent": 11.44580382565942,
+        "clipped_complete_finite": 32,
+        "clipped_mae_percent": 14.323354743464733,
+        "unclipped_mae_percent": 9.143763091415167,
+        "held_reached_span_percent": 78.39957475662231,
+        "inverse_clipped": 32,
+        "joint_clipped": 56,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 9.254321083931751,
+        "held_mae_percent": 9.254321083931751,
+        "clipped_complete_finite": 24,
+        "clipped_mae_percent": 11.619850622143229,
+        "unclipped_mae_percent": 8.071556314826012,
+        "held_reached_span_percent": 83.56356024742126,
+        "inverse_clipped": 24,
+        "joint_clipped": 48,
+        "early_or_numerical": 0
+      }
+    },
+    "scissors_lite_2": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 7.098852747256185,
+        "held_mae_percent": 7.098852747256185,
+        "clipped_complete_finite": 24,
+        "clipped_mae_percent": 9.736125690960762,
+        "unclipped_mae_percent": 5.780216275403896,
+        "held_reached_span_percent": 85.06933450698853,
+        "inverse_clipped": 24,
+        "joint_clipped": 48,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 6.533700052212528,
+        "held_mae_percent": 6.533700052212528,
+        "clipped_complete_finite": 24,
+        "clipped_mae_percent": 7.159838485154069,
+        "unclipped_mae_percent": 6.220630835741758,
+        "held_reached_span_percent": 93.18476915359497,
+        "inverse_clipped": 24,
+        "joint_clipped": 40,
+        "early_or_numerical": 0
+      }
+    },
+    "scissors_lite_3": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 3.7296975654852655,
+        "held_mae_percent": 3.7296975654852655,
+        "clipped_complete_finite": 8,
+        "clipped_mae_percent": 0.315578470372202,
+        "unclipped_mae_percent": 4.156462452374399,
+        "held_reached_span_percent": 100.0,
+        "inverse_clipped": 8,
+        "joint_clipped": 24,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 71,
+        "held": 71,
+        "complete_finite_mae_percent": 3.8982552236450037,
+        "held_mae_percent": 3.8982552236450037,
+        "clipped_complete_finite": 8,
+        "clipped_mae_percent": 0.7954440163497445,
+        "unclipped_mae_percent": 4.292262995999957,
+        "held_reached_span_percent": 99.99999425474826,
+        "inverse_clipped": 8,
+        "joint_clipped": 40,
+        "early_or_numerical": 1
+      }
+    },
+    "scissors_lite_4": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 71,
+        "complete_finite_mae_percent": 4.228449799120426,
+        "held_mae_percent": 4.139153480949536,
+        "clipped_complete_finite": 16,
+        "clipped_mae_percent": 9.022480575367808,
+        "unclipped_mae_percent": 2.8587267201926028,
+        "held_reached_span_percent": 90.46379029750824,
+        "inverse_clipped": 16,
+        "joint_clipped": 24,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 70,
+        "complete_finite_mae_percent": 3.703580959053296,
+        "held_mae_percent": 2.7150741824880242,
+        "clipped_complete_finite": 16,
+        "clipped_mae_percent": 8.26512447965797,
+        "unclipped_mae_percent": 2.4002828103091036,
+        "held_reached_span_percent": 99.55450561828911,
+        "inverse_clipped": 16,
+        "joint_clipped": 24,
+        "early_or_numerical": 0
+      }
+    },
+    "scissors_lite_5": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 5.282786532512142,
+        "held_mae_percent": 5.282786532512142,
+        "clipped_complete_finite": 24,
+        "clipped_mae_percent": 9.872503803732496,
+        "unclipped_mae_percent": 2.987927896901965,
+        "held_reached_span_percent": 85.4161499068141,
+        "inverse_clipped": 24,
+        "joint_clipped": 40,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 1.7245382742190587,
+        "held_mae_percent": 1.7245382742190587,
+        "clipped_complete_finite": 0,
+        "clipped_mae_percent": null,
+        "unclipped_mae_percent": 1.7245382742190587,
+        "held_reached_span_percent": 100.0,
+        "inverse_clipped": 0,
+        "joint_clipped": 40,
+        "early_or_numerical": 0
+      }
+    },
+    "push_lite_1": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 25.918352262615386,
+        "held_mae_percent": 25.918352262615386,
+        "clipped_complete_finite": 8,
+        "clipped_mae_percent": 6.835577799257919,
+        "unclipped_mae_percent": 28.30369907053507,
+        "held_reached_span_percent": 100.0,
+        "inverse_clipped": 8,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 24.7325682603657,
+        "held_mae_percent": 24.7325682603657,
+        "clipped_complete_finite": 8,
+        "clipped_mae_percent": 4.383788584627624,
+        "unclipped_mae_percent": 27.276165719832957,
+        "held_reached_span_percent": 100.0,
+        "inverse_clipped": 8,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      }
+    },
+    "push_lite_2": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 4.762343137473281,
+        "held_mae_percent": 4.762343137473281,
+        "clipped_complete_finite": 16,
+        "clipped_mae_percent": 15.65845349105075,
+        "unclipped_mae_percent": 1.649168750736862,
+        "held_reached_span_percent": 78.5909615457058,
+        "inverse_clipped": 16,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 1.5631674092017225,
+        "held_mae_percent": 1.5631674092017225,
+        "clipped_complete_finite": 8,
+        "clipped_mae_percent": 2.664986277522985,
+        "unclipped_mae_percent": 1.4254400506615645,
+        "held_reached_span_percent": 98.46964594325982,
+        "inverse_clipped": 8,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      }
+    },
+    "push_lite_3": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 2.3837729569667876,
+        "held_mae_percent": 2.3837729569667876,
+        "clipped_complete_finite": 8,
+        "clipped_mae_percent": 3.0535993118974147,
+        "unclipped_mae_percent": 2.300044662600459,
+        "held_reached_span_percent": 98.20840700219074,
+        "inverse_clipped": 8,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 1.7981952972707234,
+        "held_mae_percent": 1.7981952972707234,
+        "clipped_complete_finite": 8,
+        "clipped_mae_percent": 0.0001804982441289127,
+        "unclipped_mae_percent": 2.0229471471490474,
+        "held_reached_span_percent": 100.0,
+        "inverse_clipped": 8,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      }
+    },
+    "push_lite_4": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 18.86543477848468,
+        "held_mae_percent": 18.86543477848468,
+        "clipped_complete_finite": 56,
+        "clipped_mae_percent": 21.228082756968025,
+        "unclipped_mae_percent": 10.596166853792965,
+        "held_reached_span_percent": 59.24250331840345,
+        "inverse_clipped": 56,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 3.7217425649892126,
+        "held_mae_percent": 3.7217425649892126,
+        "clipped_complete_finite": 8,
+        "clipped_mae_percent": 0.0016133593778404937,
+        "unclipped_mae_percent": 4.186758715690634,
+        "held_reached_span_percent": 100.00000000000001,
+        "inverse_clipped": 8,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      }
+    },
+    "push_lite_5": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 5.4566490913111,
+        "held_mae_percent": 5.4566490913111,
+        "clipped_complete_finite": 32,
+        "clipped_mae_percent": 10.778555236968465,
+        "unclipped_mae_percent": 1.199124174785208,
+        "held_reached_span_percent": 68.44229488210244,
+        "inverse_clipped": 32,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 1.2522290091612653,
+        "held_mae_percent": 1.2522290091612653,
+        "clipped_complete_finite": 8,
+        "clipped_mae_percent": 7.532146704885181e-06,
+        "unclipped_mae_percent": 1.4087566937880853,
+        "held_reached_span_percent": 100.0,
+        "inverse_clipped": 8,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      }
+    },
+    "spray_lite_1": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 13.20071533878541,
+        "held_mae_percent": 13.20071533878541,
+        "clipped_complete_finite": 40,
+        "clipped_mae_percent": 20.86843566852622,
+        "unclipped_mae_percent": 3.616064926609398,
+        "held_reached_span_percent": 62.85534403286874,
+        "inverse_clipped": 40,
+        "joint_clipped": 56,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 14.620338849312652,
+        "held_mae_percent": 14.620338849312652,
+        "clipped_complete_finite": 40,
+        "clipped_mae_percent": 23.4817362636386,
+        "unclipped_mae_percent": 3.5435920814052233,
+        "held_reached_span_percent": 59.6183852176182,
+        "inverse_clipped": 40,
+        "joint_clipped": 48,
+        "early_or_numerical": 0
+      }
+    },
+    "spray_lite_2": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 17.09897031873374,
+        "held_mae_percent": 17.09897031873374,
+        "clipped_complete_finite": 48,
+        "clipped_mae_percent": 24.608946456889196,
+        "unclipped_mae_percent": 2.0790180424228306,
+        "held_reached_span_percent": 48.60337427817285,
+        "inverse_clipped": 48,
+        "joint_clipped": 40,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 12.846439664200366,
+        "held_mae_percent": 12.846439664200366,
+        "clipped_complete_finite": 40,
+        "clipped_mae_percent": 21.25491096870974,
+        "unclipped_mae_percent": 2.335850533563644,
+        "held_reached_span_percent": 57.16592213138938,
+        "inverse_clipped": 40,
+        "joint_clipped": 32,
+        "early_or_numerical": 0
+      }
+    },
+    "spray_lite_3": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 14.66490016238014,
+        "held_mae_percent": 14.66490016238014,
+        "clipped_complete_finite": 16,
+        "clipped_mae_percent": 16.443128127139065,
+        "unclipped_mae_percent": 14.156835029591877,
+        "held_reached_span_percent": 94.42354837665334,
+        "inverse_clipped": 16,
+        "joint_clipped": 32,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 15.139685293575491,
+        "held_mae_percent": 15.139685293575491,
+        "clipped_complete_finite": 16,
+        "clipped_mae_percent": 17.29718724964187,
+        "unclipped_mae_percent": 14.523256163270815,
+        "held_reached_span_percent": 96.51650820160285,
+        "inverse_clipped": 16,
+        "joint_clipped": 24,
+        "early_or_numerical": 0
+      }
+    },
+    "spray_lite_4": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 15.129604361431529,
+        "held_mae_percent": 15.129604361431529,
+        "clipped_complete_finite": 40,
+        "clipped_mae_percent": 22.727650541528423,
+        "unclipped_mae_percent": 5.632046636310408,
+        "held_reached_span_percent": 69.34753805398941,
+        "inverse_clipped": 40,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 14.959040271423877,
+        "held_mae_percent": 14.959040271423877,
+        "clipped_complete_finite": 40,
+        "clipped_mae_percent": 22.446872850778167,
+        "unclipped_mae_percent": 5.599249547231013,
+        "held_reached_span_percent": 70.63796371221542,
+        "inverse_clipped": 40,
+        "joint_clipped": 0,
+        "early_or_numerical": 0
+      }
+    },
+    "spray_lite_5": {
+      "pca": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 13.31135972092549,
+        "held_mae_percent": 13.31135972092549,
+        "clipped_complete_finite": 24,
+        "clipped_mae_percent": 7.781137339770791,
+        "unclipped_mae_percent": 16.076470911502835,
+        "held_reached_span_percent": 86.06029711663723,
+        "inverse_clipped": 24,
+        "joint_clipped": 16,
+        "early_or_numerical": 0
+      },
+      "pls": {
+        "trials": 72,
+        "complete_finite": 72,
+        "held": 72,
+        "complete_finite_mae_percent": 15.096722305234934,
+        "held_mae_percent": 15.096722305234934,
+        "clipped_complete_finite": 24,
+        "clipped_mae_percent": 9.014960145577787,
+        "unclipped_mae_percent": 18.137603385063507,
+        "held_reached_span_percent": 89.08201511949301,
+        "inverse_clipped": 24,
+        "joint_clipped": 16,
+        "early_or_numerical": 0
+      }
+    }
+  },
+  "unknown": {
+    "scissors_lite_1": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 10.994005644132205,
+          "held_mae_percent": 10.994005644132205,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 10.994005644132205,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 21.581576419816884,
+          "held_mae_percent": 21.581576419816884,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 21.581576419816884,
+          "held_reached_span_percent": 91.0635769367218,
+          "inverse_clipped": 0,
+          "joint_clipped": 30,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 11.133167943141114,
+          "held_mae_percent": 11.133167943141114,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 7.1797982265707105,
+          "unclipped_mae_percent": 12.262702147875514,
+          "held_reached_span_percent": 99.50044797733426,
+          "inverse_clipped": 16,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 11.133167943141114,
+          "held_mae_percent": 11.133167943141114,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 7.1797982265707105,
+          "unclipped_mae_percent": 12.262702147875514,
+          "held_reached_span_percent": 99.50044797733426,
+          "inverse_clipped": 16,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 17.956799371621752,
+          "held_mae_percent": 17.956799371621752,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 17.956799371621752,
+          "held_reached_span_percent": 79.43620681762695,
+          "inverse_clipped": 0,
+          "joint_clipped": 32,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 13.607716313410062,
+          "held_mae_percent": 13.607716313410062,
+          "clipped_complete_finite": 32,
+          "clipped_mae_percent": 21.76695205271244,
+          "unclipped_mae_percent": 7.08032772196816,
+          "held_reached_span_percent": 69.21660304069519,
+          "inverse_clipped": 32,
+          "joint_clipped": 48,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 3,
+      "selected_candidate": "common",
+      "common_probe_coverage_percent": 90.60800056904554,
+      "selected_probe_coverage_percent": 90.60800056904554,
+      "oracle_probe_coverage_percent": 56.86101317405701,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 29,
+      "test_poses": [
+        2,
+        11,
+        7,
+        18,
+        25,
+        30,
+        31,
+        17
+      ]
+    },
+    "scissors_lite_2": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 9.072707748993656,
+          "held_mae_percent": 9.072707748993656,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 9.072707748993656,
+          "held_reached_span_percent": 98.32788109779358,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 28.223263671169562,
+          "held_mae_percent": 28.223263671169562,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 28.223263671169562,
+          "held_reached_span_percent": 78.77098321914673,
+          "inverse_clipped": 0,
+          "joint_clipped": 35,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 9.408130899067954,
+          "held_mae_percent": 9.408130899067954,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 9.414561763583151,
+          "unclipped_mae_percent": 9.406293509206469,
+          "held_reached_span_percent": 89.21616077423096,
+          "inverse_clipped": 16,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 9.408130899067954,
+          "held_mae_percent": 9.408130899067954,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 9.414561763583151,
+          "unclipped_mae_percent": 9.406293509206469,
+          "held_reached_span_percent": 89.21616077423096,
+          "inverse_clipped": 16,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 24.371676589849915,
+          "held_mae_percent": 24.371676589849915,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 24.371676589849915,
+          "held_reached_span_percent": 81.2593400478363,
+          "inverse_clipped": 0,
+          "joint_clipped": 24,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 19.138290644122613,
+          "held_mae_percent": 19.138290644122613,
+          "clipped_complete_finite": 24,
+          "clipped_mae_percent": 29.667077958583832,
+          "unclipped_mae_percent": 13.873896986892001,
+          "held_reached_span_percent": 68.90129446983337,
+          "inverse_clipped": 24,
+          "joint_clipped": 32,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 3,
+      "selected_candidate": "common",
+      "common_probe_coverage_percent": 93.08965802192688,
+      "selected_probe_coverage_percent": 93.08965802192688,
+      "oracle_probe_coverage_percent": 77.2077202796936,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 12,
+      "test_poses": [
+        16,
+        4,
+        5,
+        26,
+        8,
+        14,
+        25,
+        2
+      ]
+    },
+    "scissors_lite_3": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 71,
+          "complete_finite_mae_percent": 44.897442166176106,
+          "held_mae_percent": 45.36566373328088,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 44.897442166176106,
+          "held_reached_span_percent": 49.28005337715149,
+          "inverse_clipped": 0,
+          "joint_clipped": 8,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 71,
+          "complete_finite_mae_percent": 10.67484919525062,
+          "held_mae_percent": 10.71001387948931,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 10.67484919525062,
+          "held_reached_span_percent": 98.8920102827251,
+          "inverse_clipped": 0,
+          "joint_clipped": 30,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 46.6308550702201,
+          "held_mae_percent": 46.6308550702201,
+          "clipped_complete_finite": 64,
+          "clipped_mae_percent": 52.195755392313,
+          "unclipped_mae_percent": 2.1116524934768677,
+          "held_reached_span_percent": 13.785099983215332,
+          "inverse_clipped": 64,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 5.471616083135208,
+          "held_mae_percent": 5.471616083135208,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 10.672834236174822,
+          "unclipped_mae_percent": 3.985553753695318,
+          "held_reached_span_percent": 91.06173887848854,
+          "inverse_clipped": 16,
+          "joint_clipped": 16,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 14.232015476920878,
+          "held_mae_percent": 14.232015476920878,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 14.232015476920878,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 40,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 9.97339036947851,
+          "held_mae_percent": 9.97339036947851,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 26.70610174536705,
+          "unclipped_mae_percent": 5.192615690653213,
+          "held_reached_span_percent": 78.40120792388916,
+          "inverse_clipped": 16,
+          "joint_clipped": 32,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 15,
+      "selected_candidate": "scissors_lite_2",
+      "common_probe_coverage_percent": 10.357296466827393,
+      "selected_probe_coverage_percent": 83.96880999207497,
+      "oracle_probe_coverage_percent": 80.96636282280087,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 27,
+      "test_poses": [
+        21,
+        6,
+        28,
+        9,
+        16,
+        20,
+        29,
+        0
+      ]
+    },
+    "scissors_lite_4": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 71,
+          "complete_finite_mae_percent": 11.166743946271001,
+          "held_mae_percent": 10.991472773683096,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 11.166743946271001,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 16,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 63,
+          "complete_finite_mae_percent": 23.19177516425649,
+          "held_mae_percent": 21.72775168622297,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 23.19177516425649,
+          "held_reached_span_percent": 95.73130272328854,
+          "inverse_clipped": 0,
+          "joint_clipped": 38,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 69,
+          "complete_finite_mae_percent": 6.465657324426704,
+          "held_mae_percent": 6.188335647617562,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 8.806636743247509,
+          "unclipped_mae_percent": 5.796806061906474,
+          "held_reached_span_percent": 91.77851900458336,
+          "inverse_clipped": 16,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 69,
+          "complete_finite_mae_percent": 6.465657324426704,
+          "held_mae_percent": 6.188335647617562,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 8.806636743247509,
+          "unclipped_mae_percent": 5.796806061906474,
+          "held_reached_span_percent": 91.77851900458336,
+          "inverse_clipped": 16,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 70,
+          "complete_finite_mae_percent": 8.029765193350613,
+          "held_mae_percent": 6.614242848008871,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 8.029765193350613,
+          "held_reached_span_percent": 96.75166234374046,
+          "inverse_clipped": 0,
+          "joint_clipped": 16,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 11.632867038456931,
+          "held_mae_percent": 11.632867038456931,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 17.198978713713586,
+          "unclipped_mae_percent": 10.042549416955028,
+          "held_reached_span_percent": 94.3099807947874,
+          "inverse_clipped": 16,
+          "joint_clipped": 16,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 3,
+      "selected_candidate": "common",
+      "common_probe_coverage_percent": 84.27730053663254,
+      "selected_probe_coverage_percent": 84.27730053663254,
+      "oracle_probe_coverage_percent": 88.06763142347336,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 3,
+      "test_poses": [
+        27,
+        9,
+        28,
+        20,
+        18,
+        15,
+        23,
+        1
+      ]
+    },
+    "scissors_lite_5": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 13.376041078705864,
+          "held_mae_percent": 13.376041078705864,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 13.376041078705864,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 8,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 71,
+          "complete_finite_mae_percent": 14.539430323172079,
+          "held_mae_percent": 14.479957485924439,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 14.539430323172079,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 16,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 5.710379987259194,
+          "held_mae_percent": 5.710379987259194,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.006034473854299449,
+          "unclipped_mae_percent": 6.423423176434806,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 8,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 5.710379987259194,
+          "held_mae_percent": 5.710379987259194,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.006034473854299449,
+          "unclipped_mae_percent": 6.423423176434806,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 8,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 8.76170577575029,
+          "held_mae_percent": 8.76170577575029,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 8.76170577575029,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 40,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 6.346116959569928,
+          "held_mae_percent": 6.346116959569928,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 16.57070890069008,
+          "unclipped_mae_percent": 3.4248049763927417,
+          "held_reached_span_percent": 78.33958268165588,
+          "inverse_clipped": 16,
+          "joint_clipped": 40,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 3,
+      "selected_candidate": "common",
+      "common_probe_coverage_percent": 100.0,
+      "selected_probe_coverage_percent": 100.0,
+      "oracle_probe_coverage_percent": 79.28478258065752,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 25,
+      "test_poses": [
+        12,
+        6,
+        18,
+        9,
+        7,
+        17,
+        22,
+        14
+      ]
+    },
+    "push_lite_1": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 28.45151719539935,
+          "held_mae_percent": 28.45151719539935,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 28.45151719539935,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 21.265740434543353,
+          "held_mae_percent": 21.265740434543353,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 21.265740434543353,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 19.723603922453,
+          "held_mae_percent": 19.723603922453,
+          "clipped_complete_finite": 24,
+          "clipped_mae_percent": 21.323229455470027,
+          "unclipped_mae_percent": 18.923791155944485,
+          "held_reached_span_percent": 80.76451485976577,
+          "inverse_clipped": 24,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 19.723603922453,
+          "held_mae_percent": 19.723603922453,
+          "clipped_complete_finite": 24,
+          "clipped_mae_percent": 21.323229455470027,
+          "unclipped_mae_percent": 18.923791155944485,
+          "held_reached_span_percent": 80.76451485976577,
+          "inverse_clipped": 24,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 21.157785056380142,
+          "held_mae_percent": 21.157785056380142,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 21.157785056380142,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 18.306434174061632,
+          "held_mae_percent": 18.306434174061632,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 18.306434174061632,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 3,
+      "selected_candidate": "common",
+      "common_probe_coverage_percent": 76.38085516540883,
+      "selected_probe_coverage_percent": 76.38085516540883,
+      "oracle_probe_coverage_percent": 100.0,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 29,
+      "test_poses": [
+        2,
+        11,
+        7,
+        18,
+        25,
+        30,
+        31,
+        17
+      ]
+    },
+    "push_lite_2": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 15.906571726053413,
+          "held_mae_percent": 15.906571726053413,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 15.906571726053413,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 31.29090216461956,
+          "held_mae_percent": 31.29090216461956,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 31.29090216461956,
+          "held_reached_span_percent": 75.23261476308107,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 8.754530813252465,
+          "held_mae_percent": 8.754530813252465,
+          "clipped_complete_finite": 24,
+          "clipped_mae_percent": 17.470700177364055,
+          "unclipped_mae_percent": 4.3964461311966705,
+          "held_reached_span_percent": 72.35856261104345,
+          "inverse_clipped": 24,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 4.2350373421714975,
+          "held_mae_percent": 4.2350373421714975,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 4.2201729025691765,
+          "unclipped_mae_percent": 4.236895397121788,
+          "held_reached_span_percent": 97.95817546546459,
+          "inverse_clipped": 8,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 18.20958065582573,
+          "held_mae_percent": 18.20958065582573,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 18.20958065582573,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 8,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 9.963647514180497,
+          "held_mae_percent": 9.963647514180497,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 9.963647514180497,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 15,
+      "selected_candidate": "push_lite_1",
+      "common_probe_coverage_percent": 69.62098181247711,
+      "selected_probe_coverage_percent": 94.09374557435513,
+      "oracle_probe_coverage_percent": 100.0,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 12,
+      "test_poses": [
+        16,
+        4,
+        5,
+        26,
+        8,
+        14,
+        25,
+        2
+      ]
+    },
+    "push_lite_3": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 8.293298784759306,
+          "held_mae_percent": 8.293298784759306,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 8.293298784759306,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 8,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 7.6111796943057115,
+          "held_mae_percent": 7.6111796943057115,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 7.6111796943057115,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 6.641559152661805,
+          "held_mae_percent": 6.641559152661805,
+          "clipped_complete_finite": 32,
+          "clipped_mae_percent": 10.729709847166902,
+          "unclipped_mae_percent": 3.3710385970577286,
+          "held_reached_span_percent": 80.76597781231006,
+          "inverse_clipped": 32,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 3.938982932326828,
+          "held_mae_percent": 3.938982932326828,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 4.153273580235533,
+          "unclipped_mae_percent": 3.877757032924341,
+          "held_reached_span_percent": 99.2195059855779,
+          "inverse_clipped": 16,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 7.157813967868123,
+          "held_mae_percent": 7.157813967868123,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 7.157813967868123,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 2.9875308061355885,
+          "held_mae_percent": 2.9875308061355885,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 6.817247532308102,
+          "unclipped_mae_percent": 1.8933260272291565,
+          "held_reached_span_percent": 91.24785816917817,
+          "inverse_clipped": 16,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 15,
+      "selected_candidate": "push_lite_1",
+      "common_probe_coverage_percent": 67.37657895428129,
+      "selected_probe_coverage_percent": 92.34942602536951,
+      "oracle_probe_coverage_percent": 85.63637578239045,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 27,
+      "test_poses": [
+        21,
+        6,
+        28,
+        9,
+        16,
+        20,
+        29,
+        0
+      ]
+    },
+    "push_lite_4": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 16.06038765615119,
+          "held_mae_percent": 16.06038765615119,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 16.06038765615119,
+          "held_reached_span_percent": 99.99591836724125,
+          "inverse_clipped": 0,
+          "joint_clipped": 8,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 25.097873470026023,
+          "held_mae_percent": 25.097873470026023,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 25.097873470026023,
+          "held_reached_span_percent": 99.99618471276466,
+          "inverse_clipped": 0,
+          "joint_clipped": 2,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 6.962085230178411,
+          "held_mae_percent": 6.962085230178411,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 6.962085230178411,
+          "held_reached_span_percent": 99.99591836724125,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 6.962085230178411,
+          "held_mae_percent": 6.962085230178411,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 6.962085230178411,
+          "held_reached_span_percent": 99.99591836724125,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 10.616971727651123,
+          "held_mae_percent": 10.616971727651123,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 10.616971727651123,
+          "held_reached_span_percent": 100.00000000000001,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 6.661851431602267,
+          "held_mae_percent": 6.661851431602267,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 8.85613303232406,
+          "unclipped_mae_percent": 6.03491383139604,
+          "held_reached_span_percent": 90.9688084253243,
+          "inverse_clipped": 16,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 3,
+      "selected_candidate": "common",
+      "common_probe_coverage_percent": 99.99591836358702,
+      "selected_probe_coverage_percent": 99.99591836358702,
+      "oracle_probe_coverage_percent": 84.74024389540448,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 3,
+      "test_poses": [
+        27,
+        9,
+        28,
+        20,
+        18,
+        15,
+        23,
+        1
+      ]
+    },
+    "push_lite_5": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 17.807610973385266,
+          "held_mae_percent": 17.807610973385266,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 17.807610973385266,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 26.12905013500017,
+          "held_mae_percent": 26.12905013500017,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 26.12905013500017,
+          "held_reached_span_percent": 99.8826964408429,
+          "inverse_clipped": 0,
+          "joint_clipped": 4,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 8.357209478142776,
+          "held_mae_percent": 8.357209478142776,
+          "clipped_complete_finite": 24,
+          "clipped_mae_percent": 13.807215801595401,
+          "unclipped_mae_percent": 5.632206316416465,
+          "held_reached_span_percent": 87.59122840552168,
+          "inverse_clipped": 24,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 8.357209478142776,
+          "held_mae_percent": 8.357209478142776,
+          "clipped_complete_finite": 24,
+          "clipped_mae_percent": 13.807215801595401,
+          "unclipped_mae_percent": 5.632206316416465,
+          "held_reached_span_percent": 87.59122840552168,
+          "inverse_clipped": 24,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 6.955644928916989,
+          "held_mae_percent": 6.955644928916989,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 6.955644928916989,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 3.2712696308508433,
+          "held_mae_percent": 3.2712696308508433,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 9.42473414100029,
+          "unclipped_mae_percent": 1.5131369136652868,
+          "held_reached_span_percent": 86.67346767403863,
+          "inverse_clipped": 16,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 3,
+      "selected_candidate": "common",
+      "common_probe_coverage_percent": 76.81210621852766,
+      "selected_probe_coverage_percent": 76.81210621852766,
+      "oracle_probe_coverage_percent": 82.67473260110076,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 25,
+      "test_poses": [
+        12,
+        6,
+        18,
+        9,
+        7,
+        17,
+        22,
+        14
+      ]
+    },
+    "spray_lite_1": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 49.79256044631863,
+          "held_mae_percent": 49.79256044631863,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 49.79256044631863,
+          "held_reached_span_percent": 0.008102564606815577,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 48.51344965605273,
+          "held_mae_percent": 48.51344965605273,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 48.51344965605273,
+          "held_reached_span_percent": 12.759732926497236,
+          "inverse_clipped": 0,
+          "joint_clipped": 8,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 49.79256044631863,
+          "held_mae_percent": 49.79256044631863,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 49.79256044631863,
+          "held_reached_span_percent": 0.008102564606815577,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 34.27887555024224,
+          "held_mae_percent": 34.27887555024224,
+          "clipped_complete_finite": 56,
+          "clipped_mae_percent": 43.42581913806498,
+          "unclipped_mae_percent": 2.2645729928626683,
+          "held_reached_span_percent": 22.60012729675509,
+          "inverse_clipped": 56,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 19.22615643537332,
+          "held_mae_percent": 19.22615643537332,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 19.22615643537332,
+          "held_reached_span_percent": 58.489037764957175,
+          "inverse_clipped": 0,
+          "joint_clipped": 40,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 17.70249906823867,
+          "held_mae_percent": 17.70249906823867,
+          "clipped_complete_finite": 48,
+          "clipped_mae_percent": 24.365379894152287,
+          "unclipped_mae_percent": 4.376737416411439,
+          "held_reached_span_percent": 48.22083469480276,
+          "inverse_clipped": 48,
+          "joint_clipped": 16,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 15,
+      "selected_candidate": "spray_lite_4",
+      "common_probe_coverage_percent": null,
+      "selected_probe_coverage_percent": 21.294347767252475,
+      "oracle_probe_coverage_percent": 37.312449887394905,
+      "common_probe_failed": true,
+      "selected_probe_failed": false,
+      "calibration_pose": 29,
+      "test_poses": [
+        2,
+        11,
+        7,
+        18,
+        25,
+        30,
+        31,
+        17
+      ]
+    },
+    "spray_lite_2": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 29.962532567785477,
+          "held_mae_percent": 29.962532567785477,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 1.9190291459381115,
+          "unclipped_mae_percent": 33.467970495516404,
+          "held_reached_span_percent": 70.22026926279068,
+          "inverse_clipped": 8,
+          "joint_clipped": 16,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 43.5088086207947,
+          "held_mae_percent": 43.5088086207947,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 43.5088086207947,
+          "held_reached_span_percent": 30.275468627223745,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 19.911471396820467,
+          "held_mae_percent": 19.911471396820467,
+          "clipped_complete_finite": 48,
+          "clipped_mae_percent": 27.728053803245228,
+          "unclipped_mae_percent": 4.27830658397094,
+          "held_reached_span_percent": 54.023721604608,
+          "inverse_clipped": 48,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 7.859144696380501,
+          "held_mae_percent": 7.859144696380501,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 1.6536856070160852,
+          "unclipped_mae_percent": 8.634827082551054,
+          "held_reached_span_percent": 99.92093999753706,
+          "inverse_clipped": 8,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 26.74676706002275,
+          "held_mae_percent": 26.74676706002275,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 26.74676706002275,
+          "held_reached_span_percent": 49.87529368372634,
+          "inverse_clipped": 0,
+          "joint_clipped": 8,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 18.804498419760623,
+          "held_mae_percent": 18.804498419760623,
+          "clipped_complete_finite": 48,
+          "clipped_mae_percent": 26.431386142697498,
+          "unclipped_mae_percent": 3.550722973886876,
+          "held_reached_span_percent": 50.150321825640276,
+          "inverse_clipped": 48,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 15,
+      "selected_candidate": "spray_lite_5",
+      "common_probe_coverage_percent": 35.40089845773764,
+      "selected_probe_coverage_percent": 94.46795168332756,
+      "oracle_probe_coverage_percent": 39.73878873512149,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 12,
+      "test_poses": [
+        16,
+        4,
+        5,
+        26,
+        8,
+        14,
+        25,
+        2
+      ]
+    },
+    "spray_lite_3": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 30.9154341149325,
+          "held_mae_percent": 30.9154341149325,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 36.38212046644185,
+          "unclipped_mae_percent": 30.232098320993828,
+          "held_reached_span_percent": 67.26245582103729,
+          "inverse_clipped": 8,
+          "joint_clipped": 16,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 30.132811773142347,
+          "held_mae_percent": 30.132811773142347,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 30.132811773142347,
+          "held_reached_span_percent": 58.1527054309845,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 29.012372069216024,
+          "held_mae_percent": 29.012372069216024,
+          "clipped_complete_finite": 64,
+          "clipped_mae_percent": 30.178638304641936,
+          "unclipped_mae_percent": 19.682242185808718,
+          "held_reached_span_percent": 58.25705826282501,
+          "inverse_clipped": 64,
+          "joint_clipped": 32,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 28.90478421714862,
+          "held_mae_percent": 28.90478421714862,
+          "clipped_complete_finite": 64,
+          "clipped_mae_percent": 30.92781948494121,
+          "unclipped_mae_percent": 12.720502074807882,
+          "held_reached_span_percent": 55.33939599990845,
+          "inverse_clipped": 64,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 18.095169700003076,
+          "held_mae_percent": 18.095169700003076,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 18.095169700003076,
+          "held_reached_span_percent": 74.87670623231679,
+          "inverse_clipped": 0,
+          "joint_clipped": 16,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 18.625631303034933,
+          "held_mae_percent": 18.625631303034933,
+          "clipped_complete_finite": 40,
+          "clipped_mae_percent": 24.743240103125576,
+          "unclipped_mae_percent": 10.978620302921627,
+          "held_reached_span_percent": 66.3477397756651,
+          "inverse_clipped": 40,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 15,
+      "selected_candidate": "spray_lite_4",
+      "common_probe_coverage_percent": 15.254005789756775,
+      "selected_probe_coverage_percent": 17.965901643037796,
+      "oracle_probe_coverage_percent": 53.26639302074909,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 27,
+      "test_poses": [
+        21,
+        6,
+        28,
+        9,
+        16,
+        20,
+        29,
+        0
+      ]
+    },
+    "spray_lite_4": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 44.93435363668444,
+          "held_mae_percent": 44.93435363668444,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 44.93435363668444,
+          "held_reached_span_percent": 41.86012223362923,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 44.91651139210768,
+          "held_mae_percent": 44.91651139210768,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 44.91651139210768,
+          "held_reached_span_percent": 41.43051430583,
+          "inverse_clipped": 0,
+          "joint_clipped": 8,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 42.81213772200216,
+          "held_mae_percent": 42.81213772200216,
+          "clipped_complete_finite": 72,
+          "clipped_mae_percent": 42.81213772200216,
+          "unclipped_mae_percent": null,
+          "held_reached_span_percent": 23.920846222608816,
+          "inverse_clipped": 72,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 15.94690676364634,
+          "held_mae_percent": 15.94690676364634,
+          "clipped_complete_finite": 48,
+          "clipped_mae_percent": 19.62161221696685,
+          "unclipped_mae_percent": 8.59749585700532,
+          "held_reached_span_percent": 57.489221915602684,
+          "inverse_clipped": 48,
+          "joint_clipped": 32,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 23.514059482916615,
+          "held_mae_percent": 23.514059482916615,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 23.514059482916615,
+          "held_reached_span_percent": 66.02264195680618,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 21.334975838868157,
+          "held_mae_percent": 21.334975838868157,
+          "clipped_complete_finite": 48,
+          "clipped_mae_percent": 26.463521008069318,
+          "unclipped_mae_percent": 11.077885500465834,
+          "held_reached_span_percent": 57.79646628070623,
+          "inverse_clipped": 48,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 15,
+      "selected_candidate": "spray_lite_1",
+      "common_probe_coverage_percent": 7.06087239086628,
+      "selected_probe_coverage_percent": 39.61670398712158,
+      "oracle_probe_coverage_percent": 41.72443225979805,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 3,
+      "test_poses": [
+        27,
+        9,
+        28,
+        20,
+        18,
+        15,
+        23,
+        1
+      ]
+    },
+    "spray_lite_5": {
+      "arms": {
+        "common_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 39.31492460991043,
+          "held_mae_percent": 39.31492460991043,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 12.97554257325828,
+          "unclipped_mae_percent": 42.60734736449194,
+          "held_reached_span_percent": 48.007335513830185,
+          "inverse_clipped": 8,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "pca2_nn_zero": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 41.34649930702937,
+          "held_mae_percent": 41.34649930702937,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 41.34649930702937,
+          "held_reached_span_percent": 16.45420351997018,
+          "inverse_clipped": 0,
+          "joint_clipped": 8,
+          "early_or_numerical": 0
+        },
+        "common_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 38.33097039645913,
+          "held_mae_percent": 38.33097039645913,
+          "clipped_complete_finite": 72,
+          "clipped_mae_percent": 38.33097039645913,
+          "unclipped_mae_percent": null,
+          "held_reached_span_percent": 38.81889954209328,
+          "inverse_clipped": 72,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "selected_three_probe": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 38.33097039645913,
+          "held_mae_percent": 38.33097039645913,
+          "clipped_complete_finite": 72,
+          "clipped_mae_percent": 38.33097039645913,
+          "unclipped_mae_percent": null,
+          "held_reached_span_percent": 38.81889954209328,
+          "inverse_clipped": 72,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 22.683264923075008,
+          "held_mae_percent": 22.683264923075008,
+          "clipped_complete_finite": 0,
+          "clipped_mae_percent": null,
+          "unclipped_mae_percent": 22.683264923075008,
+          "held_reached_span_percent": 99.48570725973696,
+          "inverse_clipped": 0,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        },
+        "local_pls_three_probe_oracle": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 25.690652969448518,
+          "held_mae_percent": 25.690652969448518,
+          "clipped_complete_finite": 56,
+          "clipped_mae_percent": 30.40668991494126,
+          "unclipped_mae_percent": 9.18452366022393,
+          "held_reached_span_percent": 87.46004477143288,
+          "inverse_clipped": 56,
+          "joint_clipped": 0,
+          "early_or_numerical": 0
+        }
+      },
+      "probes_attempted": 15,
+      "selected_candidate": "common",
+      "common_probe_coverage_percent": 9.937913157045841,
+      "selected_probe_coverage_percent": 9.937913157045841,
+      "oracle_probe_coverage_percent": 22.01795601285994,
+      "common_probe_failed": false,
+      "selected_probe_failed": false,
+      "calibration_pose": 25,
+      "test_poses": [
+        12,
+        6,
+        18,
+        9,
+        7,
+        17,
+        22,
+        14
+      ]
+    }
+  },
+  "fb": {
+    "scissors_lite_3": {
+      "pca": {
+        "ff": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 3.7296975654852655,
+          "held_mae_percent": 3.7296975654852655,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.315578470372202,
+          "unclipped_mae_percent": 4.156462452374399,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 8,
+          "joint_clipped": 24,
+          "early_or_numerical": 0,
+          "feedback_enabled": null,
+          "tipped": 27
+        },
+        "axis1_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 2.6816358688797157,
+          "held_mae_percent": 2.6816358688797157,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.315578470372202,
+          "unclipped_mae_percent": 2.977393043693155,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 8,
+          "joint_clipped": 24,
+          "early_or_numerical": 0,
+          "feedback_enabled": 64,
+          "tipped": 29
+        },
+        "axis2_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 3.70155036888112,
+          "held_mae_percent": 3.70155036888112,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.315578470372202,
+          "unclipped_mae_percent": 4.124796856194735,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 8,
+          "joint_clipped": 24,
+          "early_or_numerical": 0,
+          "feedback_enabled": 40,
+          "tipped": 26
+        }
+      },
+      "pls": {
+        "ff": {
+          "trials": 72,
+          "complete_finite": 71,
+          "held": 71,
+          "complete_finite_mae_percent": 3.8982552236450037,
+          "held_mae_percent": 3.8982552236450037,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.7954440163497445,
+          "unclipped_mae_percent": 4.292262995999957,
+          "held_reached_span_percent": 99.99999425474826,
+          "inverse_clipped": 8,
+          "joint_clipped": 40,
+          "early_or_numerical": 1,
+          "feedback_enabled": null,
+          "tipped": 26
+        },
+        "axis1_fb": {
+          "trials": 72,
+          "complete_finite": 71,
+          "held": 71,
+          "complete_finite_mae_percent": 2.741571013042337,
+          "held_mae_percent": 2.741571013042337,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.7954440163497445,
+          "unclipped_mae_percent": 2.988698250717587,
+          "held_reached_span_percent": 99.99999425474826,
+          "inverse_clipped": 8,
+          "joint_clipped": 40,
+          "early_or_numerical": 1,
+          "feedback_enabled": 64,
+          "tipped": 27
+        },
+        "axis2_fb": {
+          "trials": 72,
+          "complete_finite": 71,
+          "held": 71,
+          "complete_finite_mae_percent": 3.0097059810041187,
+          "held_mae_percent": 3.0097059810041187,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.7954440163497445,
+          "unclipped_mae_percent": 3.290882103499912,
+          "held_reached_span_percent": 99.99999425474826,
+          "inverse_clipped": 8,
+          "joint_clipped": 40,
+          "early_or_numerical": 1,
+          "feedback_enabled": 64,
+          "tipped": 27
+        }
+      }
+    },
+    "scissors_lite_4": {
+      "pca": {
+        "ff": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 71,
+          "complete_finite_mae_percent": 4.228449799120426,
+          "held_mae_percent": 4.139153480949536,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 9.022480575367808,
+          "unclipped_mae_percent": 2.8587267201926028,
+          "held_reached_span_percent": 90.46379029750824,
+          "inverse_clipped": 16,
+          "joint_clipped": 30,
+          "early_or_numerical": 0,
+          "feedback_enabled": null,
+          "tipped": 54
+        },
+        "axis1_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 71,
+          "complete_finite_mae_percent": 3.9628664549026222,
+          "held_mae_percent": 3.9230592338971686,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 7.4185446836054325,
+          "unclipped_mae_percent": 2.975529818130391,
+          "held_reached_span_percent": 95.58431878685951,
+          "inverse_clipped": 16,
+          "joint_clipped": 30,
+          "early_or_numerical": 0,
+          "feedback_enabled": 72,
+          "tipped": 57
+        },
+        "axis2_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 71,
+          "complete_finite_mae_percent": 4.777196181627611,
+          "held_mae_percent": 4.77414757380603,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 8.89007527148351,
+          "unclipped_mae_percent": 3.6020878702402115,
+          "held_reached_span_percent": 97.73572739213705,
+          "inverse_clipped": 16,
+          "joint_clipped": 30,
+          "early_or_numerical": 0,
+          "feedback_enabled": 56,
+          "tipped": 58
+        }
+      },
+      "pls": {
+        "ff": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 70,
+          "complete_finite_mae_percent": 3.703580959053296,
+          "held_mae_percent": 2.7150741824880242,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 8.26512447965797,
+          "unclipped_mae_percent": 2.4002828103091036,
+          "held_reached_span_percent": 99.55450561828911,
+          "inverse_clipped": 16,
+          "joint_clipped": 33,
+          "early_or_numerical": 0,
+          "feedback_enabled": null,
+          "tipped": 56
+        },
+        "axis1_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 70,
+          "complete_finite_mae_percent": 3.3998736975869783,
+          "held_mae_percent": 2.4026895706940974,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 8.173544178134762,
+          "unclipped_mae_percent": 2.0359678460018977,
+          "held_reached_span_percent": 99.55450561828911,
+          "inverse_clipped": 16,
+          "joint_clipped": 33,
+          "early_or_numerical": 0,
+          "feedback_enabled": 72,
+          "tipped": 56
+        },
+        "axis2_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 70,
+          "complete_finite_mae_percent": 3.7128830710167273,
+          "held_mae_percent": 2.724642069078982,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 8.26512447965797,
+          "unclipped_mae_percent": 2.4122426685478007,
+          "held_reached_span_percent": 99.55450561828911,
+          "inverse_clipped": 16,
+          "joint_clipped": 33,
+          "early_or_numerical": 0,
+          "feedback_enabled": 48,
+          "tipped": 57
+        }
+      }
+    },
+    "push_lite_3": {
+      "pca": {
+        "ff": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 2.3837729569667876,
+          "held_mae_percent": 2.3837729569667876,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 3.0535993118974147,
+          "unclipped_mae_percent": 2.300044662600459,
+          "held_reached_span_percent": 98.20840700219074,
+          "inverse_clipped": 8,
+          "joint_clipped": 0,
+          "early_or_numerical": 0,
+          "feedback_enabled": null,
+          "tipped": 0
+        },
+        "axis1_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 0.620111591635779,
+          "held_mae_percent": 0.620111591635779,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.5077347206376241,
+          "unclipped_mae_percent": 0.6341587005105483,
+          "held_reached_span_percent": 99.57592963255593,
+          "inverse_clipped": 8,
+          "joint_clipped": 0,
+          "early_or_numerical": 0,
+          "feedback_enabled": 72,
+          "tipped": 0
+        },
+        "axis2_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 1.4098182733572746,
+          "held_mae_percent": 1.4098182733572746,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 3.0535993118974147,
+          "unclipped_mae_percent": 1.204345643539757,
+          "held_reached_span_percent": 98.20840700219074,
+          "inverse_clipped": 8,
+          "joint_clipped": 0,
+          "early_or_numerical": 0,
+          "feedback_enabled": 64,
+          "tipped": 0
+        }
+      },
+      "pls": {
+        "ff": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 1.7981952972707234,
+          "held_mae_percent": 1.7981952972707234,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.0001804982441289127,
+          "unclipped_mae_percent": 2.0229471471490474,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 8,
+          "joint_clipped": 0,
+          "early_or_numerical": 0,
+          "feedback_enabled": null,
+          "tipped": 0
+        },
+        "axis1_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 0.601152343375111,
+          "held_mae_percent": 0.601152343375111,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.0001804982441289127,
+          "unclipped_mae_percent": 0.6762738240164837,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 8,
+          "joint_clipped": 0,
+          "early_or_numerical": 0,
+          "feedback_enabled": 72,
+          "tipped": 0
+        },
+        "axis2_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 1.155126650396582,
+          "held_mae_percent": 1.155126650396582,
+          "clipped_complete_finite": 8,
+          "clipped_mae_percent": 0.0001804982441289127,
+          "unclipped_mae_percent": 1.2994949194156387,
+          "held_reached_span_percent": 100.0,
+          "inverse_clipped": 8,
+          "joint_clipped": 0,
+          "early_or_numerical": 0,
+          "feedback_enabled": 64,
+          "tipped": 0
+        }
+      }
+    },
+    "spray_lite_3": {
+      "pca": {
+        "ff": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 14.66490016238014,
+          "held_mae_percent": 14.66490016238014,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 16.443128127139065,
+          "unclipped_mae_percent": 14.156835029591877,
+          "held_reached_span_percent": 94.42354837665334,
+          "inverse_clipped": 16,
+          "joint_clipped": 32,
+          "early_or_numerical": 0,
+          "feedback_enabled": null,
+          "tipped": 0
+        },
+        "axis1_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 12.69141408556607,
+          "held_mae_percent": 12.69141408556607,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 16.497933899518106,
+          "unclipped_mae_percent": 11.603836995865487,
+          "held_reached_span_percent": 94.51219532638788,
+          "inverse_clipped": 16,
+          "joint_clipped": 32,
+          "early_or_numerical": 0,
+          "feedback_enabled": 72,
+          "tipped": 0
+        },
+        "axis2_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 13.8716906829763,
+          "held_mae_percent": 13.8716906829763,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 16.443128127139065,
+          "unclipped_mae_percent": 13.136994270358372,
+          "held_reached_span_percent": 94.42425024462864,
+          "inverse_clipped": 16,
+          "joint_clipped": 32,
+          "early_or_numerical": 0,
+          "feedback_enabled": 64,
+          "tipped": 0
+        }
+      },
+      "pls": {
+        "ff": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 15.139685293575491,
+          "held_mae_percent": 15.139685293575491,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 17.29718724964187,
+          "unclipped_mae_percent": 14.523256163270815,
+          "held_reached_span_percent": 96.51650820160285,
+          "inverse_clipped": 16,
+          "joint_clipped": 25,
+          "early_or_numerical": 0,
+          "feedback_enabled": null,
+          "tipped": 0
+        },
+        "axis1_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 13.06703916957809,
+          "held_mae_percent": 13.06703916957809,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 17.29718724964187,
+          "unclipped_mae_percent": 11.858425432417013,
+          "held_reached_span_percent": 96.51527053210884,
+          "inverse_clipped": 16,
+          "joint_clipped": 25,
+          "early_or_numerical": 0,
+          "feedback_enabled": 72,
+          "tipped": 0
+        },
+        "axis2_fb": {
+          "trials": 72,
+          "complete_finite": 72,
+          "held": 72,
+          "complete_finite_mae_percent": 15.047100640044345,
+          "held_mae_percent": 15.047100640044345,
+          "clipped_complete_finite": 16,
+          "clipped_mae_percent": 17.190443108847834,
+          "unclipped_mae_percent": 14.434717077529061,
+          "held_reached_span_percent": 97.27195650339127,
+          "inverse_clipped": 16,
+          "joint_clipped": 25,
+          "early_or_numerical": 0,
+          "feedback_enabled": 64,
+          "tipped": 0
+        }
+      }
+    }
+  },
+  "paired": {
+    "ff": {
+      "scissors_lite_1": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -2.1914827417276683,
+        "second_better_pairs": 59
+      },
+      "scissors_lite_2": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -0.5651526950436568,
+        "second_better_pairs": 37
+      },
+      "scissors_lite_3": {
+        "paired_complete_finite": 71,
+        "second_minus_first_mae_percent": 0.1366055879178058,
+        "second_better_pairs": 36
+      },
+      "scissors_lite_4": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -0.52486884006713,
+        "second_better_pairs": 43
+      },
+      "scissors_lite_5": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -3.5582482582930828,
+        "second_better_pairs": 49
+      },
+      "push_lite_1": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -1.1857840022496902,
+        "second_better_pairs": 48
+      },
+      "push_lite_2": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -3.199175728271559,
+        "second_better_pairs": 48
+      },
+      "push_lite_3": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -0.5855776596960646,
+        "second_better_pairs": 49
+      },
+      "push_lite_4": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -15.143692213495466,
+        "second_better_pairs": 61
+      },
+      "push_lite_5": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -4.204420082149834,
+        "second_better_pairs": 51
+      },
+      "spray_lite_1": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": 1.4196235105272432,
+        "second_better_pairs": 28
+      },
+      "spray_lite_2": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -4.252530654533378,
+        "second_better_pairs": 52
+      },
+      "spray_lite_3": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": 0.47478513119535315,
+        "second_better_pairs": 26
+      },
+      "spray_lite_4": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -0.1705640900076509,
+        "second_better_pairs": 43
+      },
+      "spray_lite_5": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": 1.785362584309446,
+        "second_better_pairs": 38
+      }
+    },
+    "unknown": {
+      "scissors_lite_1": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": 0.1391622990089066,
+        "second_better_pairs": 40
+      },
+      "scissors_lite_2": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": 0.33542315007429757,
+        "second_better_pairs": 42
+      },
+      "scissors_lite_3": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -39.425826083040896,
+        "second_better_pairs": 64
+      },
+      "scissors_lite_4": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -4.701086621844297,
+        "second_better_pairs": 50
+      },
+      "scissors_lite_5": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -7.66566109144667,
+        "second_better_pairs": 64
+      },
+      "push_lite_1": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -8.72791327294635,
+        "second_better_pairs": 40
+      },
+      "push_lite_2": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -11.671534383881912,
+        "second_better_pairs": 57
+      },
+      "push_lite_3": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -4.354315852432478,
+        "second_better_pairs": 52
+      },
+      "push_lite_4": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -9.09830242597278,
+        "second_better_pairs": 56
+      },
+      "push_lite_5": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -9.45040149524249,
+        "second_better_pairs": 54
+      },
+      "spray_lite_1": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -15.513684896076382,
+        "second_better_pairs": 72
+      },
+      "spray_lite_2": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -22.103387871404976,
+        "second_better_pairs": 65
+      },
+      "spray_lite_3": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -2.0106498977838787,
+        "second_better_pairs": 41
+      },
+      "spray_lite_4": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -28.987446873038103,
+        "second_better_pairs": 57
+      },
+      "spray_lite_5": {
+        "paired_complete_finite": 72,
+        "second_minus_first_mae_percent": -0.9839542134512966,
+        "second_better_pairs": 41
+      }
+    },
+    "fb": {
+      "scissors_lite_3_pca": {
+        "axis1_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -1.04806169660555,
+          "second_better_pairs": 39
+        },
+        "axis2_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -0.0281471966041459,
+          "second_better_pairs": 18
+        }
+      },
+      "scissors_lite_3_pls": {
+        "axis1_fb": {
+          "paired_complete_finite": 71,
+          "second_minus_first_mae_percent": -1.1566842106026662,
+          "second_better_pairs": 33
+        },
+        "axis2_fb": {
+          "paired_complete_finite": 71,
+          "second_minus_first_mae_percent": -0.8885492426408848,
+          "second_better_pairs": 36
+        }
+      },
+      "scissors_lite_4_pca": {
+        "axis1_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -0.2655833442178038,
+          "second_better_pairs": 33
+        },
+        "axis2_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": 0.5487463825071852,
+          "second_better_pairs": 27
+        }
+      },
+      "scissors_lite_4_pls": {
+        "axis1_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -0.3037072614663177,
+          "second_better_pairs": 26
+        },
+        "axis2_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": 0.009302111963431042,
+          "second_better_pairs": 18
+        }
+      },
+      "push_lite_3_pca": {
+        "axis1_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -1.763661365331009,
+          "second_better_pairs": 58
+        },
+        "axis2_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -0.9739546836095132,
+          "second_better_pairs": 41
+        }
+      },
+      "push_lite_3_pls": {
+        "axis1_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -1.197042953895612,
+          "second_better_pairs": 44
+        },
+        "axis2_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -0.6430686468741412,
+          "second_better_pairs": 41
+        }
+      },
+      "spray_lite_3_pca": {
+        "axis1_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -1.973486076814071,
+          "second_better_pairs": 39
+        },
+        "axis2_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -0.7932094794038376,
+          "second_better_pairs": 36
+        }
+      },
+      "spray_lite_3_pls": {
+        "axis1_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -2.072646123997402,
+          "second_better_pairs": 37
+        },
+        "axis2_fb": {
+          "paired_complete_finite": 72,
+          "second_minus_first_mae_percent": -0.09258465353114972,
+          "second_better_pairs": 40
+        }
+      }
+    }
+  }
+}

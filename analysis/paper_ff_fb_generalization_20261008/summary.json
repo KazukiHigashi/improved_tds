@@ -1051,7 +1051,7 @@
   "zero": {
     "protocol": "initial_pca2_nn_physical_v1",
     "offline_protocol": "initial_pca_nn_offline_v1",
-    "source": "C:\\Users\\smasa\\Documents\\mujoco\\projects\\improved_tds\\analysis\\paper15_paper_bundle_20260928",
+    "source": "analysis/paper15_paper_bundle_20260928",
     "new_training": false,
     "pca_rule": "fit PCA on unique initial postures of four known tools only",
     "trajectory_seconds": 5,
@@ -29876,7 +29876,7 @@
       "local_cal_supported": 15,
       "probes": 15,
       "selected": "scissors_lite_2",
-      "common_probe_coverage": 0.0,
+      "common_probe_coverage": null,
       "selected_probe_coverage": 83.05238485336304,
       "guard": 0.75,
       "stopped_after_common": false
@@ -30012,7 +30012,7 @@
       "local_cal_supported": 15,
       "probes": 15,
       "selected": "spray_lite_4",
-      "common_probe_coverage": 0.0,
+      "common_probe_coverage": null,
       "selected_probe_coverage": 22.07315046689473,
       "guard": 0.75,
       "stopped_after_common": false
@@ -30046,7 +30046,7 @@
       "local_cal_supported": 15,
       "probes": 15,
       "selected": "spray_lite_4",
-      "common_probe_coverage": 0.0,
+      "common_probe_coverage": null,
       "selected_probe_coverage": 24.035077542066574,
       "guard": 0.75,
       "stopped_after_common": false
@@ -30063,7 +30063,7 @@
       "local_cal_supported": 15,
       "probes": 15,
       "selected": "spray_lite_1",
-      "common_probe_coverage": 0.0,
+      "common_probe_coverage": null,
       "selected_probe_coverage": 47.12212085723877,
       "guard": 0.75,
       "stopped_after_common": false
@@ -30080,7 +30080,7 @@
       "local_cal_supported": 15,
       "probes": 15,
       "selected": "spray_lite_1",
-      "common_probe_coverage": 0.0,
+      "common_probe_coverage": null,
       "selected_probe_coverage": 30.780471861362457,
       "guard": 0.75,
       "stopped_after_common": false

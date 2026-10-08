@@ -349,7 +349,7 @@ def paired_comparisons(trials, span):
     return result
 
 
-def run_task(bundle, output, task, ncal, ntest, ntargets):
+def run_task(bundle, output, task, ncal, ntest, ntargets, *, full_rl_grid=False):
     from improved_tds.environments.scissors_smooth import SmoothReachConfig
     from improved_tds.experiments.collect_posture_database import _build_env
     from improved_tds.experiments.reach_tds import load_database
@@ -373,7 +373,9 @@ def run_task(bundle, output, task, ncal, ntest, ntargets):
     if len(calposes)!=ncal or len(testposes)!=ntest or set(calposes)&set(testposes):
         raise ValueError('insufficient or overlapping calibration/test poses')
     configs = {m: source['configurations'][m+'_1d'] for m in ('pca','pls')}
-    targets, domain = common_targets(configs.values(), ntargets)
+    _, domain = common_targets(configs.values(), ntargets)
+    targets = (np.linspace(*source['target_range'], ntargets).tolist()
+               if full_rl_grid else common_targets(configs.values(), ntargets)[0])
     contract = meta['contract']
     version = meta.get('scissors_control_version', 'simple')
     _register_tool_manip_gym_environments()
@@ -401,11 +403,14 @@ def run_task(bundle, output, task, ncal, ntest, ntargets):
             shutil.copy2(src,inputs/name)
         feedback = AxisFeedbackConfig()
         settings = dict(tool_span=hi-lo, feedback=feedback)
-        result = dict(protocol='second_axis_feedback_v1', task=task, tool_unit='m' if task.startswith('push') else 'rad',
+        result = dict(protocol=('second_axis_feedback_full_rl_nine_v1' if full_rl_grid
+                                else 'second_axis_feedback_v1'),
+            task=task, tool_unit='m' if task.startswith('push') else 'rad',
             source_report_sha256=sha256(report_path), database_sha256=sha256(dbpath),
             pose_pool_sha256=sha256(poolpath), baseline_manifest_sha256=sha256(bundle/'manifest.json'),
             calibration_poses=calposes, test_poses=testposes, targets=targets,
             common_inverse_domain=domain, target_range=[lo,hi], feedback_settings=asdict(feedback),
+            full_rl_target_grid=full_rl_grid,
             trajectory_seconds=5., feedback_seconds=2., online_rl=False, test_retries=0,
             sensitivity_uses_test_poses=False, unseen_pose_distribution=False,
             source_evaluation_criterion=source['evaluation_grasp_criterion'],
@@ -430,7 +435,11 @@ def run_task(bundle, output, task, ncal, ntest, ntargets):
                                  calibration=[], trials=[])
             result['methods'][method] = method_result
             for target in targets:
-                rho = inverse_score(config,target)
+                inverse_domain = config['inverse_target_range']
+                inverse_clipped = bool(target < inverse_domain[0] or target > inverse_domain[1])
+                if inverse_clipped and not full_rl_grid:
+                    raise ValueError('target unexpectedly outside inverse domain')
+                rho = inverse_score(config,float(np.clip(target,*inverse_domain)))
                 sensitivities = {}
                 for condition in ('axis1_fb','axis2_fb'):
                     probes = []
@@ -447,12 +456,15 @@ def run_task(bundle, output, task, ncal, ntest, ntargets):
                             p['hold_tool_curve'] for p in zeros],axis=0).tolist()
                     sensitivities[condition] = sensitivity
                     method_result['calibration'].append(dict(target=target,condition=condition,
-                        sensitivity=sensitivity,probes=probes))
+                        sensitivity=sensitivity,probes=probes,
+                        inverse_clipped=inverse_clipped))
                 for pose in testposes:
                     for condition in CONDITIONS:
-                        method_result['trials'].append(run_trial(env,key,pose,source['seed']+1000*pose,
+                        trial = run_trial(env,key,pose,source['seed']+1000*pose,
                             target,np.array(source['mean_q']),axes,rho,condition,
-                            sensitivities.get(condition,disabled),settings,support,floor))
+                            sensitivities.get(condition,disabled),settings,support,floor)
+                        trial['inverse_clipped'] = inverse_clipped
+                        method_result['trials'].append(trial)
                 dump(output/'progress.json',dict(method=method,last_completed_target=target))
                 dump(output/'partial_report.json',result)
             method_result['summary'] = summarize_trials(method_result['trials'],[lo,hi])
@@ -471,11 +483,14 @@ def main(argv=None):
     parser.add_argument('--calibration-poses',type=int,default=8)
     parser.add_argument('--test-poses',type=int,default=8)
     parser.add_argument('--targets',type=int,default=9)
+    parser.add_argument('--full-rl-grid',action='store_true',
+                        help='Use identical full RL targets, clipping frozen FF inverse at its domain')
     args = parser.parse_args(argv)
     if args.calibration_poses<2 or args.test_poses<1 or args.targets<1:
         parser.error('at least 2 calibration poses, 1 test pose and 1 target required')
     run_task(args.bundle.resolve(),args.output.resolve(),args.task,
-             args.calibration_poses,args.test_poses,args.targets)
+             args.calibration_poses,args.test_poses,args.targets,
+             full_rl_grid=args.full_rl_grid)
 
 
 if __name__ == '__main__':

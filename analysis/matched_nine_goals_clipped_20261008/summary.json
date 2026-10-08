@@ -2810,5 +2810,89 @@
         }
       }
     }
+  },
+  "mae_illustration": {
+    "task": "scissors_lite_3",
+    "method": "pls",
+    "pose": 21,
+    "target_range": [
+      0.0,
+      1.0
+    ],
+    "nine_target_mae_percent": 3.772884876363807,
+    "rows": [
+      {
+        "target_fraction": 0.0,
+        "target_angle": 0.0,
+        "achieved_angle": 0.010203579440712929,
+        "normalized_abs_error": 0.010203579440712929,
+        "held": true,
+        "inverse_clipped": true
+      },
+      {
+        "target_fraction": 0.125,
+        "target_angle": 0.125,
+        "achieved_angle": 0.14685021340847015,
+        "normalized_abs_error": 0.021850213408470154,
+        "held": true,
+        "inverse_clipped": false
+      },
+      {
+        "target_fraction": 0.25,
+        "target_angle": 0.25,
+        "achieved_angle": 0.22825857996940613,
+        "normalized_abs_error": 0.021741420030593872,
+        "held": true,
+        "inverse_clipped": false
+      },
+      {
+        "target_fraction": 0.375,
+        "target_angle": 0.375,
+        "achieved_angle": 0.29110342264175415,
+        "normalized_abs_error": 0.08389657735824585,
+        "held": true,
+        "inverse_clipped": false
+      },
+      {
+        "target_fraction": 0.5,
+        "target_angle": 0.5,
+        "achieved_angle": 0.452169269323349,
+        "normalized_abs_error": 0.047830730676651,
+        "held": true,
+        "inverse_clipped": false
+      },
+      {
+        "target_fraction": 0.625,
+        "target_angle": 0.625,
+        "achieved_angle": 0.5881717801094055,
+        "normalized_abs_error": 0.03682821989059448,
+        "held": true,
+        "inverse_clipped": false
+      },
+      {
+        "target_fraction": 0.75,
+        "target_angle": 0.75,
+        "achieved_angle": 0.7024502754211426,
+        "normalized_abs_error": 0.04754972457885742,
+        "held": true,
+        "inverse_clipped": false
+      },
+      {
+        "target_fraction": 0.875,
+        "target_angle": 0.875,
+        "achieved_angle": 0.8518593311309814,
+        "normalized_abs_error": 0.023140668869018555,
+        "held": true,
+        "inverse_clipped": false
+      },
+      {
+        "target_fraction": 1.0,
+        "target_angle": 1.0,
+        "achieved_angle": 0.9534814953804016,
+        "normalized_abs_error": 0.04651850461959839,
+        "held": true,
+        "inverse_clipped": false
+      }
+    ]
   }
 }

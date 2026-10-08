@@ -196,6 +196,30 @@ def load() -> dict:
                     fb=True, span=high-low)
                 for condition in ("axis1_fb", "axis2_fb")}
         result["fb"][task] = by_method
+    # A fixed, reproducible example for the explanation graphic: the first
+    # frozen FF evaluation pose, not the best- or worst-performing pose.
+    example_source = read(RESULT / "ff" / "scissors_lite_3.json")
+    example_pose = example_source["test_poses"][0]
+    example_rows = sorted(
+        (r for r in example_source["rows"]
+         if r["method"] == "pls" and r["pose"] == example_pose),
+        key=lambda r: r["target_fraction"])
+    if (len(example_rows) != 9
+            or any(not r["finite"] or r["terminated"] or r["truncated"]
+                   for r in example_rows)
+            or any(abs(r["target_fraction"] - fraction) > 1e-12
+                   for r, fraction in zip(example_rows, FRACTIONS))):
+        raise ValueError("fixed MAE illustration is not nine complete trials")
+    result["mae_illustration"] = {
+        "task": "scissors_lite_3", "method": "pls", "pose": example_pose,
+        "target_range": example_source["target_range"],
+        "nine_target_mae_percent": 100 * mean(r["normalized_abs_error"]
+                                               for r in example_rows),
+        "rows": [{key: r[key] for key in ("target_fraction", "target_angle",
+                                      "achieved_angle", "normalized_abs_error",
+                                      "held", "inverse_clipped")}
+                 for r in example_rows],
+    }
     return result
 
 
@@ -213,6 +237,81 @@ def category_mean(result, stage, category, arm):
     if any(v is None for v in values):
         raise ValueError(f"category mean has missing task: {stage}/{category}/{arm}")
     return mean(values)
+
+
+def protocol_flowchart() -> str:
+    """Accessible HTML flowchart; every branch joins the same target/pose grid."""
+    return """<figure class='procedure-figure' aria-label='保存済み学習結果から共通9目標評価までの手順'>
+<div class='flow-node flow-source'><small>入力は凍結済み</small><strong>15ツールの学習済み結果</strong><span>成功した最終ハンド姿勢：各200件／初期姿勢プール：各32件</span></div>
+<div class='flow-arrow' aria-hidden='true'>↓</div>
+<div class='flow-branches'>
+  <div class='flow-node'><small>A｜主実験・15ツール</small><strong>PCA / PLS の1自由度FF</strong><span>成功最終姿勢から操作軸を作る。既存の較正8初期姿勢で17得点を試した逆写像を凍結。目標値→得点→再構成ハンド姿勢。</span></div>
+  <div class='flow-node'><small>B｜既存15ツールから1つを除外</small><strong>未知ツールへの転用</strong><span>同カテゴリの残り4ツールの成功姿勢で共通軸・候補軸を作る。別の較正1初期姿勢で3～15回計測する条件も比較。自ツールDB参照は別枠。</span></div>
+  <div class='flow-node'><small>C｜選定した4タスクのみ</small><strong>第1軸 / 第2軸FB</strong><span>凍結FFを出発点に、各目標で較正8初期姿勢を使った追加の感度試験を行う。保持中の補正をFFと比較。</span></div>
+</div>
+<div class='flow-arrow' aria-hidden='true'>↓　各条件を同じ評価格子へ　↓</div>
+<div class='flow-node flow-test'><small>較正に使わない評価初期姿勢</small><strong>各ツール8初期姿勢 × RL目標幅の9点 = 72試行／方式</strong><span>各試行を独立リセット → 目標姿勢へ5秒の線形移動 → 2秒保持 → 実測ツール状態を記録</span></div>
+<div class='flow-arrow' aria-hidden='true'>↓</div>
+<div class='flow-node flow-output'><small>一つの数値に混ぜない</small><strong>目標誤差・保持・端点制限・未観測を別々に報告</strong><span>完走かつ有限の終端値だけで主MAEを計算。保持失敗でも完走・有限なら誤差へ含める。</span></div>
+<figcaption>図A．保存済みモデルと姿勢DBを再利用する評価の流れ。A・B・Cでは利用できる較正情報が異なるため、目標と評価初期姿勢を揃えても同一の情報条件にはならない。新たな強化学習は実施していない。</figcaption></figure>"""
+
+
+def mae_illustration(example: dict) -> str:
+    """SVG showing actual target/achieved pairs and vertical absolute errors."""
+    low, high = example["target_range"]
+    width = high - low
+    if width <= 0 or len(example["rows"]) != 9:
+        raise ValueError("invalid MAE illustration range")
+    left, top, size = 88., 29., 360.
+    def xy(x: float, y: float) -> tuple[float, float]:
+        return left + size * (x-low)/width, top + size * (high-y)/width
+    ticks = []
+    for fraction in (0., .25, .5, .75, 1.):
+        v = low + fraction*width
+        x, y = xy(v,v)
+        ticks.append(f"<line x1='{x:.1f}' y1='{top}' x2='{x:.1f}' y2='{top+size}' class='mae-grid'/>")
+        ticks.append(f"<line x1='{left}' y1='{y:.1f}' x2='{left+size}' y2='{y:.1f}' class='mae-grid'/>")
+        ticks.append(f"<text x='{x:.1f}' y='{top+size+25}' text-anchor='middle' class='mae-tick'>{v:.2f}</text>")
+        ticks.append(f"<text x='{left-12}' y='{y+5:.1f}' text-anchor='end' class='mae-tick'>{v:.2f}</text>")
+    marks = []
+    for i, row in enumerate(example["rows"]):
+        x, y_target = xy(row["target_angle"], row["target_angle"])
+        _, y_actual = xy(row["target_angle"], row["achieved_angle"])
+        color = "#C33C3C" if i == 3 else "#0072B2"
+        marks.append(f"<line x1='{x:.1f}' y1='{y_target:.1f}' x2='{x:.1f}' y2='{y_actual:.1f}' stroke='{color}' stroke-width='2.5'/>")
+        marks.append(f"<circle cx='{x:.1f}' cy='{y_actual:.1f}' r='5' fill='white' stroke='{color}' stroke-width='2.5'/>")
+    picked = example["rows"][3]
+    ex_x, ex_y = xy(picked["target_angle"], picked["achieved_angle"])
+    example_percent = 100*picked["normalized_abs_error"]
+    caption = (f"固定例：{example['task']}・{example['method'].upper()}、保存済み評価姿勢ID {example['pose']}。"
+               f"37.5%目標は {picked['target_angle']:.3f} rad、実測 {picked['achieved_angle']:.3f} rad、"
+               f"縦の差は {abs(picked['target_angle']-picked['achieved_angle']):.3f} rad = {example_percent:.2f}%（目標幅1.0 radで割る）。"
+               f"同じ姿勢の9点平均は {example['nine_target_mae_percent']:.2f}%。これは説明用の固定例で、全8姿勢のPLS平均ではない。")
+    svg = ("<svg class='mae-svg' viewBox='0 0 660 500' role='img' "
+           "aria-label='横軸が目標、縦軸が実測。対角線から実測点までの縦線が各試行の絶対誤差'>"
+           "<title>実測9点で見るMAEの計算</title>"
+           + "".join(ticks)
+           + f"<line x1='{left}' y1='{top+size}' x2='{left+size}' y2='{top+size}' class='mae-axis'/>"
+           + f"<line x1='{left}' y1='{top}' x2='{left}' y2='{top+size}' class='mae-axis'/>"
+           + f"<line x1='{left}' y1='{top+size}' x2='{left+size}' y2='{top}' stroke='#111' stroke-width='2' stroke-dasharray='7 5'/>"
+           + "".join(marks)
+           + f"<text x='{ex_x+19:.1f}' y='{ex_y+30:.1f}' fill='#C33C3C' font-size='18'>|目標−実測| = {abs(picked['target_angle']-picked['achieved_angle']):.3f} rad</text>"
+           + "<text x='270' y='462' text-anchor='middle' class='mae-label'>目標ツール角度 [rad]</text>"
+           + "<text transform='translate(23 211) rotate(-90)' text-anchor='middle' class='mae-label'>実測ツール角度 [rad]</text>"
+           + "<text x='484' y='100' class='mae-legend' fill='#111'>黒破線：誤差0</text>"
+           + "<text x='484' y='130' class='mae-legend' fill='#0072B2'>青丸：実測値</text>"
+           + "<text x='484' y='160' class='mae-legend' fill='#C33C3C'>赤線：図中の計算例</text>"
+           + "</svg>")
+    formula = ("<div class='formula-block' role='math' aria-label='正規化平均絶対誤差'>"
+               "<div>目標値 y*<sub>p,k</sub> = y<sub>min</sub> + (k / 8) × "
+               "(y<sub>max</sub> − y<sub>min</sub>)　［k = 0,…,8］</div>"
+               "<div>試行ごとの誤差 e<sub>p,k</sub> = "
+               "|実測 y<sub>p,k</sub> − 目標 y*<sub>p,k</sub>| "
+               "/ (y<sub>max</sub> − y<sub>min</sub>) × 100 [%]</div>"
+               "<div>完走・有限終端MAE = "
+               "(1 / N<sub>完走・有限</sub>) Σ<sub>完走・有限</sub> e<sub>p,k</sub></div></div>")
+    return ("<figure class='mae-figure'>"+svg+"<figcaption>図B．"+html.escape(caption)+"</figcaption></figure>"
+            + formula)
 
 
 def build_html(data: dict) -> str:
@@ -435,7 +534,36 @@ def build_html(data: dict) -> str:
         "この条件を『3点較正が成功した』とは解釈しない。採用軸の較正は全15ツールで成立した。"
         "試行プローブ数は成功数ではなく、別途表示する自ツールDBの3点計測を含まない。")
         for s in sections]
+    sections.insert(3, "<section id='procedure'><h2>実験手順を一枚で見る</h2>"
+        "<p>出発点は既に学習した方策と成功した最終姿勢であり、この再評価のための学習は行っていない。"
+        "まず操作方向と目標値から得点を求める写像を用意し、較正に使わなかった初期姿勢から軌道制御する。"
+        "A・B・Cの三経路は最後に同じ9目標・8評価姿勢へ合流するが、較正で使える情報量は異なる。</p>"
+        + protocol_flowchart()
+        + "<p>ここでいう『初期姿勢32件』は学習時にも使用したツール別の固定プールである。"
+        "較正8件と評価8件は別IDだが、学習に対する未知姿勢ではない。"
+        "<a href='../paper_ff_fb_generalization_20261008/index.html#methods'>PCA/PLSと逆写像の詳細な定義</a>は従来報告に示す。</p></section>")
+    sections.insert(6, "<section id='mae-explained'><h2>図で読む誤差の計算</h2>"
+        "<p>横軸を目標、縦軸を実測とすると、黒い対角線上は誤差0である。"
+        "各実測点から対角線までの<strong>縦方向の距離</strong>を絶対値で測り、"
+        "そのツールのRL目標範囲幅で割る。Pushでは角度ではなく変位で同じ計算をする。"
+        "較正できた角度域を超える目標も9点から外さず、逆写像の端点へ指令を制限して評価する。</p>"
+        + mae_illustration(data["mae_illustration"])
+        + "<p>各方式の主表に載せるMAEは、この計算を<strong>8初期姿勢×9目標</strong>で繰り返し、"
+        "途中終了・数値異常を除いた完走かつ有限の試行だけで平均したもの。保持条件を満たさなくても、"
+        "完走して有限の実測値があれば主MAEには含める。除外した件数は『完走』列から確認する。"
+        "保持試行だけのMAEは別指標であり、主MAEと取り替えない。"
+        "PCA対PLSなどの<strong>対応差</strong>は、両方式とも完走・有限の同一初期姿勢と目標の組だけで誤差を引く。"
+        "到達幅は誤差とは異なり、保持できた終点が実際に張る状態範囲を表す。</p></section>")
     css = """<style>body{margin:0;background:#f5f5f3;color:#111;font:16px/1.7 'Times New Roman','Yu Mincho',serif}header,section{max-width:1200px;margin:0 auto;background:#fff;padding:26px 32px}header{padding-top:50px;border-bottom:3px solid #111}section{margin-top:16px}h1{font-size:34px}h2{font-size:25px;border-bottom:1px solid #999;padding-bottom:7px}p{max-width:1080px}figure{margin:20px 0;border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:10px 0}.graph{min-height:340px}.graph svg{display:block;width:100%;height:auto}.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:14px}.swatch{display:inline-block;width:11px;height:11px;border:2px solid var(--series);margin-right:4px}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:6px 9px;border-bottom:1px solid #bbb;text-align:left;white-space:nowrap}th{border-top:2px solid #111;background:#f7f7f7}details{margin:20px 0;padding:8px 14px;border:1px solid #bbb}summary{cursor:pointer}figcaption{font-size:14px;margin-top:8px}@media(max-width:700px){header,section{padding:18px 14px}.graph{min-height:220px}}</style>"""
+    css += """<style>.procedure-figure,.mae-figure{border:1px solid #d5dbe1;border-radius:9px;padding:20px;background:#fcfdfd}
+.flow-node{border:1.5px solid #667b8e;border-radius:8px;padding:13px 17px;background:white;display:flex;flex-direction:column;gap:5px}
+.flow-node small{font-size:13px;color:#315979;letter-spacing:.04em}.flow-node strong{font-size:17px;line-height:1.45}.flow-node span{font-size:14px;line-height:1.65}
+.flow-source,.flow-test,.flow-output{max-width:690px;margin:0 auto}.flow-source{border-color:#111}.flow-test{border-color:#0072B2;background:#f5faff}.flow-output{border-color:#008B57;background:#f4fcf7}
+.flow-branches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.flow-arrow{text-align:center;color:#445d70;font-size:24px;font-weight:bold;line-height:1.8}
+.mae-svg{display:block;width:min(100%,740px);height:auto;margin:0 auto}.mae-grid{stroke:#e0e5e8;stroke-width:1}.mae-axis{stroke:#111;stroke-width:2}.mae-tick{font:15px 'Times New Roman',serif;fill:#111}.mae-label{font:18px 'Times New Roman','Yu Mincho',serif;fill:#111}.mae-legend{font:15px 'Times New Roman','Yu Mincho',serif}
+.formula-block{border-left:4px solid #0072B2;background:#f5faff;padding:14px 22px;margin:20px 0;font:18px/1.9 'Times New Roman','Yu Mincho',serif;overflow-x:auto}.formula-block>div{white-space:nowrap}
+@media(max-width:780px){.flow-branches{grid-template-columns:1fr}.formula-block{font-size:15px}.mae-figure,.procedure-figure{padding:10px}}
+@media print{.flow-node,.procedure-figure,.mae-figure{break-inside:avoid}}</style>"""
     js = """<script src='https://cdn.plot.ly/plotly-4.1.1.min.js'></script><script>
 const plots=__PLOTS__;if(window.Plotly){for(const p of plots){let traces=p.series.map((s,j)=>({type:'scatter',mode:'markers',name:s.name,x:p.labels.map((_,i)=>i+(j-(p.series.length-1)/2)*.13),y:s.values,marker:{size:9,color:s.color,symbol:s.symbol},hovertemplate:'%{y:.2f}<extra>'+s.name+'</extra>'}));let axis={ticks:'inside',ticklen:6,minor:{ticks:'inside',ticklen:3,showgrid:false},showline:true,linecolor:'#111',showgrid:false,zeroline:false,automargin:true};Plotly.newPlot(p.id,traces,{template:'plotly_white',margin:{l:3,r:3,t:2,b:3},font:{family:'Times New Roman',size:15},height:360,showlegend:false,xaxis:{...axis,tickmode:'array',tickvals:p.labels.map((_,i)=>i),ticktext:p.labels,tickangle:-40},yaxis:{...axis,title:{text:p.ylabel},range:[0,p.maximum]}},{responsive:true,displayModeBar:false});}}
 </script>""".replace("__PLOTS__",json.dumps(plots,ensure_ascii=False,separators=(",",":")))

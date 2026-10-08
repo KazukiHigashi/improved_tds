@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
+from statistics import mean
 import sys
 
 import numpy as np
@@ -50,3 +52,21 @@ def test_unknown_zero_score_uses_normalized_fraction_not_physical_units():
     score, clipped = unknown.command_score(.75, .006, package, None)
     assert np.isclose(score, 1.)
     assert not clipped
+
+
+def test_mae_illustration_is_first_frozen_pose_and_matches_raw_trials():
+    report = load("build_matched_nine_report")
+    result = report.RESULT
+    source = json.loads((result / "ff" / "scissors_lite_3.json").read_text(encoding="utf-8"))
+    summary = json.loads((result / "summary.json").read_text(encoding="utf-8"))
+    example = summary["mae_illustration"]
+    assert example["pose"] == source["test_poses"][0]
+    assert example["method"] == "pls"
+    assert len(example["rows"]) == 9
+    span = source["target_range"][1] - source["target_range"][0]
+    for row in example["rows"]:
+        assert np.isclose(row["normalized_abs_error"],
+                          abs(row["achieved_angle"] - row["target_angle"]) / span)
+    assert np.isclose(example["nine_target_mae_percent"],
+                      100 * mean(row["normalized_abs_error"] for row in example["rows"]))
+    assert "図B" in report.mae_illustration(example)

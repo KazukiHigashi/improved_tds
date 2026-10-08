@@ -6,6 +6,8 @@
 [paper_one_dof_baseline_20261006.md](paper_one_dof_baseline_20261006.md) を参照してください。
 15タスク実験基盤の実装・採用結果・従来のGit境界は
 [project_snapshot_20260929.md](project_snapshot_20260929.md) に保存しています。
+第2軸フィードバックの新規実験条件は
+[second_axis_feedback_experiment_20261006.md](second_axis_feedback_experiment_20261006.md) にまとめています。
 
 ## いま動いている検討
 

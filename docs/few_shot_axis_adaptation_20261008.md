@@ -32,6 +32,18 @@
 
 改善はMAEに関しては各カテゴリ4/5ツールで再現したが、Spray 3・Push 3など悪化例もある。SprayのCoverageはなお約52%であり、軸較正のみで目標全域を操作できたわけではない。PushのCoverageは追試でわずかに低下した。接触・把持状態と応答が初期姿勢ごとに変わるため、較正1姿勢の3点だけでは保証にならない。
 
+## 同じ追試姿勢でのタスク専用PLS比較
+
+各対象ツールの成功姿勢DB 200件から、そのツール専用のPLS第1軸・平均姿勢・DB線形逆写像を構築し、段階的適応の追試と同じ初期姿勢3種類・目標5点・5秒軌道で評価した。加えて、専用PLS軸にも同じ較正初期姿勢で3点の実測応答を取り、物理逆写像を作り直した条件を評価した。どちらも対象ツールのDBを利用する参考条件であり、未知ツールへのfew-shot手法ではない。DB逆写像のみのPLSは物理較正を行わないため、性能の上限でもない。
+
+| カテゴリ | 共通軸FF MAE | Few-shot MAE | タスク専用PLS MAE | 専用PLS＋3点較正 MAE |
+|---|---:|---:|---:|---:|
+| Scissors | 19.6% | 10.1% | 16.9% | 9.4% |
+| Spray | 37.3% | 19.4% | 19.2% | 15.7% |
+| Push | 18.1% | 11.4% | 15.4% | 11.2% |
+
+DB逆写像のみの専用PLSに対してはScissorsとPushのカテゴリ平均でFew-shotが低MAEだったが、同じ3点較正を専用PLSにも適用すると専用PLSの平均MAEが全カテゴリでわずかに低い。したがって、Few-shotがタスク専用の操作軸そのものを上回るとは結論できない。較正の寄与が大きい。一方、未知ツールの成功DBを使わずに、較正済み専用PLSへ比較的近いMAEに達したことがFew-shot適応の利点である。CoverageではDB逆写像の専用PLSがSpray 65.1%、Push 98.1%で、Few-shotの51.8%、88.4%より広い。15タスク個別の数値とグラフはHTMLを参照。
+
 ## 成功判定と安全上の扱い
 
 - Scissorsは既存の1.5倍Palm球による採用条件。Push/Sprayは接触数を採用ゲートにせず、落下・転倒・数値異常を除外。Sprayの床接触は有効。
@@ -46,6 +58,7 @@
 ```text
 python scripts/few_shot_axis_adaptation.py
 python scripts/validate_guarded_few_shot.py
+python scripts/evaluate_guarded_task_pls.py
 python scripts/build_few_shot_axis_report.py
 ```
 

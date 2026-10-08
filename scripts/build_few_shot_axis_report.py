@@ -63,6 +63,8 @@ def summarize_guarded(root):
         return None
     tasks={}
     categories={}
+    has_local_pls=all((root/f"{category}_lite_{variant}_local_pls.json").is_file()
+                      for category in CATEGORIES for variant in range(1,6))
     for category in CATEGORIES:
         for variant in range(1,6):
             name=f"{category}_lite_{variant}"
@@ -78,6 +80,34 @@ def summarize_guarded(root):
                 coverage_fraction=valid_coverage([
                     dict(achieved_angle=r[f"{arm}_achieved"],supported=r[f"{arm}_supported"])
                     for r in rows],lo,hi)) for arm in ("baseline","adapted")}
+            if has_local_pls:
+                local=json.loads((root/f"{name}_local_pls.json").read_text(encoding="utf-8"))
+                local_rows=local["rows"]
+                if len(local_rows)!=len(rows) or any(
+                    a["pose"]!=b["pose"] or a["target_fraction"]!=b["target_fraction"]
+                    or abs(a["target_angle"]-b["target_angle"])>1e-12
+                    for a,b in zip(local_rows,rows)):
+                    raise ValueError(f"task-specific PLS trials not paired: {name}")
+                item["metrics"]["local_pls"]=dict(
+                    mae_fraction=float(np.mean([r["mae_fraction"] for r in local_rows])),
+                    strict_hold_fraction=float(np.mean([r["supported"] for r in local_rows])),
+                    joint_clip_fraction=float(np.mean([r["joint_clipped"] for r in local_rows])),
+                    coverage_fraction=valid_coverage([
+                        dict(achieved_angle=r["achieved"],supported=r["supported"])
+                        for r in local_rows],lo,hi))
+                if "calibrated_mae_fraction" in local_rows[0]:
+                    item["metrics"]["local_pls_calibrated"]=dict(
+                        mae_fraction=float(np.mean([
+                            r["calibrated_mae_fraction"] for r in local_rows])),
+                        strict_hold_fraction=float(np.mean([
+                            r["calibrated_supported"] for r in local_rows])),
+                        joint_clip_fraction=float(np.mean([
+                            r["calibrated_joint_clipped"] for r in local_rows])),
+                        coverage_fraction=valid_coverage([
+                            dict(achieved_angle=r["calibrated_achieved"],
+                                 supported=r["calibrated_supported"])
+                            for r in local_rows],lo,hi),
+                        calibration_available=local["calibration_response"] is not None)
             tasks[name]=item
         selected=[tasks[f"{category}_lite_{i}"] for i in range(1,6)]
         differences=np.asarray([x["metrics"]["adapted"]["mae_fraction"]
@@ -102,7 +132,48 @@ def summarize_guarded(root):
             improved_tool_count=int(np.sum(differences<0)),
             mean_mae_difference=float(differences.mean()),
             bootstrap95_tool_mean_difference=np.quantile(boot,[.025,.975]).tolist())
-    return dict(protocol="few_shot_guarded_new_pose_v1",tasks=tasks,categories=categories)
+        if has_local_pls:
+            local_diff=np.asarray([x["metrics"]["adapted"]["mae_fraction"]
+                                   -x["metrics"]["local_pls"]["mae_fraction"]
+                                   for x in selected])
+            local_boot=local_diff[rng.integers(0,5,(20000,5))].mean(axis=1)
+            categories[category].update(
+                local_pls_mae_fraction=float(np.mean([x["metrics"]["local_pls"]["mae_fraction"]
+                                                      for x in selected])),
+                local_pls_coverage_fraction=float(np.mean([
+                    x["metrics"]["local_pls"]["coverage_fraction"] for x in selected])),
+                local_pls_hold_fraction=float(np.mean([
+                    x["metrics"]["local_pls"]["strict_hold_fraction"] for x in selected])),
+                local_pls_joint_clip_fraction=float(np.mean([
+                    x["metrics"]["local_pls"]["joint_clip_fraction"] for x in selected])),
+                adapted_better_than_local_count=int(np.sum(local_diff<0)),
+                adapted_minus_local_mae_fraction=float(local_diff.mean()),
+                adapted_minus_local_bootstrap95=np.quantile(local_boot,[.025,.975]).tolist())
+            if all("local_pls_calibrated" in x["metrics"] for x in selected):
+                calibrated_diff=np.asarray([
+                    x["metrics"]["adapted"]["mae_fraction"]
+                    -x["metrics"]["local_pls_calibrated"]["mae_fraction"]
+                    for x in selected])
+                calibrated_boot=calibrated_diff[
+                    rng.integers(0,5,(20000,5))].mean(axis=1)
+                categories[category].update(
+                    local_pls_calibrated_mae_fraction=float(np.mean([
+                        x["metrics"]["local_pls_calibrated"]["mae_fraction"]
+                        for x in selected])),
+                    local_pls_calibrated_coverage_fraction=float(np.mean([
+                        x["metrics"]["local_pls_calibrated"]["coverage_fraction"]
+                        for x in selected])),
+                    local_pls_calibrated_available_tools=sum(
+                        x["metrics"]["local_pls_calibrated"]["calibration_available"]
+                        for x in selected),
+                    adapted_better_than_calibrated_local_count=int(np.sum(calibrated_diff<0)),
+                    adapted_minus_calibrated_local_mae_fraction=float(calibrated_diff.mean()),
+                    adapted_minus_calibrated_local_bootstrap95=np.quantile(
+                        calibrated_boot,[.025,.975]).tolist())
+    return dict(protocol="few_shot_guarded_new_pose_v1",tasks=tasks,categories=categories,
+                task_specific_pls_complete=has_local_pls,
+                calibrated_task_pls_complete=has_local_pls and all(
+                    "local_pls_calibrated" in x["metrics"] for x in tasks.values()))
 
 
 def summarize(root):
@@ -245,8 +316,12 @@ def task_svg(item):
 def validation_mae_svg(category, tasks):
     xs=[105+130*i for i in range(5)]
     values=[tasks[f"{category}_lite_{i}"]["metrics"] for i in range(1,6)]
-    high=max(60.,110*max(m[a]["mae_fraction"] for m in values
-                       for a in ("baseline","adapted")))
+    arms=("baseline","adapted")
+    if "local_pls" in values[0]:
+        arms+=("local_pls",)
+    if "local_pls_calibrated" in values[0]:
+        arms+=("local_pls_calibrated",)
+    high=max(60.,110*max(m[a]["mae_fraction"] for m in values for a in arms))
     y=lambda v:250-200*(100*v/high)
     out=[f"<svg viewBox='0 0 740 315' role='img' aria-label='{category} 別姿勢追試MAE'>",
          "<line x1='75' y1='50' x2='75' y2='250' stroke='#333'/>",
@@ -260,7 +335,11 @@ def validation_mae_svg(category, tasks):
     for i,xx in enumerate(xs,1):
         out.append(f"<text x='{xx-3}' y='270'>{i}</text>")
     for arm,color in (("baseline",COLORS["common_db_ff"]),
-                      ("adapted",COLORS["selected_fewshot"])):
+                      ("adapted",COLORS["selected_fewshot"]),
+                      ("local_pls",COLORS["local_oracle"]),
+                      ("local_pls_calibrated","#b84c91")):
+        if arm not in arms:
+            continue
         points=" ".join(f"{xx},{y(m[arm]['mae_fraction']):.1f}"
                         for xx,m in zip(xs,values))
         out.append(f"<polyline points='{points}' fill='none' stroke='{color}' stroke-width='2.5'/>")
@@ -354,36 +433,81 @@ def render(report):
         rows=[]
         for cat in CATEGORIES:
             x=validation["categories"][cat]
-            rows.append([cat.title(),f"{100*x['baseline_mae_fraction']:.1f}",
-                f"{100*x['adapted_mae_fraction']:.1f}",
-                f"{100*x['baseline_coverage_fraction']:.1f}",
-                f"{100*x['adapted_coverage_fraction']:.1f}",
-                f"{100*x['baseline_hold_fraction']:.1f}",
-                f"{100*x['adapted_hold_fraction']:.1f}",
-                f"{x['mean_probes']:.1f}",f"{x['three_probe_tools']}/5",
+            row=[cat.title(),f"{100*x['baseline_mae_fraction']:.1f}",
+                f"{100*x['adapted_mae_fraction']:.1f}"]
+            if validation["task_specific_pls_complete"]:
+                row.append(f"{100*x['local_pls_mae_fraction']:.1f}")
+            if validation["calibrated_task_pls_complete"]:
+                row.append(f"{100*x['local_pls_calibrated_mae_fraction']:.1f}")
+            row.extend([f"{100*x['baseline_coverage_fraction']:.1f}",
+                f"{100*x['adapted_coverage_fraction']:.1f}"])
+            if validation["task_specific_pls_complete"]:
+                row.append(f"{100*x['local_pls_coverage_fraction']:.1f}")
+            if validation["calibrated_task_pls_complete"]:
+                row.append(f"{100*x['local_pls_calibrated_coverage_fraction']:.1f}")
+            row.extend([f"{x['mean_probes']:.1f}",f"{x['three_probe_tools']}/5",
                 f"{x['improved_tool_count']}/5"])
-        out.append(table(["カテゴリ","共通FF MAE [%]","適応MAE [%]",
-            "共通FF Coverage [%]","適応Coverage [%]","共通FF採用率 [%]",
-            "適応採用率 [%]","平均較正試行数","3試行で停止","改善ツール数"],rows))
-        out.append("<p class='legend'><span><i class='dot' style='background:#68737d'></i>共通軸FF</span><span><i class='dot' style='background:#e56b35'></i>段階的適応</span></p>")
+            rows.append(row)
+        heads=["カテゴリ","共通FF MAE [%]","適応MAE [%]"]
+        if validation["task_specific_pls_complete"]:
+            heads.append("タスク専用PLS MAE [%]")
+        if validation["calibrated_task_pls_complete"]:
+            heads.append("タスク専用PLS＋3点較正 MAE [%]")
+        heads.extend(["共通FF Coverage [%]","適応Coverage [%]"])
+        if validation["task_specific_pls_complete"]:
+            heads.append("タスク専用PLS Coverage [%]")
+        if validation["calibrated_task_pls_complete"]:
+            heads.append("専用PLS＋較正 Coverage [%]")
+        heads.extend(["平均較正試行数","3試行で停止","適応が共通FFに勝つツール数"])
+        out.append(table(heads,rows))
+        out.append("<p class='legend'><span><i class='dot' style='background:#68737d'></i>共通軸FF</span><span><i class='dot' style='background:#e56b35'></i>段階的適応</span><span><i class='dot' style='background:#7355a7'></i>タスク専用PLS</span><span><i class='dot' style='background:#b84c91'></i>専用PLS＋3点較正</span></p>")
+        if validation["task_specific_pls_complete"]:
+            out.append("<p class='warn'>タスク専用PLSは当該ツールの成功姿勢200件から推定した操作軸・平均姿勢とDB線形逆写像を使用します。未知ツールの成功DBを使用するためFew-shot適応法ではありません。また物理応答の3点較正を行わないため、性能の数学的上限でもありません。各方式は同じ評価初期姿勢・目標値で比較しています。</p>")
+        if validation["calibrated_task_pls_complete"]:
+            out.append("<p>比較を補うため、タスク専用PLS軸にも同じ較正姿勢で3点の物理応答を測り、逆写像を作り直しました。これも未知ツールの成功DBを利用する参考条件であり、Few-shot法には利用していません。較正不成立ならそのツール専用DB逆写像に戻します。</p>")
         for cat in CATEGORIES:
             x=validation["categories"][cat]
             ci=x["bootstrap95_tool_mean_difference"]
             out.append(f"<h3>{cat.title()}：別姿勢追試</h3>")
             out.append(validation_mae_svg(cat,validation["tasks"]))
             out.append(f"<p>適応 − 共通FF のツール平均MAE差：{100*x['mean_mae_difference']:+.1f}ポイント。ツール単位bootstrap 95%区間：{100*ci[0]:+.1f}～{100*ci[1]:+.1f}ポイント（探索的表示）。</p>")
+            if validation["task_specific_pls_complete"]:
+                ci_local=x["adapted_minus_local_bootstrap95"]
+                out.append(f"<p>適応 − タスク専用PLS のツール平均MAE差：{100*x['adapted_minus_local_mae_fraction']:+.1f}ポイント。95%区間：{100*ci_local[0]:+.1f}～{100*ci_local[1]:+.1f}ポイント。適応のMAEが小さいツール：{x['adapted_better_than_local_count']}/5。</p>")
+            if validation["calibrated_task_pls_complete"]:
+                ci_cal=x["adapted_minus_calibrated_local_bootstrap95"]
+                out.append(f"<p>適応 − 専用PLS＋3点較正 のツール平均MAE差：{100*x['adapted_minus_calibrated_local_mae_fraction']:+.1f}ポイント。95%区間：{100*ci_cal[0]:+.1f}～{100*ci_cal[1]:+.1f}ポイント。適応が低MAE：{x['adapted_better_than_calibrated_local_count']}/5。専用PLS較正成立：{x['local_pls_calibrated_available_tools']}/5。</p>")
         detail=[]
         for cat in CATEGORIES:
             for i in range(1,6):
                 x=validation["tasks"][f"{cat}_lite_{i}"]
-                detail.append([f"{cat.title()} {i}",x["selected_candidate"] or "共通FF fallback",
+                row=[f"{cat.title()} {i}",x["selected_candidate"] or "共通FF fallback",
                     x["probes_attempted"],f"{100*x['metrics']['baseline']['mae_fraction']:.1f}",
-                    f"{100*x['metrics']['adapted']['mae_fraction']:.1f}",
+                    f"{100*x['metrics']['adapted']['mae_fraction']:.1f}"]
+                if validation["task_specific_pls_complete"]:
+                    row.append(f"{100*x['metrics']['local_pls']['mae_fraction']:.1f}")
+                if validation["calibrated_task_pls_complete"]:
+                    row.append(f"{100*x['metrics']['local_pls_calibrated']['mae_fraction']:.1f}")
+                row.extend([
                     f"{100*x['metrics']['baseline']['coverage_fraction']:.1f}",
                     f"{100*x['metrics']['adapted']['coverage_fraction']:.1f}"])
+                if validation["task_specific_pls_complete"]:
+                    row.append(f"{100*x['metrics']['local_pls']['coverage_fraction']:.1f}")
+                if validation["calibrated_task_pls_complete"]:
+                    row.append(f"{100*x['metrics']['local_pls_calibrated']['coverage_fraction']:.1f}")
+                detail.append(row)
+        detail_heads=["タスク","選択候補","較正試行数","共通FF MAE [%]","適応MAE [%]"]
+        if validation["task_specific_pls_complete"]:
+            detail_heads.append("タスク専用PLS MAE [%]")
+        if validation["calibrated_task_pls_complete"]:
+            detail_heads.append("専用PLS＋較正 MAE [%]")
+        detail_heads.extend(["共通FF Coverage [%]","適応Coverage [%]"])
+        if validation["task_specific_pls_complete"]:
+            detail_heads.append("タスク専用PLS Coverage [%]")
+        if validation["calibrated_task_pls_complete"]:
+            detail_heads.append("専用PLS＋較正 Coverage [%]")
         out.append("<details><summary>追試15タスクの個別結果</summary>"+
-                   table(["タスク","選択候補","較正試行数","共通FF MAE [%]",
-                          "適応MAE [%]","共通FF Coverage [%]","適応Coverage [%]"],detail)+
+                   table(detail_heads,detail)+
                    "</details>")
     out.append("<h2>解釈と次の検証</h2><p>これは未知ツールでの少数試行を使うfew-shot適応であり、初期姿勢だけからのzero-shot汎化とは区別します。候補探索に最大15回を要するため、実機ではこのまま無検証で実行せず、接触と関節余裕を監視し、危険な候補を早期中止する段階的探索が必要です。較正は1種類の初期姿勢のみなので、別姿勢での再現性と較正試行回数の削減をさらに検証します。候補の実測ツール量の範囲が小さい場合は逆写像だけでは改善できず、把持基準姿勢または候補方向を変える必要があります。</p>")
     out.append("</body></html>")

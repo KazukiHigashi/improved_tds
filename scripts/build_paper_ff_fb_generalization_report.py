@@ -210,7 +210,12 @@ def build_html(data: dict) -> str:
     ff, ff_cat, training, fb, zero, few = (
         data[k] for k in ("ff", "ff_category", "training", "fb", "zero", "few"))
     sections.append("""<header><p class='kicker'>研究論文用・再集計ドラフト / 2026-10-08</p><h1>成功姿勢から得るツール操作シナジーの<br>PCA・PLS比較と汎化評価</h1><p class='subtitle'>1自由度フィードフォワード制御を主実験とし、閉ループ補正および未知ツールへの適応を探索的拡張として区別する。</p><div class='badge'>保存済み実験結果の再集計。新しい学習・シミュレーションは実施していない。</div></header>""")
+    sections[-1] = sections[-1].replace(
+        "保存済み実験結果の再集計。新しい学習・シミュレーションは実施していない。",
+        "旧図表は保存済み実験の再集計。図解には別途実施した共通9目標再評価の実測例を使用。")
     sections.append("""<nav><a href='#abstract'>要旨</a><a href='#terms'>用語と読み方</a><a href='#methods'>手法</a><a href='#conditions'>評価条件</a><a href='#pose-indices'>姿勢ID</a><a href='#training'>学習条件</a><a href='#ff'>FF結果</a><a href='#fb'>FB結果</a><a href='#generalization'>汎化</a><a href='#discussion'>考察</a><a href='#audit'>整合性・倫理監査</a></nav>""")
+    sections[-1] = sections[-1].replace("<a href='#conditions'>評価条件</a>",
+        "<a href='#conditions'>評価条件</a><a href='#visual-guide'>手順・誤差の図解</a>")
     sections.append("""<section id='abstract'><h2>要旨</h2><p>Scissors、Push、Spray各5変種の成功最終姿勢を各200件、計3,000件集め、関節を一つの得点で動かすツール操作シナジーを抽出した。PCAは姿勢のばらつき、PLSは姿勢とツール状態の共変動から操作方向を求める。主実験は5秒の開ループ移動と2秒の保持で評価し、4タスクの閉ループ補正と15ツールの転用を探索的な追加実験として分けた。旧実験のMAEは評価目標の置き方が異なるため、図をまたいだ直接の優劣比較には用いない。共通9目標の新規再評価は別の報告に記す。</p></section>""")
     sections.append("""<section id='terms'><h2>最初に読む：用語と数値の意味</h2><p>この報告で「ツール」とは、はさみ・プッシュ機構・スプレー機構の各変種を指す。「初期姿勢」は操作前にハンドと対象物を配置するリセット状態、「成功姿勢」は強化学習で目標を達成した後に保存するハンドの最終姿勢である。両者は別のデータであり、成功姿勢200件は初期姿勢200件を意味しない。</p>""" + table(["用語", "この報告での意味", "数字を見るときの注意"], [
         ["TDS／操作シナジー", "Tool-DoF Synergyの略。多数のハンド関節を一つの得点で動かす方向。", "Scissors・Sprayは角度[rad]、Pushは押し込み変位[m]を操作する。"],
@@ -266,6 +271,37 @@ def build_html(data: dict) -> str:
         .replace("する必要がある。新たな強化学習は不要である。", "した。新たな強化学習は行っていない。")
         .replace("追加実験はユーザーの指示待ちであり、この報告には新条件のMAEを載せない。",
                  "新条件の数値は<a href='../matched_nine_goals_clipped_20261008/index.html'>共通9目標の報告</a>に分け、旧条件の数値と混ぜない。"))
+    # Show the diagrams directly in this paper report, not only in its linked
+    # matched-grid companion.  The accompanying prose separates old and new
+    # target protocols so the frozen illustrative nine points are not passed
+    # off as the old method-specific FF evaluation.
+    from build_matched_nine_report import mae_illustration, protocol_flowchart
+    matched = read(ROOT / "analysis/matched_nine_goals_clipped_20261008/summary.json")
+    if (matched["protocol"] != "common_full_rl_nine_goal_v1"
+            or len(matched["mae_illustration"]["rows"]) != 9):
+        raise ValueError("matched-grid diagram source differs")
+    sections.append(
+        "<section id='visual-guide'><h2>図解：実験は何を行い、誤差をどう計算するか</h2>"
+        "<p>下のフローチャートは、<strong>共通9目標で再評価した最新キャンペーン</strong>を表す。"
+        "学習済み方策・成功最終姿勢を出発点に、PCA/PLSの1自由度FF、未知ツールへの転用、"
+        "選定4タスクのFBへ分かれ、各ツールの同じ8評価初期姿勢×9目標へ合流する。"
+        "較正と評価には別の初期姿勢IDを使う。ただし、各ツールの32姿勢プール自体は学習時にも使っており、"
+        "未知の初期姿勢分布を調べた実験ではない。</p>"
+        + protocol_flowchart()
+        + "<p>このHTMLの後半に残す<strong>従来の結果</strong>は目標設定が異なる。"
+        "従来の主FFは方式ごとの逆写像可能域内で9目標、従来の未知ツール実験はRL目標幅内で5目標を用いた。"
+        "したがって旧図表のMAEをそのまま横並びに引き算しない。"
+        "共通9目標での同条件比較値は"
+        "<a href='../matched_nine_goals_clipped_20261008/index.html'>新しい再評価の数値表とグラフ</a>に示す。</p>"
+        "<h3>目標と実測の『差』がMAEになる</h3>"
+        "<p>下図は共通9目標の保存済み実測値を用いた計算例である。横軸の目標値と縦軸の実測値が一致すれば"
+        "黒破線上に点が載る。点から黒破線までの縦方向の距離が、その試行の絶対誤差である。"
+        "Pushでは角度[rad]の代わりに変位[m]を使い、分母は各ツールのRL目標幅に置き換える。</p>"
+        + mae_illustration(matched["mae_illustration"])
+        + "<p>各方式の主MAEは、完走して有限の終端値が得られた試行の正規化誤差を平均する。"
+        "保持に失敗しても終端が有限なら含め、途中終了・数値異常は誤差0とせず欠測件数として別に示す。"
+        "保持試行だけのMAE、保持率、ツール状態の到達幅は別指標である。"
+        "この実測例の9点平均は1姿勢の説明値であり、全8姿勢の方式別MAEと同一視しない。</p></section>")
     pose_rows = []
     for task in TASKS:
         category = task.partition("_lite_")[0]
@@ -420,6 +456,15 @@ def build_html(data: dict) -> str:
 *{box-sizing:border-box}body{margin:0;background:#f6f6f4;color:#111;font:16px/1.72 'Times New Roman','Yu Mincho',serif}header,section,nav,footer{max-width:1200px;margin:0 auto}header{padding:60px 30px 35px;background:#fff;border-bottom:3px solid #111}h1{font:700 clamp(29px,3vw,44px)/1.27 'Times New Roman','Yu Mincho',serif;margin:8px 0 22px}h2{font-size:28px;border-bottom:1px solid #111;padding-bottom:8px;margin-top:0}h3{font-size:21px;margin-top:28px}p{margin:12px 0}.kicker{letter-spacing:.13em;font-size:13px;text-transform:uppercase}.subtitle{font-size:19px;max-width:950px}.badge{display:inline-block;border:1px solid #111;padding:6px 10px;font-size:13px;margin-top:15px}nav{padding:10px 25px;background:#fff;position:sticky;top:0;z-index:3;border-bottom:1px solid #ccc;display:flex;gap:18px;flex-wrap:wrap}nav a{color:#111;text-decoration:none;font-size:14px}nav a:hover{text-decoration:underline}section{background:#fff;padding:34px 30px;margin:18px auto}figure{margin:25px 0 35px;padding:12px 0;border-top:1px solid #ddd;border-bottom:1px solid #ddd}.graph{width:100%;min-height:360px}.graph svg{display:block;width:100%;height:auto}figcaption{font-size:14px;line-height:1.5;margin-top:7px}.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px}.legend-item{white-space:nowrap}.swatch{display:inline-block;width:12px;height:12px;border:2px solid var(--series);margin-right:5px;vertical-align:middle}.table-wrap{overflow-x:auto;margin:20px 0}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border-bottom:1px solid #bbb;padding:7px 9px;text-align:left;white-space:nowrap}th{border-top:2px solid #111;background:#f5f5f5}tr:nth-child(even){background:#fafafa}.equation{font:19px/1.5 'Times New Roman',serif;text-align:center;position:relative;overflow-x:auto;padding:15px 50px;margin:18px 0;background:#fafafa}.eqno{position:absolute;right:10px;top:19px;font:15px 'Times New Roman',serif}.caution{border-left:4px solid #C33C3C;background:#fff8f8;padding:11px 14px}.source{font-size:14px;color:#444}details{border:1px solid #bbb;padding:9px 15px;margin:20px 0}summary{cursor:pointer;font-weight:bold}code{font:13px/1.5 Consolas,monospace;background:#f3f3f3;padding:2px 4px}a{color:#0057a6}footer{padding:25px 30px 50px;font-size:13px;color:#444}@media(max-width:700px){header,section{padding:20px 14px}nav{position:static}.graph{min-height:230px}}
 @media print{body{background:#fff}nav{display:none}section{page-break-inside:avoid;margin:0;padding:18px 8px}figure{page-break-inside:avoid}.graph{min-height:0}details{display:block}details>*{display:block}}
 </style>"""
+    style += """<style>.procedure-figure,.mae-figure{border:1px solid #d5dbe1;border-radius:9px;padding:20px;background:#fcfdfd}
+.flow-node{border:1.5px solid #667b8e;border-radius:8px;padding:13px 17px;background:white;display:flex;flex-direction:column;gap:5px}
+.flow-node small{font-size:13px;color:#315979;letter-spacing:.04em}.flow-node strong{font-size:17px;line-height:1.45}.flow-node span{font-size:14px;line-height:1.65}
+.flow-source,.flow-test,.flow-output{max-width:690px;margin:0 auto}.flow-source{border-color:#111}.flow-test{border-color:#0072B2;background:#f5faff}.flow-output{border-color:#008B57;background:#f4fcf7}
+.flow-branches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.flow-arrow{text-align:center;color:#445d70;font-size:24px;font-weight:bold;line-height:1.8}
+.mae-svg{display:block;width:min(100%,740px);height:auto;margin:0 auto}.mae-grid{stroke:#e0e5e8;stroke-width:1}.mae-axis{stroke:#111;stroke-width:2}.mae-tick{font:15px 'Times New Roman',serif;fill:#111}.mae-label{font:18px 'Times New Roman','Yu Mincho',serif;fill:#111}.mae-legend{font:15px 'Times New Roman','Yu Mincho',serif}
+.formula-block{border-left:4px solid #0072B2;background:#f5faff;padding:14px 22px;margin:20px 0;font:18px/1.9 'Times New Roman','Yu Mincho',serif;overflow-x:auto}.formula-block>div{white-space:nowrap}
+@media(max-width:780px){.flow-branches{grid-template-columns:1fr}.formula-block{font-size:15px}.mae-figure,.procedure-figure{padding:10px}}
+@media print{.flow-node,.procedure-figure,.mae-figure{break-inside:avoid}}</style>"""
     plot_json = json.dumps(plots, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     js = """<script src='https://cdn.plot.ly/plotly-4.1.1.min.js' charset='utf-8'></script>
 <script src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js' async></script>

@@ -70,3 +70,13 @@ def test_mae_illustration_is_first_frozen_pose_and_matches_raw_trials():
     assert np.isclose(example["nine_target_mae_percent"],
                       100 * mean(row["normalized_abs_error"] for row in example["rows"]))
     assert "図B" in report.mae_illustration(example)
+
+
+def test_paper_report_contains_visual_guide_directly():
+    page = (ROOT / "analysis" / "paper_ff_fb_generalization_20261008" / "index.html")
+    text = page.read_text(encoding="utf-8")
+    assert "id='visual-guide'" in text
+    assert "href='#visual-guide'" in text
+    assert "class='procedure-figure'" in text
+    assert "class='mae-svg'" in text
+    assert "従来の主FFは方式ごとの逆写像可能域内で9目標" in text

@@ -35,8 +35,11 @@ def read(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def sha(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def sha(path: Path, *, normalize_newlines: bool = False) -> str:
+    content = path.read_bytes()
+    if normalize_newlines:
+        content = content.replace(b"\r\n", b"\n")
+    return hashlib.sha256(content).hexdigest()
 
 
 def esc(value: object) -> str:
@@ -136,7 +139,8 @@ def load_data() -> dict:
                 "training_manifest_sha256": sha(TRAIN / "manifest.json"),
                 "fb_manifest_sha256": sha(FB / "manifest.json"),
                 "zero_summary_sha256": sha(ZERO / "summary.json"),
-                "few_validator_sha256": sha(ROOT / "scripts" / "validate_guarded_few_shot.py"),
+                "few_validator_sha256": sha(ROOT / "scripts" / "validate_guarded_few_shot.py",
+                                             normalize_newlines=True),
             }}
 
 
@@ -236,7 +240,7 @@ def build_html(data: dict) -> str:
     method.append("<p class='caution'>RLの成功率、成功姿勢DBへの採用率、TDS較正サンプルの採用率、TDS終端保持率は異なる母集団・定義を持つ。混同して成功率と呼ばない。</p></section>")
     sections.append("".join(method))
 
-    sections.append("""<section id='conditions'><h2>評価条件の対応と、未実施の統一評価</h2><p>15ツールの各初期姿勢プールは<strong>32件</strong>である。1件は13個の駆動関節角とハンドの取付位置・向きからなる。姿勢プールはツールごとに異なる。強化学習が作った成功最終姿勢200件/ツールとは別物である。LOTOでは、未知とするツールの成功最終姿勢200件は共通軸・候補軸の学習に入れない。既知の4ツールから計800件を用いる。ただしタスク別PLS参照だけは未知ツールの200件を使うため、情報量が異なる。</p>""" + table(["保存済み実験", "較正・選択に使う初期姿勢", "誤差評価に使う初期姿勢", "目標角度の置き方", "試行数/ツール・方式"], [
+    sections.append("""<section id='conditions'><h2>評価条件の対応と、未実施の統一評価</h2><p>15ツールの各初期姿勢プールは<strong>32件</strong>である。1件は13個の駆動関節角とハンドの取付位置・向きからなる。姿勢プールはツールごとに異なる。学習時の各リセットはこの32件から乱数で選び、学習中の検証は<strong>同じ32件</strong>と11目標角度を順に使う。よって学習の検証成功率を『未知初期姿勢での成功率』とは呼べない。強化学習が作った成功最終姿勢200件/ツールも初期姿勢プールとは別物である。LOTOでは、未知とするツールの成功最終姿勢200件は共通軸・候補軸の学習に入れない。既知の4ツールから計800件を用いる。ただしタスク別PLS参照だけは未知ツールの200件を使うため、情報量が異なる。</p>""" + table(["保存済み実験", "較正・選択に使う初期姿勢", "誤差評価に使う初期姿勢", "目標角度の置き方", "試行数/ツール・方式"], [
         ["15タスクPCA/PLS FF", "32件から8件。17得点の応答を測る。", "別の8件。較正姿勢とは重複しない。", "方式ごとの逆写像可能角度域に等間隔で9点。", "8×9＝72"],
         ["4タスクFB", "8件。目標近傍の感度も測る。", "別の8件。FF/第1軸FB/第2軸FBで共有。", "比較条件で共有する逆写像目標域の9点。", "8×9＝72"],
         ["未知ツール・ゼロショット", "未知ツールでの物理較正は0件。既知4ツールのDBを使用。", "32件から乱数で選ぶ3件。", "RL目標角度幅の10、30、50、70、90%の5点。", "3×5＝15"],
@@ -337,7 +341,7 @@ def build_html(data: dict) -> str:
     sections.append("""<section id='discussion'><h2>5. 考察と結論</h2><p>主結果は、多自由度ハンドの成功姿勢集合から抽出した単一軸だけでも、15タスクのツール自由度に対して測定可能な操作幅を作れることである。ただしPCAとPLSの優劣はカテゴリ依存である。PushではPLSの操作幅拡大が目立つ一方、Sprayの誤差ではPCAが有利であり、軸の教師あり推定を無条件に採用すべきではない。</p><p>第1軸FBは4タスクの探索的比較で誤差を下げたが、目標ごとの感度較正を要する。第2軸は一部条件でFFを改善するものの、第1軸を上回る安定した追加役割はまだ確立していない。この結果は第2軸一般の無効性を示すのではなく、ここで定義した残差軸・感度推定・接触条件に限定される。</p><p>未知ツールでは初期姿勢の低次元近傍だけでは操作軸を選べなかった。少数の物理応答を測る適応が共通軸を改善する一方、タスク別PLSにも同じ較正を加えると性能差が縮む。論文の中心的主張は「1自由度TDSの成立」とし、FBおよびFew-shotは条件と限界を明示した拡張として配置するのが適切である。</p><p>確認実験としては、PCA/PLSを<strong>共通目標集合</strong>で対にして再評価し、次に未使用のツール形状と独立な初期姿勢プールでFew-shot停止閾値を固定して検証する。実機では接触力、転倒、行動速度を同時に監視し、シミュレーション上のPalm球終端有効性だけを安全判定に使わない。</p></section>""")
 
     provenance = table(["固定データ", "SHA-256", "監査用途"], [
-        [key, value, {"ff_manifest_sha256": "15件の選定レポート、DB・時間条件を検証", "training_manifest_sha256": "15タスクSAC学習キャンペーンを特定", "fb_manifest_sha256": "4タスクFBキャンペーンを特定", "zero_summary_sha256": "ゼロショット集計を特定", "few_validator_sha256": "Few-shot後続相の分割規則を特定"}[key]]
+        [key, value, {"ff_manifest_sha256": "15件の選定レポート、DB・時間条件を検証", "training_manifest_sha256": "15タスクSAC学習キャンペーンを特定", "fb_manifest_sha256": "4タスクFBキャンペーンを特定", "zero_summary_sha256": "ゼロショット集計を特定", "few_validator_sha256": "Few-shot後続相の分割規則を特定。改行をLFに正規化したSHA-256"}[key]]
         for key, value in data["source_hashes"].items()], name="データ来歴")
     audit = ["<section id='audit'><h2>6. 実装整合性・学術的妥当性・研究倫理の監査</h2><p>下表はソース・保存結果から確認した事項であり、「不正が存在しない」ことを証明するものではない。外部独立監査の可否は末尾の監査状態に記す。</p>"]
     audit.append(table(["区分", "証拠", "論文上の対応"], [
@@ -356,7 +360,7 @@ def build_html(data: dict) -> str:
     ], name="監査論点"))
     audit.append("<p>元論文はDDPG+HER、5 Scissors、成功姿勢2000件、12較正点、ランプ写像などを記述する歴史的原案である。今回の15タスク・200件/タスク・PCA/PLS・17点/8姿勢較正・等張回帰の結果を、元論文の2度などの値と混合しない。元論文PDFはユーザー提供資料であり、外部監査先には送信しない。</p>")
     audit.append(provenance)
-    audit.append("<p class='caution'><strong>Claude監査状態:</strong> 外部サービスへの研究コード・実験JSONの送信について環境の自動審査が保留したため、この版にClaudeの見解は含めていない。明示承認が得られるまでは、上記はCodexによる一次監査である。承認後はOpus 5.5 / High Effortの読み取り専用監査結果を別版で追記する。</p></section>")
+    audit.append("<p class='caution'><strong>Claude監査状態:</strong> 外部サービスへの研究コード・実験JSONの送信について環境の自動審査が保留したため、この版にClaudeの見解は含めていない。用語の平易さについても現時点ではCodexの一次改稿であり、Claudeとの共同レビュー済みとは記さない。明示承認が得られた後に、研究倫理・主張と実装の一致・未定義用語を読み取り専用で再点検し、指摘と修正履歴を別版で追記する。元論文PDFは送信しない。</p></section>")
     sections.append("".join(audit))
     sections.append("""<section id='style'><h2>図の体裁・再現</h2><p>各図はPlotly.jsの白背景テンプレート（<code>plotly_white</code>相当）を明示し、Times New Roman、図内タイトルなし、黒・青・赤・緑の系列色、内向き主目盛・補助目盛を用いる。Plotlyの余白指定は上下左右2–4pxとし、軸名・目盛の切断だけを自動余白で防ぐ。SVGのベクターフォールバックはオフラインでも表示される。色だけに依存しないよう記号と凡例も併用する。単位とRL目標幅の正規化を軸名に明示した。</p><p>描画仕様の根拠: <a href='https://plotly.com/python/axes/'>Plotly公式・軸と補助目盛</a>、<a href='https://plotly.com/python/templates/'>Plotly公式・plotly_white</a>、<a href='https://plotly.com/python/setting-graph-size/'>Plotly公式・自動余白</a>、<a href='https://plotly.com/javascript/getting-started/'>Plotly公式・版を固定したCDN</a>。選択的報告を避ける基本方針は <a href='https://publicationethics.org/files/International%20standards_authors_for%20website_11_Nov_2011.pdf'>COPE著者向け基準</a>を参照した。</p></section>""")
     sections.append("<footer><p>生成スクリプト: <code>scripts/build_paper_ff_fb_generalization_report.py</code>。数値の機械可読な再集計は同ディレクトリの <a href='summary.json'>summary.json</a> を参照。</p></footer>")

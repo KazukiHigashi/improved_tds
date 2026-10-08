@@ -205,7 +205,7 @@ def build_html(data: dict) -> str:
     ff, ff_cat, training, fb, zero, few = (
         data[k] for k in ("ff", "ff_category", "training", "fb", "zero", "few"))
     sections.append("""<header><p class='kicker'>研究論文用・再集計ドラフト / 2026-10-08</p><h1>成功姿勢から得るツール操作シナジーの<br>PCA・PLS比較と汎化評価</h1><p class='subtitle'>1自由度フィードフォワード制御を主実験とし、閉ループ補正および未知ツールへの適応を探索的拡張として区別する。</p><div class='badge'>保存済み実験結果の再集計。新しい学習・シミュレーションは実施していない。</div></header>""")
-    sections.append("""<nav><a href='#abstract'>要旨</a><a href='#terms'>用語と読み方</a><a href='#methods'>手法</a><a href='#conditions'>評価条件</a><a href='#training'>学習条件</a><a href='#ff'>FF結果</a><a href='#fb'>FB結果</a><a href='#generalization'>汎化</a><a href='#discussion'>考察</a><a href='#audit'>整合性・倫理監査</a></nav>""")
+    sections.append("""<nav><a href='#abstract'>要旨</a><a href='#terms'>用語と読み方</a><a href='#methods'>手法</a><a href='#conditions'>評価条件</a><a href='#pose-indices'>姿勢ID</a><a href='#training'>学習条件</a><a href='#ff'>FF結果</a><a href='#fb'>FB結果</a><a href='#generalization'>汎化</a><a href='#discussion'>考察</a><a href='#audit'>整合性・倫理監査</a></nav>""")
     sections.append("""<section id='abstract'><h2>要旨</h2><p>Scissors、Push、Spray各5変種の成功最終姿勢200件から操作シナジーを抽出し、単一のスカラー指令でツール自由度を操作する。PCAは姿勢分散、PLSは姿勢とツール角度の共分散を基準とする。15タスクの主実験は5秒の開ループ軌道と2秒の保持で評価した。追加の閉ループ比較は4タスクに限られ、未知ツール実験は「初期姿勢のみ」と「3〜15回の実測プローブによる適応」を別の実験相として扱う。指標はすべてツールのRL目標幅で正規化するが、主実験のMAEは方式別の逆写像可能域・採用試行内の条件付き指標であり、全目標域の性能を直接意味しない。</p></section>""")
     sections.append("""<section id='terms'><h2>最初に読む：用語と数値の意味</h2><p>この報告で「ツール」とは、はさみ・プッシュ機構・スプレー機構の各変種を指す。「初期姿勢」は操作前にハンドと対象物を配置するリセット状態、「成功姿勢」は強化学習で目標を達成した後に保存するハンドの最終姿勢である。両者は別のデータであり、成功姿勢200件は初期姿勢200件を意味しない。</p>""" + table(["用語", "この報告での意味", "数字を見るときの注意"], [
         ["TDS／操作シナジー", "多関節の姿勢を一つの得点で変える方向。得点を動かしてツール角度を変える。", "PCAは姿勢変動、PLSは角度との共変動から軸を求める。"],
@@ -246,6 +246,38 @@ def build_html(data: dict) -> str:
         ["未知ツール・ゼロショット", "未知ツールでの物理較正は0件。既知4ツールのDBを使用。", "32件から乱数で選ぶ3件。", "RL目標角度幅の10、30、50、70、90%の5点。", "3×5＝15"],
         ["未知ツール・Few-shot後続相", "過去相の4件を除く残りから1件。共通軸3回、必要時は他4軸も各3回。", "同じ抽選で選ぶ別の3件。較正姿勢とは重複しない。", "RL目標角度幅の10、30、50、70、90%の5点。", "3×5＝15"],
     ], name="保存済み実験の初期姿勢と目標値の違い") + "<p>後続相で除く『過去相の4件』は、先行Few-shot相の較正1件とゼロショット相で用いた評価3件である。残り28件から後続相の較正1件・評価3件を選ぶ。一方、主実験FFの8＋8件と後続Few-shot相は、互いに重ならないよう設計された別分割ではない。従って、現在のFF図と未知ツール図のMAEは試行条件を揃えた直接比較ではない。</p><p class='caution'><strong>追加実験待ち：9目標の統一評価は未実施。</strong>件数だけを5点から9点に増やしても不十分である。主実験FFの9点は方式別の較正可能域内だが、未知ツールの5点はRL目標域内にある。公平な新評価では、各ツールのRL目標域に共通の9角度（0、12.5、25、37.5、50、62.5、75、87.5、100%）を固定し、同じ8評価初期姿勢・同じリセット種・5秒移動＋2秒保持で全方式を試す。角度が較正範囲外なら指令を端点に制限したことを記録し、その試行も全有限終端MAEに含める。保持MAEと保持率、数値的失敗件数、較正可能域幅も併記する。較正試行を評価に再利用しない。</p><p>この条件に厳密に揃えるには、凍結済みモデルと姿勢DBを再利用して<strong>FF主実験・FB比較・未知ツール評価を再シミュレーション</strong>する必要がある。新たな強化学習は不要である。既存の5点結果や方式別9点結果は履歴として残し、新9点の数値と混ぜない。評価姿勢は各ツール32件から事前に固定したFFの8評価IDを全条件で共有し、Few-shotの3点プローブにはその8件と異なる1件を使う。過去の実験で同じ姿勢群を調べているため、この再評価を『完全に未見のツール・姿勢での確認』とは呼ばない。追加実験はユーザーの指示待ちであり、この報告には新条件のMAEを載せない。</p></section>""")
+
+    pose_rows = []
+    for task in TASKS:
+        category = task.partition("_lite_")[0]
+        ff_report = read(BASE / task / "report.json")
+        zero_poses = sorted({int(row["pose"])
+                             for row in zero["categories"][category]["physical"]
+                             if row["task"] == task and row["arm"] == "common_axis"})
+        few_report = read(FEW / f"{task}.json")
+        ff_cal = list(map(int, ff_report["calibration_poses"]))
+        ff_test = list(map(int, ff_report["test_poses"]))
+        few_cal = int(few_report["calibration_pose"])
+        few_test = list(map(int, few_report["test_poses"]))
+        if (len(ff_cal) != 8 or len(ff_test) != 8 or len(zero_poses) != 3
+                or len(few_test) != 3 or set(ff_cal) & set(ff_test)
+                or few_cal in few_test or set(zero_poses) & ({few_cal} | set(few_test))):
+            raise ValueError(f"Unexpected initial-pose split: {task}")
+        pose_rows.append([task, "0–31 (32件)", ", ".join(map(str, ff_cal)),
+                          ", ".join(map(str, ff_test)), ", ".join(map(str, zero_poses)),
+                          str(few_cal), ", ".join(map(str, few_test))])
+    fb_pose_rows = []
+    for task in FB_TASKS:
+        report = read(FB / task / "report.json")
+        fb_pose_rows.append([task,
+                             ", ".join(map(str, report["calibration_poses"])),
+                             ", ".join(map(str, report["test_poses"]))])
+    sections.append("<section id='pose-indices'><h2>各ツールの初期姿勢ID</h2><p>表のIDは各ツール専用プール内の0〜31番である。同じ番号でもツールが違えば同じ姿勢を指さない。ID表は分割の追跡用であり、以下の試行を新しく実施したことを意味しない。</p><details><summary>15ツールのFF・ゼロショット・Few-shot姿勢IDを開く</summary>" +
+                    table(["ツール", "プール", "FF較正8", "FF評価8", "ゼロショット評価3", "Few-shot較正1", "Few-shot評価3"],
+                          pose_rows, name="ツール別初期姿勢ID") +
+                    "</details><details><summary>4タスクのFB較正・評価姿勢IDを開く</summary>" +
+                    table(["ツール", "FB較正8", "FB評価8"], fb_pose_rows,
+                          name="フィードバック実験の初期姿勢ID") + "</details></section>")
 
     training_table = table(["タスク", "実学習ステップ", "早期停止", "最良検証成功率 [%]"], [
         [r["task"], f"{r['steps']:,}", "あり" if r["early_stop"] else "なし",

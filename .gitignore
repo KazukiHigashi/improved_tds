@@ -24,3 +24,6 @@ analysis/
 _pytest_*/
 .pytest_tmp*/
 
+# Archived, superseded experiments and exploratory code stay local only.
+/Obsoleted/
+

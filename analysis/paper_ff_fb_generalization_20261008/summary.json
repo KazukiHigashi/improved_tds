@@ -449,6 +449,1470 @@
       "best_validation_success_percent": 99.43181818181817
     }
   ],
+  "training_reward": {
+    "protocol": "paper15_validation_mean_step_reward_v1",
+    "definition": "sum(episode mean reward_total * episode steps) / sum(episode steps)",
+    "source": "validation_history.json, not training rollout",
+    "manifest_sha256": "92b502a355570a7a01d7fd952f1783ef654a39c32addcafbbe833b17e1be2a13",
+    "tasks": [
+      {
+        "task": "scissors_lite_1",
+        "training_steps": 500000,
+        "seed": 4001,
+        "target_range": [
+          0.0,
+          1.0
+        ],
+        "stopped_early": true,
+        "best_success_rate": 0.9943181818181818,
+        "best_success_step": 500000,
+        "history_sha256": "21a989ad42e017fb690e45b6f0cb5ddb3a1b23af237631ee4586b00cfe7f8c89",
+        "summary_sha256": "ce2a93586ef974a438bac1f4772a56897cdcedfe7aaf08f36a3fe279d7d105a7",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 2.920897432435839,
+            "success_rate": 0.48011363636363635,
+            "mean_episode_return": 584.1794864871679
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.961284796219938,
+            "success_rate": 0.9119318181818182,
+            "mean_episode_return": 992.2569592439876
+          },
+          {
+            "train_steps": 300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.348654053720477,
+            "success_rate": 0.9318181818181818,
+            "mean_episode_return": 1069.7308107440954
+          },
+          {
+            "train_steps": 400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.862209806292161,
+            "success_rate": 0.9545454545454546,
+            "mean_episode_return": 1172.4419612584322
+          },
+          {
+            "train_steps": 500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.483283072597124,
+            "success_rate": 0.9943181818181818,
+            "mean_episode_return": 1296.656614519425
+          }
+        ]
+      },
+      {
+        "task": "scissors_lite_2",
+        "training_steps": 600000,
+        "seed": 4002,
+        "target_range": [
+          0.0,
+          1.0
+        ],
+        "stopped_early": true,
+        "best_success_rate": 0.9943181818181818,
+        "best_success_step": 500000,
+        "history_sha256": "701a0d4ba5ebdc5c9cfe06b48a59d9ffd56aa630eb2405a538d4c5d04a72141d",
+        "summary_sha256": "a8ebf6d58086888b0ad773994eb1e41577129fbad082b1fc3180bc1ef4632c96",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 2.355811516632288,
+            "success_rate": 0.35511363636363635,
+            "mean_episode_return": 471.1623033264577
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 2.9438164975629233,
+            "success_rate": 0.5170454545454546,
+            "mean_episode_return": 588.7632995125846
+          },
+          {
+            "train_steps": 300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.5251846714881276,
+            "success_rate": 0.7329545454545454,
+            "mean_episode_return": 705.0369342976255
+          },
+          {
+            "train_steps": 400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.382780914501803,
+            "success_rate": 0.8352272727272727,
+            "mean_episode_return": 876.5561829003605
+          },
+          {
+            "train_steps": 500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.397181595828245,
+            "success_rate": 0.9943181818181818,
+            "mean_episode_return": 1279.436319165649
+          },
+          {
+            "train_steps": 600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.819147465978322,
+            "success_rate": 0.9829545454545454,
+            "mean_episode_return": 1163.8294931956643
+          }
+        ]
+      },
+      {
+        "task": "scissors_lite_3",
+        "training_steps": 700000,
+        "seed": 4003,
+        "target_range": [
+          0.0,
+          1.0
+        ],
+        "stopped_early": true,
+        "best_success_rate": 0.9914772727272727,
+        "best_success_step": 700000,
+        "history_sha256": "91246effb6d0711deb30908f36b4fa2b8b490d75fd1814884c7cc3c6ffaa7b71",
+        "summary_sha256": "04b1e7a35189729702ec0b512fc2f049b26781bebb58739843382ffff86515ae",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70339,
+            "mean_reward_per_sim_step": 2.9120759989278917,
+            "success_rate": 0.6335227272727273,
+            "mean_episode_return": 581.9105502516733
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70222,
+            "mean_reward_per_sim_step": 2.9521639817062524,
+            "success_rate": 0.7585227272727273,
+            "mean_episode_return": 588.9399406914104
+          },
+          {
+            "train_steps": 300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 69944,
+            "mean_reward_per_sim_step": 3.6182449047734564,
+            "success_rate": 0.8011363636363636,
+            "mean_episode_return": 718.9617091462347
+          },
+          {
+            "train_steps": 400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.169501392060411,
+            "success_rate": 0.8039772727272727,
+            "mean_episode_return": 833.9002784120822
+          },
+          {
+            "train_steps": 500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.015106456556504,
+            "success_rate": 0.9147727272727273,
+            "mean_episode_return": 1003.0212913113008
+          },
+          {
+            "train_steps": 600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70289,
+            "mean_reward_per_sim_step": 5.674250174087605,
+            "success_rate": 0.9630681818181818,
+            "mean_episode_return": 1133.0607116092149
+          },
+          {
+            "train_steps": 700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.382515283984711,
+            "success_rate": 0.9914772727272727,
+            "mean_episode_return": 1276.5030567969422
+          }
+        ]
+      },
+      {
+        "task": "scissors_lite_4",
+        "training_steps": 400000,
+        "seed": 4004,
+        "target_range": [
+          0.0,
+          1.0
+        ],
+        "stopped_early": true,
+        "best_success_rate": 0.9914772727272727,
+        "best_success_step": 400000,
+        "history_sha256": "b821d3e56496cdadef8bb9a7307f95cf97e47b859da7db8e33616ea3b07279e2",
+        "summary_sha256": "83be12fab5f0840f4d86078df1f948944b447664a5d2b0440833919f4f006194",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.0892071313032594,
+            "success_rate": 0.5284090909090909,
+            "mean_episode_return": 617.8414262606519
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70396,
+            "mean_reward_per_sim_step": 2.7018243777199347,
+            "success_rate": 0.7613636363636364,
+            "mean_episode_return": 540.3341729942401
+          },
+          {
+            "train_steps": 300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.6603921810469795,
+            "success_rate": 0.9659090909090909,
+            "mean_episode_return": 732.0784362093959
+          },
+          {
+            "train_steps": 400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70392,
+            "mean_reward_per_sim_step": 6.468720683399167,
+            "success_rate": 0.9914772727272727,
+            "mean_episode_return": 1293.5971203006652
+          }
+        ]
+      },
+      {
+        "task": "scissors_lite_5",
+        "training_steps": 300000,
+        "seed": 4005,
+        "target_range": [
+          0.0,
+          1.0
+        ],
+        "stopped_early": true,
+        "best_success_rate": 0.9971590909090909,
+        "best_success_step": 300000,
+        "history_sha256": "c521d4e4be8a8fcedd57f3ec42440b67a76d2310d85e3b2d5a19d004cbe44679",
+        "summary_sha256": "f1bf9af7cab018373bd9d29b7429bb5a6e6b5d64dbdbf6d00142afe4b0d80b2c",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.1844722377235106,
+            "success_rate": 0.7897727272727273,
+            "mean_episode_return": 636.8944475447022
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.756099347025558,
+            "success_rate": 0.9886363636363636,
+            "mean_episode_return": 1151.2198694051117
+          },
+          {
+            "train_steps": 300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.124089634863999,
+            "success_rate": 0.9971590909090909,
+            "mean_episode_return": 1224.8179269727998
+          }
+        ]
+      },
+      {
+        "task": "push_lite_1",
+        "training_steps": 300000,
+        "seed": 5001,
+        "target_range": [
+          0.0,
+          0.008
+        ],
+        "stopped_early": true,
+        "best_success_rate": 1.0,
+        "best_success_step": 300000,
+        "history_sha256": "edbf1c759ce3a984235c3ea13d226768456084de3e326d04072014e15bfe8c1a",
+        "summary_sha256": "e5fca270d2f02e16afb756428fcbd36ed5524fd0c59a9da3b32878188052f686",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.722616498274957,
+            "success_rate": 0.9346590909090909,
+            "mean_episode_return": 1144.5232996549914
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.489075285986813,
+            "success_rate": 0.9630681818181818,
+            "mean_episode_return": 1297.8150571973624
+          },
+          {
+            "train_steps": 300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 7.006321628119443,
+            "success_rate": 1.0,
+            "mean_episode_return": 1401.2643256238887
+          }
+        ]
+      },
+      {
+        "task": "push_lite_2",
+        "training_steps": 200000,
+        "seed": 5002,
+        "target_range": [
+          0.0,
+          0.01
+        ],
+        "stopped_early": true,
+        "best_success_rate": 0.9943181818181818,
+        "best_success_step": 200000,
+        "history_sha256": "28fc29f28a795fe3e60f58e6c7777dc1f75138e9d51934cefac6a4a15a67d1dd",
+        "summary_sha256": "f10700fd30b2ac10ce9636be6ad31258d32179401b6758fe19f4efe9a8c1fd96",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.165984175920706,
+            "success_rate": 0.96875,
+            "mean_episode_return": 1233.1968351841413
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 7.466027059644063,
+            "success_rate": 0.9943181818181818,
+            "mean_episode_return": 1493.2054119288127
+          }
+        ]
+      },
+      {
+        "task": "push_lite_3",
+        "training_steps": 200000,
+        "seed": 5003,
+        "target_range": [
+          0.0,
+          0.012
+        ],
+        "stopped_early": true,
+        "best_success_rate": 1.0,
+        "best_success_step": 200000,
+        "history_sha256": "91e295ec811dc66939e74311ec2f662d5d5688ce4229b0bffe0aeedafeb0d20e",
+        "summary_sha256": "4aafabd52725c0d5fec62b474d83c9c5f2959c2f8973d5d8a341c4fbf9b257bc",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 7.094169426740628,
+            "success_rate": 0.9971590909090909,
+            "mean_episode_return": 1418.8338853481255
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 7.783675910271686,
+            "success_rate": 1.0,
+            "mean_episode_return": 1556.7351820543372
+          }
+        ]
+      },
+      {
+        "task": "push_lite_4",
+        "training_steps": 200000,
+        "seed": 5004,
+        "target_range": [
+          0.0,
+          0.007
+        ],
+        "stopped_early": true,
+        "best_success_rate": 1.0,
+        "best_success_step": 200000,
+        "history_sha256": "581bf6cc3619a5eea2cd5301537b972df18db87744919efb2450948b5f9c5717",
+        "summary_sha256": "840ff6fcea2e87063d7060bb4b35e4028cd7b5f54a24f0183664289e3644894d",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.672871020477395,
+            "success_rate": 0.96875,
+            "mean_episode_return": 1334.574204095479
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 7.204356880163662,
+            "success_rate": 1.0,
+            "mean_episode_return": 1440.8713760327323
+          }
+        ]
+      },
+      {
+        "task": "push_lite_5",
+        "training_steps": 200000,
+        "seed": 5005,
+        "target_range": [
+          0.0,
+          0.011
+        ],
+        "stopped_early": true,
+        "best_success_rate": 1.0,
+        "best_success_step": 200000,
+        "history_sha256": "f6478c677541398701500e6ad9a5f09aedb8a829768f793981d2acc307f10692",
+        "summary_sha256": "84754cc23f24718c868d352b027f45eb7142c2c30920ad4be698ec4b37bfcaf2",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 7.541826318130787,
+            "success_rate": 0.9971590909090909,
+            "mean_episode_return": 1508.3652636261575
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 7.7329505450299685,
+            "success_rate": 1.0,
+            "mean_episode_return": 1546.5901090059938
+          }
+        ]
+      },
+      {
+        "task": "spray_lite_1",
+        "training_steps": 3000000,
+        "seed": 6001,
+        "target_range": [
+          0.0,
+          0.4
+        ],
+        "stopped_early": false,
+        "best_success_rate": 0.8210227272727273,
+        "best_success_step": 2600000,
+        "history_sha256": "1d50940fe64b05034302ad40005e6f1f616107814f963c0760699ac3e234521e",
+        "summary_sha256": "1529f5f52d235d40ab93bbd82d400ecbd60d55b34c4fa1d5e8900313378505b4",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 2.102294742658107,
+            "success_rate": 0.2585227272727273,
+            "mean_episode_return": 420.4589485316214
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.0538118881958725,
+            "success_rate": 0.3721590909090909,
+            "mean_episode_return": 610.7623776391745
+          },
+          {
+            "train_steps": 300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.4311449537181757,
+            "success_rate": 0.42045454545454547,
+            "mean_episode_return": 686.2289907436351
+          },
+          {
+            "train_steps": 400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.082213149043213,
+            "success_rate": 0.5823863636363636,
+            "mean_episode_return": 816.4426298086426
+          },
+          {
+            "train_steps": 500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.296806510729191,
+            "success_rate": 0.5653409090909091,
+            "mean_episode_return": 859.3613021458382
+          },
+          {
+            "train_steps": 600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.378252612989781,
+            "success_rate": 0.5880681818181818,
+            "mean_episode_return": 875.6505225979563
+          },
+          {
+            "train_steps": 700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.236652078930757,
+            "success_rate": 0.59375,
+            "mean_episode_return": 847.3304157861515
+          },
+          {
+            "train_steps": 800000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.8314556521677865,
+            "success_rate": 0.6732954545454546,
+            "mean_episode_return": 966.2911304335572
+          },
+          {
+            "train_steps": 900000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.7653995093125445,
+            "success_rate": 0.6704545454545454,
+            "mean_episode_return": 953.0799018625089
+          },
+          {
+            "train_steps": 1000000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.46158470905794,
+            "success_rate": 0.6164772727272727,
+            "mean_episode_return": 892.3169418115879
+          },
+          {
+            "train_steps": 1100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.997633386549479,
+            "success_rate": 0.7073863636363636,
+            "mean_episode_return": 999.5266773098957
+          },
+          {
+            "train_steps": 1200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.298818791106077,
+            "success_rate": 0.7528409090909091,
+            "mean_episode_return": 1059.7637582212155
+          },
+          {
+            "train_steps": 1300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.100024806892961,
+            "success_rate": 0.7159090909090909,
+            "mean_episode_return": 1020.0049613785922
+          },
+          {
+            "train_steps": 1400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.312561310872862,
+            "success_rate": 0.7528409090909091,
+            "mean_episode_return": 1062.5122621745725
+          },
+          {
+            "train_steps": 1500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.309037237282443,
+            "success_rate": 0.7443181818181818,
+            "mean_episode_return": 1061.8074474564885
+          },
+          {
+            "train_steps": 1600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.4648924400484855,
+            "success_rate": 0.7954545454545454,
+            "mean_episode_return": 1092.9784880096972
+          },
+          {
+            "train_steps": 1700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.356204721179303,
+            "success_rate": 0.7670454545454546,
+            "mean_episode_return": 1071.2409442358605
+          },
+          {
+            "train_steps": 1800000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.269126799400801,
+            "success_rate": 0.7528409090909091,
+            "mean_episode_return": 1053.82535988016
+          },
+          {
+            "train_steps": 1900000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.514655421589635,
+            "success_rate": 0.7840909090909091,
+            "mean_episode_return": 1102.931084317927
+          },
+          {
+            "train_steps": 2000000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.486875766976043,
+            "success_rate": 0.7869318181818182,
+            "mean_episode_return": 1097.3751533952086
+          },
+          {
+            "train_steps": 2100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.545809130419993,
+            "success_rate": 0.7840909090909091,
+            "mean_episode_return": 1109.1618260839987
+          },
+          {
+            "train_steps": 2200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.467497101241243,
+            "success_rate": 0.7613636363636364,
+            "mean_episode_return": 1093.4994202482485
+          },
+          {
+            "train_steps": 2300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.563750230429357,
+            "success_rate": 0.7954545454545454,
+            "mean_episode_return": 1112.7500460858714
+          },
+          {
+            "train_steps": 2400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.642552869692551,
+            "success_rate": 0.8181818181818182,
+            "mean_episode_return": 1128.5105739385103
+          },
+          {
+            "train_steps": 2500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.596218057430109,
+            "success_rate": 0.8096590909090909,
+            "mean_episode_return": 1119.2436114860218
+          },
+          {
+            "train_steps": 2600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.634084820707173,
+            "success_rate": 0.8210227272727273,
+            "mean_episode_return": 1126.8169641414347
+          },
+          {
+            "train_steps": 2700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.639224355473425,
+            "success_rate": 0.7982954545454546,
+            "mean_episode_return": 1127.844871094685
+          },
+          {
+            "train_steps": 2800000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.653712664694496,
+            "success_rate": 0.8153409090909091,
+            "mean_episode_return": 1130.742532938899
+          },
+          {
+            "train_steps": 2900000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.530954528086051,
+            "success_rate": 0.8125,
+            "mean_episode_return": 1106.19090561721
+          },
+          {
+            "train_steps": 3000000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.54739240046658,
+            "success_rate": 0.7926136363636364,
+            "mean_episode_return": 1109.478480093316
+          }
+        ]
+      },
+      {
+        "task": "spray_lite_2",
+        "training_steps": 3000000,
+        "seed": 6002,
+        "target_range": [
+          0.0,
+          0.4
+        ],
+        "stopped_early": false,
+        "best_success_rate": 0.9403409090909091,
+        "best_success_step": 2800000,
+        "history_sha256": "f79dea0915b247e2a2548c7b565c8f4fd4eb231680d78fb57bd79834041e8582",
+        "summary_sha256": "1b9cae50ef7e2fe0114a777bbd5f6dfb0cd77f23267c9050a742c26453104e7a",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 2.400874238801782,
+            "success_rate": 0.4744318181818182,
+            "mean_episode_return": 480.1748477603564
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 2.6568611996301486,
+            "success_rate": 0.6534090909090909,
+            "mean_episode_return": 531.3722399260297
+          },
+          {
+            "train_steps": 300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 2.6816503531574667,
+            "success_rate": 0.46875,
+            "mean_episode_return": 536.3300706314933
+          },
+          {
+            "train_steps": 400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.290197995072656,
+            "success_rate": 0.8352272727272727,
+            "mean_episode_return": 858.0395990145313
+          },
+          {
+            "train_steps": 500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.186087929445845,
+            "success_rate": 0.8096590909090909,
+            "mean_episode_return": 837.217585889169
+          },
+          {
+            "train_steps": 600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.864953765204639,
+            "success_rate": 0.8522727272727273,
+            "mean_episode_return": 972.9907530409278
+          },
+          {
+            "train_steps": 700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.41266055910325,
+            "success_rate": 0.8522727272727273,
+            "mean_episode_return": 1082.53211182065
+          },
+          {
+            "train_steps": 800000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.763866771629391,
+            "success_rate": 0.9261363636363636,
+            "mean_episode_return": 1152.773354325878
+          },
+          {
+            "train_steps": 900000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.047854295863821,
+            "success_rate": 0.9403409090909091,
+            "mean_episode_return": 1209.5708591727641
+          },
+          {
+            "train_steps": 1000000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.0586528651927525,
+            "success_rate": 0.9289772727272727,
+            "mean_episode_return": 1211.7305730385503
+          },
+          {
+            "train_steps": 1100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.825174577408178,
+            "success_rate": 0.9289772727272727,
+            "mean_episode_return": 1165.0349154816356
+          },
+          {
+            "train_steps": 1200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.06392068507373,
+            "success_rate": 0.9232954545454546,
+            "mean_episode_return": 1212.784137014746
+          },
+          {
+            "train_steps": 1300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.852691647842148,
+            "success_rate": 0.9403409090909091,
+            "mean_episode_return": 1170.5383295684296
+          },
+          {
+            "train_steps": 1400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.814539987300857,
+            "success_rate": 0.8977272727272727,
+            "mean_episode_return": 1162.9079974601714
+          },
+          {
+            "train_steps": 1500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.994335551775395,
+            "success_rate": 0.9204545454545454,
+            "mean_episode_return": 1198.867110355079
+          },
+          {
+            "train_steps": 1600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.109768179327083,
+            "success_rate": 0.9261363636363636,
+            "mean_episode_return": 1221.9536358654166
+          },
+          {
+            "train_steps": 1700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.89142485362321,
+            "success_rate": 0.9147727272727273,
+            "mean_episode_return": 1178.284970724642
+          },
+          {
+            "train_steps": 1800000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.253397227481941,
+            "success_rate": 0.9261363636363636,
+            "mean_episode_return": 1250.6794454963883
+          },
+          {
+            "train_steps": 1900000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.01341162251052,
+            "success_rate": 0.9147727272727273,
+            "mean_episode_return": 1202.682324502104
+          },
+          {
+            "train_steps": 2000000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.872507486204841,
+            "success_rate": 0.9090909090909091,
+            "mean_episode_return": 1174.5014972409683
+          },
+          {
+            "train_steps": 2100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70332,
+            "mean_reward_per_sim_step": 6.173040059557257,
+            "success_rate": 0.9261363636363636,
+            "mean_episode_return": 1233.415492809037
+          },
+          {
+            "train_steps": 2200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70290,
+            "mean_reward_per_sim_step": 6.115800120505362,
+            "success_rate": 0.9204545454545454,
+            "mean_episode_return": 1221.2488365634144
+          },
+          {
+            "train_steps": 2300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.203409079957402,
+            "success_rate": 0.9375,
+            "mean_episode_return": 1240.6818159914803
+          },
+          {
+            "train_steps": 2400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.284149708696967,
+            "success_rate": 0.9261363636363636,
+            "mean_episode_return": 1256.8299417393935
+          },
+          {
+            "train_steps": 2500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.345586124270019,
+            "success_rate": 0.9289772727272727,
+            "mean_episode_return": 1269.1172248540038
+          },
+          {
+            "train_steps": 2600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.293153486513335,
+            "success_rate": 0.9261363636363636,
+            "mean_episode_return": 1258.630697302667
+          },
+          {
+            "train_steps": 2700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.274663206018025,
+            "success_rate": 0.9204545454545454,
+            "mean_episode_return": 1254.932641203605
+          },
+          {
+            "train_steps": 2800000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.394364679017728,
+            "success_rate": 0.9403409090909091,
+            "mean_episode_return": 1278.8729358035455
+          },
+          {
+            "train_steps": 2900000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.223470341414669,
+            "success_rate": 0.9289772727272727,
+            "mean_episode_return": 1244.6940682829338
+          },
+          {
+            "train_steps": 3000000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.415083130648563,
+            "success_rate": 0.9403409090909091,
+            "mean_episode_return": 1283.0166261297127
+          }
+        ]
+      },
+      {
+        "task": "spray_lite_3",
+        "training_steps": 3000000,
+        "seed": 6003,
+        "target_range": [
+          0.0,
+          0.4
+        ],
+        "stopped_early": false,
+        "best_success_rate": 0.78125,
+        "best_success_step": 2500000,
+        "history_sha256": "dafcaf14f3ccd855158976c7f506f81ac56a64a8d02cf94e1a8756eda7643af2",
+        "summary_sha256": "42fb3ae0e2db8a210ca55554db1d9c919392aa2298a61726bf1b1707ccc4a3ac",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 2.538578165213551,
+            "success_rate": 0.4375,
+            "mean_episode_return": 507.71563304271024
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.2366421182516785,
+            "success_rate": 0.5823863636363636,
+            "mean_episode_return": 847.3284236503357
+          },
+          {
+            "train_steps": 300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.41703042801207,
+            "success_rate": 0.6136363636363636,
+            "mean_episode_return": 883.4060856024139
+          },
+          {
+            "train_steps": 400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.2129315057715315,
+            "success_rate": 0.5738636363636364,
+            "mean_episode_return": 842.5863011543064
+          },
+          {
+            "train_steps": 500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.567482047736593,
+            "success_rate": 0.6335227272727273,
+            "mean_episode_return": 913.4964095473188
+          },
+          {
+            "train_steps": 600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.6173092929188595,
+            "success_rate": 0.6164772727272727,
+            "mean_episode_return": 923.461858583772
+          },
+          {
+            "train_steps": 700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.526997270518995,
+            "success_rate": 0.6363636363636364,
+            "mean_episode_return": 905.3994541037991
+          },
+          {
+            "train_steps": 800000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.222835775575273,
+            "success_rate": 0.5681818181818182,
+            "mean_episode_return": 844.5671551150547
+          },
+          {
+            "train_steps": 900000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.773173049021014,
+            "success_rate": 0.6732954545454546,
+            "mean_episode_return": 954.6346098042028
+          },
+          {
+            "train_steps": 1000000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.9824819882501075,
+            "success_rate": 0.6704545454545454,
+            "mean_episode_return": 996.4963976500214
+          },
+          {
+            "train_steps": 1100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.049923836816112,
+            "success_rate": 0.6960227272727273,
+            "mean_episode_return": 1009.9847673632223
+          },
+          {
+            "train_steps": 1200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.9768183306405795,
+            "success_rate": 0.6960227272727273,
+            "mean_episode_return": 995.3636661281158
+          },
+          {
+            "train_steps": 1300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.069198927499194,
+            "success_rate": 0.6761363636363636,
+            "mean_episode_return": 1013.8397854998387
+          },
+          {
+            "train_steps": 1400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.0478566317566,
+            "success_rate": 0.6647727272727273,
+            "mean_episode_return": 1009.5713263513201
+          },
+          {
+            "train_steps": 1500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.11590607413391,
+            "success_rate": 0.7045454545454546,
+            "mean_episode_return": 1023.1812148267821
+          },
+          {
+            "train_steps": 1600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.173592477131179,
+            "success_rate": 0.7329545454545454,
+            "mean_episode_return": 1034.718495426236
+          },
+          {
+            "train_steps": 1700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.016999829266539,
+            "success_rate": 0.6988636363636364,
+            "mean_episode_return": 1003.3999658533078
+          },
+          {
+            "train_steps": 1800000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.0314353861199335,
+            "success_rate": 0.6988636363636364,
+            "mean_episode_return": 1006.2870772239868
+          },
+          {
+            "train_steps": 1900000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.266481219258404,
+            "success_rate": 0.7386363636363636,
+            "mean_episode_return": 1053.2962438516809
+          },
+          {
+            "train_steps": 2000000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.37987086005932,
+            "success_rate": 0.7556818181818182,
+            "mean_episode_return": 1075.9741720118639
+          },
+          {
+            "train_steps": 2100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.232667353836612,
+            "success_rate": 0.7443181818181818,
+            "mean_episode_return": 1046.5334707673223
+          },
+          {
+            "train_steps": 2200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.168368155793927,
+            "success_rate": 0.7244318181818182,
+            "mean_episode_return": 1033.6736311587854
+          },
+          {
+            "train_steps": 2300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.201606869986128,
+            "success_rate": 0.71875,
+            "mean_episode_return": 1040.3213739972257
+          },
+          {
+            "train_steps": 2400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.239558084210014,
+            "success_rate": 0.7329545454545454,
+            "mean_episode_return": 1047.9116168420028
+          },
+          {
+            "train_steps": 2500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.278092113601877,
+            "success_rate": 0.78125,
+            "mean_episode_return": 1055.6184227203755
+          },
+          {
+            "train_steps": 2600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.294320635872689,
+            "success_rate": 0.7215909090909091,
+            "mean_episode_return": 1058.8641271745378
+          },
+          {
+            "train_steps": 2700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.8885625489460995,
+            "success_rate": 0.6988636363636364,
+            "mean_episode_return": 977.7125097892199
+          },
+          {
+            "train_steps": 2800000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.141166392379641,
+            "success_rate": 0.7159090909090909,
+            "mean_episode_return": 1028.2332784759283
+          },
+          {
+            "train_steps": 2900000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.873050365415456,
+            "success_rate": 0.7301136363636364,
+            "mean_episode_return": 974.6100730830913
+          },
+          {
+            "train_steps": 3000000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.182535587944423,
+            "success_rate": 0.7443181818181818,
+            "mean_episode_return": 1036.5071175888845
+          }
+        ]
+      },
+      {
+        "task": "spray_lite_4",
+        "training_steps": 400000,
+        "seed": 6004,
+        "target_range": [
+          0.0,
+          0.4
+        ],
+        "stopped_early": true,
+        "best_success_rate": 0.96875,
+        "best_success_step": 400000,
+        "history_sha256": "1d653df70776b50ae5f3d7a4ebd743d2f039d20d880c38aa41c018865362bbbc",
+        "summary_sha256": "ba408aaadfb2670768ff83d5be30eb8dcb5d15d32e515f0cd3d871c0b80265a6",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.5680588283994155,
+            "success_rate": 0.9232954545454546,
+            "mean_episode_return": 1113.611765679883
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.3355789707428904,
+            "success_rate": 0.8920454545454546,
+            "mean_episode_return": 1267.115794148578
+          },
+          {
+            "train_steps": 300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.693964120431352,
+            "success_rate": 0.9517045454545454,
+            "mean_episode_return": 1338.7928240862705
+          },
+          {
+            "train_steps": 400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.9668499182855035,
+            "success_rate": 0.96875,
+            "mean_episode_return": 1393.3699836571006
+          }
+        ]
+      },
+      {
+        "task": "spray_lite_5",
+        "training_steps": 2200000,
+        "seed": 6005,
+        "target_range": [
+          0.0,
+          0.4
+        ],
+        "stopped_early": true,
+        "best_success_rate": 0.9943181818181818,
+        "best_success_step": 2200000,
+        "history_sha256": "ab442204bf0dec1390120fad08451dadf14629d0293a53db316fea10141e0c1f",
+        "summary_sha256": "12bd2fff30d4bd9f23ab45c7b1f5f2f7a0505b5d17c4582a7bcf1e403fc5ef1a",
+        "points": [
+          {
+            "train_steps": 100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 2.6742190007813664,
+            "success_rate": 0.39488636363636365,
+            "mean_episode_return": 534.8438001562733
+          },
+          {
+            "train_steps": 200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.6559679945018217,
+            "success_rate": 0.44886363636363635,
+            "mean_episode_return": 731.1935989003643
+          },
+          {
+            "train_steps": 300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.7520186272358687,
+            "success_rate": 0.4659090909090909,
+            "mean_episode_return": 750.4037254471737
+          },
+          {
+            "train_steps": 400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.838131914234534,
+            "success_rate": 0.4772727272727273,
+            "mean_episode_return": 767.6263828469068
+          },
+          {
+            "train_steps": 500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.857565808904591,
+            "success_rate": 0.48579545454545453,
+            "mean_episode_return": 771.5131617809183
+          },
+          {
+            "train_steps": 600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.9398643191745073,
+            "success_rate": 0.48011363636363635,
+            "mean_episode_return": 787.9728638349014
+          },
+          {
+            "train_steps": 700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.193794497962909,
+            "success_rate": 0.5227272727272727,
+            "mean_episode_return": 838.7588995925817
+          },
+          {
+            "train_steps": 800000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.121397241743716,
+            "success_rate": 0.6278409090909091,
+            "mean_episode_return": 824.2794483487431
+          },
+          {
+            "train_steps": 900000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 3.9672428680595204,
+            "success_rate": 0.5625,
+            "mean_episode_return": 793.4485736119041
+          },
+          {
+            "train_steps": 1000000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.163651689082432,
+            "success_rate": 0.6107954545454546,
+            "mean_episode_return": 832.7303378164863
+          },
+          {
+            "train_steps": 1100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.114486757196875,
+            "success_rate": 0.5681818181818182,
+            "mean_episode_return": 822.897351439375
+          },
+          {
+            "train_steps": 1200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.146945085963822,
+            "success_rate": 0.5880681818181818,
+            "mean_episode_return": 829.3890171927644
+          },
+          {
+            "train_steps": 1300000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.499065120888693,
+            "success_rate": 0.7017045454545454,
+            "mean_episode_return": 899.8130241777385
+          },
+          {
+            "train_steps": 1400000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.62356056857403,
+            "success_rate": 0.6761363636363636,
+            "mean_episode_return": 924.712113714806
+          },
+          {
+            "train_steps": 1500000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.2379640478242075,
+            "success_rate": 0.9232954545454546,
+            "mean_episode_return": 1047.5928095648414
+          },
+          {
+            "train_steps": 1600000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.279173960736989,
+            "success_rate": 0.9034090909090909,
+            "mean_episode_return": 1055.8347921473978
+          },
+          {
+            "train_steps": 1700000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.523439389383282,
+            "success_rate": 0.9346590909090909,
+            "mean_episode_return": 1104.6878778766566
+          },
+          {
+            "train_steps": 1800000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.166858298036697,
+            "success_rate": 0.9829545454545454,
+            "mean_episode_return": 1233.3716596073393
+          },
+          {
+            "train_steps": 1900000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 4.827497897731566,
+            "success_rate": 0.7130681818181818,
+            "mean_episode_return": 965.4995795463132
+          },
+          {
+            "train_steps": 2000000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 5.20499337199117,
+            "success_rate": 0.7869318181818182,
+            "mean_episode_return": 1040.998674398234
+          },
+          {
+            "train_steps": 2100000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.388380703228432,
+            "success_rate": 0.9914772727272727,
+            "mean_episode_return": 1277.6761406456865
+          },
+          {
+            "train_steps": 2200000,
+            "validation_episodes": 352,
+            "validation_sim_steps": 70400,
+            "mean_reward_per_sim_step": 6.417208966630542,
+            "success_rate": 0.9943181818181818,
+            "mean_episode_return": 1283.4417933261086
+          }
+        ]
+      }
+    ]
+  },
   "training_protocol": {
     "cap_steps": 3000000,
     "concurrent_learners": 4,

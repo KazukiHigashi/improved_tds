@@ -1,107 +1,28 @@
-# Improved TDS
+# Improved TDS — 論文用実験リポジトリ
 
-`improved-tds`は、既知または初期化済みの把持で1-DoF関節ツールを低次元閉ループ制御する独立研究projectである。参照元`tool-dof-synergy`を変更せず、PCA/feedforward baselineを発展させる。
+この作業ツリーでは、Scissors・Push・Spray各5タスクについて、成功姿勢DBから作るPCA/PLSの1自由度TDS、FF/FB制御、および未知ツール評価の**旧・統一学習条件**を論文の主データとして採用する。高角度寄りに再学習した新Spray条件は主論文の結果に混ぜない。
 
-version付き成功軌道dataset、PCA・教師あり・family TDS推定器、単調few-shot較正、feedforward/PID/admittance controller、独立安定化synergy、力・hardware interface、および固定されたGymnasium/MuJoCo評価環境を実装している。
+## 論文成果物
 
-## セットアップ
+- [論文用統合HTML](analysis/paper_ff_fb_generalization_20261008/index.html)：方法、実験条件、グラフ、表、画像、制約、および実験・スクリプト・結果ファイルの対応表。
+- [選定済み15タスクbundle](analysis/paper15_paper_bundle_20260928/manifest.json)：採用したモデル・成功姿勢DB・TDSレポートのSHA-256を記録。
+- [統一条件の学習](runs/paper15_unified_3m_slew_20260927/manifest.json)：15タスクの元学習結果。
+- [共通9目標評価](analysis/matched_nine_goals_clipped_20261008/summary.json)：FF、未知ツール、選定4タスクのFBを共通目標で照合。
+- [研究倫理・実装監査](docs/claude_external_audit_20261008.md)：主張、情報境界、較正と評価の分割。
+- 実機用の試作コードは `scripts/real_experiment/` に保持する。実機安全性は未検証である。
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e '.[dev]'
-pytest -q
-```
-
-数値coreはCPUだけで動作し、Gymnasium、MuJoCo、SB3、GPUに依存しない。環境には`.[simulation]`、任意のSB3 SAC/TD3/DDPG+HER data生成baselineには`.[training]`を導入する。Isaac Simなどの重量級simulatorは使用しない。
-
-## 互換性と環境
-
-コピーしたMIT licenseのハサミassetはproject内で完結する。`ExpScissor1-v0`から`ExpScissor5-v0`は、HER用Dict観測と正規化14-actuator actionの契約を維持する。追加環境IDは`TDS-Trigger-v0`と`TDS-Button-v0`である。
-
-### Gymnasium環境のスコープ
-
-このリポジトリでは、既存Gymnasium環境をTDS研究の固定評価基盤として扱い、後方互換性の維持、bug修正、再現性に必要な最小限の変更だけを行う。新task、報酬設計、観測・action契約、asset、物理モデルなどの環境機能の拡充は、このリポジトリでは扱わない。環境自体の拡充は専用の環境リポジトリで実施し、安定版を依存関係または明示的なversionとして取り込む。
-
-## 初期姿勢DBの対応
-
-`tool-manip-gym`を用いるSB3学習では、`InitialPosePoolWrapper`が各episodeのreset時に
-対応するNPZから1姿勢をランダムに選び、hand actuator姿勢とhand mount変位を適用する。
-初期姿勢自体を学習する経路や、pose poolがない場合のfallbackは使用しない。
-
-`train_sb3`の既定ディレクトリは、workspace直下の
-`tool-pose-pipeline/grasps/`である。ファイル名は環境のtask、hand、variantから
-`{task}_{hand}_{variant}.npz`として決まり、NPZ内のtask、hand、variant、actuator名も
-実環境と一致しなければならない。
-
-### 標準の対応表
-
-| task | 主な環境ID | 標準の初期姿勢DB |
-| --- | --- | --- |
-| Lite scissors 1–5 | `ShadowHandLiteScissors{1-5}-v0`, `ScissorsVariant{1-5}-v0` | `tool-pose-pipeline/grasps/scissors_lite_{1-5}.npz` |
-| Shadow scissors 1–5 | `ShadowHandScissors{1-5}-v0` | `tool-pose-pipeline/grasps/scissors_shadow_{1-5}.npz` |
-| Lite slider 1–5 | `ShadowHandLiteSlider{1-5}-v0`, `SliderVariant{1-5}-v0` | `tool-pose-pipeline/grasps/slider_lite_{1-5}.npz` |
-| Shadow slider 1–5 | `ShadowHandSlider{1-5}-v0` | `tool-pose-pipeline/grasps/slider_shadow_{1-5}.npz` |
-| Lite push bottle 1–5 | `ShadowHandLitePush{1-5}-v0` | `tool-pose-pipeline/grasps/push_lite_{1-5}.npz` |
-| Lite trigger spray 1–5 | `ShadowHandLiteSpray{1-5}-v0` | `tool-pose-pipeline/grasps/spray_lite_spray{1-5}.npz` |
-| 旧pump式spray（Lite） | `ShadowHandLitePushSpray-v0` | `tool-pose-pipeline/grasps/spray_lite_push.npz` |
-| 旧pump式spray（Shadow） | `ShadowHandPushSpray-v0` | `tool-pose-pipeline/grasps/spray_shadow_push.npz` |
-
-現時点では、Shadow版push bottle 1–5に対応する`push_shadow_{1-5}.npz`と、標準
-`grasps/`内のShadow版trigger spray poolは用意されていない。該当環境を学習する場合は、
-先に対応するpoolを生成・検証すること。`ShadowHandLiteSpray{1-5}Pose-v0`はeditor出力を
-直接確認するための環境であり、pose poolを注入する学習には使用しない。
-
-### version付きpoolと実行済みrun
-
-`grasps/`が標準である一方、sprayの改善実験ではversion付きpoolを明示指定している。
-モデル評価やシナジー解析では、必ず学習時と同じpoolを使う。
-
-| run / 用途 | 使用した初期姿勢DB |
-| --- | --- |
-| `runs/tool_manip_1m` | scissors/slider Liteと旧pump式sprayに`grasps/` |
-| `runs/tool_manip_1m_10pos` | `grasps-10pos/`。過去の10姿勢実験用 |
-| `runs/push_lite_dense_reward_1m_20260811` | push1–5に`grasps/push_lite_{1-5}.npz` |
-| `runs/spray_lite_1m_reward_v2_20260814` | spray1–5に`grasps/spray_lite_spray{1-5}.npz` |
-| `runs/spray_lite_1m_reward_v3_20260815` | spray1–5に`grasps/spray_lite_spray{1-5}.npz` |
-| `runs/spray_lite_1m_convex_v4_20260815` | spray2–5に`grasps_v2/spray_lite_spray{2-5}.npz`。`grasps_v2`にはspray1がない |
-| `runs/spray_lite_1m_graspfix_v5_20260816` | spray1–5に`grasps_v3/spray_lite_spray{1-5}.npz` |
-| v5 checkpoint screening・シナジー収集・TDS評価 | 学習時と同じ`grasps_v3/` |
-
-最新のspray v5系解析では`grasps_v3/`が基準である。ただし
-`scripts/train_spray_lite_tasks.ps1`の`-PoolDir`既定値は現在も
-`tool-pose-pipeline\grasps`なので、v5条件を再現するときは明示的に指定する。
+論文HTMLは次で再生成できる（依存ライブラリ、MuJoCo環境、およびローカルに保持した元実験データが必要）。GitにはHTML・集計JSON・生成コードを記録するが、容量の大きい学習モデル、姿勢DB、画像、個別試行JSONは原則として含めない。このため、Gitのクローン単独では画像や元データへのリンクをすべて表示・再計算できない。論文提出用に図版・元データを配布する際は別途アーカイブが必要である。
 
 ```powershell
-.\scripts\train_spray_lite_tasks.ps1 `
-  -PoolDir "tool-pose-pipeline\grasps_v3" `
-  -RunName "spray_lite_1m_graspfix_v5_reproduction"
+$env:PYTHONPATH = 'src;scripts'
+python scripts/build_paper_ff_fb_generalization_report.py
+python -m pytest -p no:cacheprovider tests/test_matched_nine_protocol.py tests/test_training_reward_report.py tests/test_initial_state_gallery.py -q
 ```
 
-実行済みモデルが使用したpoolの最終的なsource of truthは、各task directoryの
-`model_training_summary.json`に保存された`pose_pool`である。directory名やREADMEの
-記載だけから推測せず、再評価前にこの値を確認する。
+## ディレクトリの扱い
 
-### 外部pose poolを使わない環境
+`analysis/` と `runs/` には、上記の論文用結果とその直接の生成元だけを残す。過去の探索、スモークテスト、高角度寄りの新Spray条件は `Obsoleted/` に元の階層を保って退避した。**削除ではない。** `Obsoleted/` は `.gitignore` でGit管理外のため、別マシンへ移す場合は別途バックアップする。退避一覧は `Obsoleted/move_manifest.json` に記録する。
 
-`TDS-Trigger-v0`、`TDS-Button-v0`、およびこのリポジトリ内蔵の
-`ExpScissor{1-5}-v0`を通常の収集・評価CLIで使う場合、初期状態は各環境実装・MJCF側で
-定義され、上記NPZは注入されない。これらと、`tool-manip-gym`環境を
-`train_sb3`で学習する経路を区別すること。
+共有ライブラリ `src/`、MuJoCo資産 `configs/`、実機用 `scripts/real_experiment/` は依存を壊さないため現位置に残す。`scripts/` は論文実験の生成・再評価・集計に関係するコードを残し、旧キャンペーンや診断用コードを `Obsoleted/scripts/` に退避した。実験ごとの残存コードと出力ファイルの対応は統合HTMLの「実験・スクリプト・結果ファイルの対応」節に記載する。
 
-```python
-import gymnasium as gym
-import improved_tds
-
-env = gym.make("TDS-Trigger-v0")
-observation, info = env.reset(seed=0)
-observation, reward, terminated, truncated, info = env.step(env.action_space.sample())
-```
-
-end-to-endのdata収集・fit commandは[`docs/experiments.md`](docs/experiments.md)、architecture調査と互換性判断は[`docs/implementation_plan_closed_loop_tds.md`](docs/implementation_plan_closed_loop_tds.md)に記載する。
-
-## 安全境界
-
-simulation既定値は実機の安全制限ではない。motor定数、sensor較正、command transport、安全制限は推測で補わない。実機統合では`HardwareAdapter`を実装し、検証済み設定と[`docs/real_robot_integration.md`](docs/real_robot_integration.md)の緊急解放・watchdog動作を維持する。
-
-ハサミassetのupstream noticeは[`src/improved_tds/assets/LICENSE.md`](src/improved_tds/assets/LICENSE.md)に保持する。
+`analysis/pytest_tds_update_20260925*` の4ディレクトリとルートの `.pytest_cache` は、現在のユーザー権限で内容の一覧も移動も拒否されるため未整理である。権限を勝手に変更・削除していない。

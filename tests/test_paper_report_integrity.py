@@ -7,9 +7,15 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 PAPER = ROOT / "analysis/paper_ff_fb_generalization_20261008"
+pytestmark = pytest.mark.skipif(
+    not (PAPER / "index.html").is_file(),
+    reason="local paper report is intentionally not tracked by Git",
+)
 
 
 class LocalLinks(HTMLParser):

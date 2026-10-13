@@ -4,14 +4,14 @@
 
 ## 論文成果物
 
-- [論文用統合HTML](analysis/paper_ff_fb_generalization_20261008/index.html)：方法、実験条件、グラフ、表、画像、制約、および実験・スクリプト・結果ファイルの対応表。
-- [選定済み15タスクbundle](analysis/paper15_paper_bundle_20260928/manifest.json)：採用したモデル・成功姿勢DB・TDSレポートのSHA-256を記録。
-- [統一条件の学習](runs/paper15_unified_3m_slew_20260927/manifest.json)：15タスクの元学習結果。
-- [共通9目標評価](analysis/matched_nine_goals_clipped_20261008/summary.json)：FF、未知ツール、選定4タスクのFBを共通目標で照合。
+- ローカルの[論文用統合HTML](analysis/paper_ff_fb_generalization_20261008/index.html)：方法、実験条件、グラフ、表、画像、制約、および実験・スクリプト・結果ファイルの対応表。
+- ローカルの[選定済み15タスクbundle](analysis/paper15_paper_bundle_20260928/manifest.json)：採用したモデル・成功姿勢DB・TDSレポートのSHA-256を記録。
+- ローカルの[統一条件の学習](runs/paper15_unified_3m_slew_20260927/manifest.json)：15タスクの元学習結果。
+- ローカルの[共通9目標評価](analysis/matched_nine_goals_clipped_20261008/summary.json)：FF、未知ツール、選定4タスクのFBを共通目標で照合。
 - [研究倫理・実装監査](docs/claude_external_audit_20261008.md)：主張、情報境界、較正と評価の分割。
 - 実機用の試作コードは `scripts/real_experiment/` に保持する。実機安全性は未検証である。
 
-論文HTMLは次で再生成できる（依存ライブラリ、MuJoCo環境、およびローカルに保持した元実験データが必要）。GitにはHTML・集計JSON・生成コードを記録するが、容量の大きい学習モデル、姿勢DB、画像、個別試行JSONは原則として含めない。このため、Gitのクローン単独では画像や元データへのリンクをすべて表示・再計算できない。論文提出用に図版・元データを配布する際は別途アーカイブが必要である。
+論文HTMLは次で再生成できる（依存ライブラリ、MuJoCo環境、およびローカルに保持した元実験データが必要）。現行のGit追跡対象は生成コード・検証コード・手続き文書のみとし、`analysis/` のHTML・JSON・画像と `runs/` の学習結果は追跡しない。したがって上記のローカル成果物リンクは、Gitのクローン単独では開けない。論文提出用に図版・元データを配布する際は別途アーカイブが必要である。なお、過去のローカルコミットに含まれた生成物の履歴は書き換えていない。
 
 ```powershell
 $env:PYTHONPATH = 'src;scripts'

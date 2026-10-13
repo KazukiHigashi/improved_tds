@@ -9,9 +9,15 @@ from statistics import mean
 import sys
 
 import numpy as np
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
+PAPER_REPORT = ROOT / "analysis/paper_ff_fb_generalization_20261008/index.html"
+MATCHED_RESULT = ROOT / "analysis/matched_nine_goals_clipped_20261008/summary.json"
+REPRESENTATIVE_MANIFEST = (
+    ROOT / "analysis/paper_ff_fb_generalization_20261008/representative_frames_nonzero/manifest.json"
+)
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "src"))
 
@@ -55,6 +61,7 @@ def test_unknown_zero_score_uses_normalized_fraction_not_physical_units():
     assert not clipped
 
 
+@pytest.mark.skipif(not MATCHED_RESULT.is_file(), reason="local result data is not tracked by Git")
 def test_mae_illustration_is_first_frozen_pose_and_matches_raw_trials():
     report = load("build_matched_nine_report")
     result = report.RESULT
@@ -73,6 +80,7 @@ def test_mae_illustration_is_first_frozen_pose_and_matches_raw_trials():
     assert "図B" in report.mae_illustration(example)
 
 
+@pytest.mark.skipif(not PAPER_REPORT.is_file(), reason="local paper HTML is not tracked by Git")
 def test_paper_report_contains_visual_guide_directly():
     page = (ROOT / "analysis" / "paper_ff_fb_generalization_20261008" / "index.html")
     text = page.read_text(encoding="utf-8")
@@ -83,6 +91,7 @@ def test_paper_report_contains_visual_guide_directly():
     assert "従来の主FFは方式ごとの逆写像可能域内で9目標" in text
 
 
+@pytest.mark.skipif(not PAPER_REPORT.is_file(), reason="local paper HTML is not tracked by Git")
 def test_paper_report_distinguishes_physical_and_db_inverse_protocols():
     page = (ROOT / "analysis" / "paper_ff_fb_generalization_20261008" / "index.html")
     text = page.read_text(encoding="utf-8")
@@ -100,6 +109,7 @@ def test_paper_report_distinguishes_physical_and_db_inverse_protocols():
     assert "再学習・再フィットなし" not in section
 
 
+@pytest.mark.skipif(not REPRESENTATIVE_MANIFEST.is_file(), reason="local report images are not tracked by Git")
 def test_paper_report_embeds_matched_results_and_closed_representative_gallery():
     page = ROOT / "analysis" / "paper_ff_fb_generalization_20261008" / "index.html"
     text = page.read_text(encoding="utf-8")
@@ -131,6 +141,7 @@ def test_paper_report_embeds_matched_results_and_closed_representative_gallery()
                    for frame in case["frames"])
 
 
+@pytest.mark.skipif(not REPRESENTATIVE_MANIFEST.is_file(), reason="local report images are not tracked by Git")
 def test_representative_ranks_are_selected_from_nonzero_evaluation_pool():
     gallery = load("render_matched_representatives")
     root = ROOT / "analysis" / "paper_ff_fb_generalization_20261008" / "representative_frames_nonzero"
@@ -146,6 +157,7 @@ def test_representative_ranks_are_selected_from_nonzero_evaluation_pool():
         assert np.isclose(saved["error_percent"], case["error_percent"])
 
 
+@pytest.mark.skipif(not PAPER_REPORT.is_file(), reason="local paper HTML is not tracked by Git")
 def test_paper_report_shows_all_source_verified_hand_only_synergy_sweeps():
     page = ROOT / "analysis" / "paper_ff_fb_generalization_20261008" / "index.html"
     text = page.read_text(encoding="utf-8")

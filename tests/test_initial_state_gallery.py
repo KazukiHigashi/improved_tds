@@ -6,9 +6,15 @@ import json
 import re
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "analysis/paper_ff_fb_generalization_20261008"
+pytestmark = pytest.mark.skipif(
+    not (REPORT / "index.html").is_file(),
+    reason="local paper report is intentionally not tracked by Git",
+)
 
 
 def test_all_initial_states_are_paired_and_source_verified() -> None:

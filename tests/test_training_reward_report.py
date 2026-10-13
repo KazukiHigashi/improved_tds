@@ -6,9 +6,15 @@ import json
 import math
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "analysis/paper_ff_fb_generalization_20261008"
+pytestmark = pytest.mark.skipif(
+    not (REPORT / "training_reward_history.json").is_file(),
+    reason="local training results are intentionally not tracked by Git",
+)
 
 
 def test_training_curves_are_all_real_validation_series() -> None:
@@ -29,6 +35,10 @@ def test_training_curves_are_all_real_validation_series() -> None:
                    for point in task["points"])
 
 
+@pytest.mark.skipif(
+    not (ROOT / "runs/paper15_unified_3m_slew_20260927/scissors_lite_1/validation_history.json").is_file(),
+    reason="local training history is intentionally not tracked by Git",
+)
 def test_validation_reward_is_step_weighted_not_episode_sum() -> None:
     task = "scissors_lite_1"
     recorded = json.loads((ROOT / "runs/paper15_unified_3m_slew_20260927" /
